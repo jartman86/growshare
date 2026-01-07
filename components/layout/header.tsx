@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils'
 
 const navigation = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboardIcon },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
   { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpenIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
@@ -61,28 +62,14 @@ export function Header() {
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             {isSignedIn ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className={cn(
-                    'hidden sm:flex items-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    pathname.startsWith('/dashboard')
-                      ? 'bg-green-50 text-green-700'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                  )}
-                >
-                  <LayoutDashboardIcon className="h-4 w-4" />
-                  <span>Dashboard</span>
-                </Link>
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: 'h-9 w-9'
-                    }
-                  }}
-                />
-              </>
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: 'h-9 w-9'
+                  }
+                }}
+              />
             ) : (
               <>
                 <SignInButton mode="modal">
@@ -124,20 +111,6 @@ export function Header() {
               </Link>
             )
           })}
-          {isSignedIn && (
-            <Link
-              href="/dashboard"
-              className={cn(
-                'flex flex-col items-center space-y-1 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
-                pathname.startsWith('/dashboard')
-                  ? 'text-green-700'
-                  : 'text-gray-600 hover:text-gray-900'
-              )}
-            >
-              <LayoutDashboardIcon className="h-5 w-5" />
-              <span>Dashboard</span>
-            </Link>
-          )}
         </div>
       </div>
     </header>
