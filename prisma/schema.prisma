@@ -1,0 +1,686 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+enum UserRole {
+  LANDOWNER
+  RENTER
+  BUYER
+  ORGANIZATION
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+model User {
+  id                String      @id @default(cuid())
+  clerkId           String      @unique
+  email             String      @unique
+  firstName         String
+  lastName          String
+  phoneNumber       String?
+  avatar            String?
+  bio               String?
+  role              UserRole[]  @default([RENTER])
+  status            UserStatus  @default(ACTIVE)
+
+  // Verification
+  isVerified        Boolean     @default(false)
+  verifiedAt        DateTime?
+
+  // Gamification
+  totalPoints       Int         @default(0)
+  level             Int         @default(1)
+
+  // Preferences
+  preferredLanguage String      @default("en")
+  timezone          String      @default("America/New_York")
+
+  // Timestamps
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  lastLoginAt       DateTime?
+
+  // Relations
+  ownedPlots        Plot[]              @relation("PlotOwner")
+  rentedPlots       Booking[]           @relation("PlotRenter")
+  cropJournals      CropJournal[]
+  userBadges        UserBadge[]
+  courseProgress    CourseProgress[]
+  sentMessages      Message[]           @relation("MessageSender")
+  receivedMessages  Message[]           @relation("MessageReceiver")
+  reviews           Review[]            @relation("ReviewAuthor")
+  receivedReviews   Review[]            @relation("ReviewSubject")
+  produceListings   ProduceListing[]
+  orders            Order[]
+  activities        UserActivity[]
+
+  @@index([clerkId])
+  @@index([email])
+  @@index([status])
+}
+
+// ============================================
+// LAND & PLOT MANAGEMENT
+// ============================================
+
+enum PlotStatus {
+  DRAFT
+  ACTIVE
+  RENTED
+  INACTIVE
+  ARCHIVED
+}
+
+enum SoilType {
+  CLAY
+  SANDY
+  LOAM
+  SILT
+  PEAT
+  CHALK
+}
+
+enum WaterAccess {
+  NONE
+  WELL
+  MUNICIPAL
+  POND
+  STREAM
+  IRRIGATION
+}
+
+model Plot {
+  id                String        @id @default(cuid())
+  ownerId           String
+  owner             User          @relation("PlotOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Basic Info
+  title             String
+  description       String
+  status            PlotStatus    @default(DRAFT)
+
+  // Location
+  address           String
+  city              String
+  state             String
+  zipCode           String
+  county            String?
+  latitude          Float
+  longitude         Float
+
+  // Plot Details
+  acreage           Float
+  soilType          SoilType[]
+  soilPH            Float?
+  waterAccess       WaterAccess[]
+  usdaZone          String?
+  sunExposure       String?       // full, partial, shade
+
+  // Features
+  hasFencing        Boolean       @default(false)
+  hasGreenhouse     Boolean       @default(false)
+  hasToolStorage    Boolean       @default(false)
+  hasElectricity    Boolean       @default(false)
+  hasRoadAccess     Boolean       @default(false)
+  hasIrrigation     Boolean       @default(false)
+  isADAAccessible   Boolean       @default(false)
+
+  // Additional Details
+  allowsLivestock   Boolean       @default(false)
+  allowsStructures  Boolean       @default(false)
+  restrictions      String?
+
+  // Pricing
+  pricePerMonth     Float
+  pricePerSeason    Float?
+  pricePerYear      Float?
+  securityDeposit   Float?
+
+  // Booking
+  instantBook       Boolean       @default(false)
+  minimumLease      Int           @default(3)  // months
+
+  // Media
+  images            String[]
+  droneFootageUrl   String?
+  virtualTourUrl    String?
+
+  // Stats
+  viewCount         Int           @default(0)
+  bookingCount      Int           @default(0)
+  averageRating     Float?
+
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  publishedAt       DateTime?
+
+  // Relations
+  bookings          Booking[]
+  amenities         PlotAmenity[]
+  soilTests         SoilTest[]
+  reviews           Review[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([city, state])
+  @@index([latitude, longitude])
+}
+
+model PlotAmenity {
+  id          String   @id @default(cuid())
+  plotId      String
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float?   // Optional add-on price
+  createdAt   DateTime @default(now())
+
+  @@index([plotId])
+}
+
+model SoilTest {
+  id          String   @id @default(cuid())
+  plotId      String
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  testDate    DateTime
+  pH          Float?
+  nitrogen    Float?
+  phosphorus  Float?
+  potassium   Float?
+  organicMatter Float?
+  results     Json?    // Full test results
+  pdfUrl      String?
+  createdAt   DateTime @default(now())
+
+  @@index([plotId])
+}
+
+// ============================================
+// BOOKING & RENTAL MANAGEMENT
+// ============================================
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  plotId          String
+  plot            Plot          @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  renterId        String
+  renter          User          @relation("PlotRenter", fields: [renterId], references: [id], onDelete: Cascade)
+
+  status          BookingStatus @default(PENDING)
+
+  // Dates
+  startDate       DateTime
+  endDate         DateTime
+
+  // Pricing
+  monthlyRate     Float
+  totalAmount     Float
+  securityDeposit Float?
+
+  // Payment
+  stripePaymentId String?
+  paidAt          DateTime?
+
+  // Agreement
+  leaseUrl        String?
+  signedAt        DateTime?
+
+  // Check-in/out
+  checkedInAt     DateTime?
+  checkedOutAt    DateTime?
+
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  cancelledAt     DateTime?
+
+  // Relations
+  messages        Message[]
+
+  @@index([plotId])
+  @@index([renterId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+// ============================================
+// GAMIFICATION SYSTEM
+// ============================================
+
+enum BadgeCategory {
+  MILESTONE
+  SKILL
+  COMMUNITY
+  PRODUCTION
+  STEWARDSHIP
+}
+
+enum BadgeTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+model Badge {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String
+  category    BadgeCategory
+  tier        BadgeTier     @default(BRONZE)
+  icon        String
+  points      Int           @default(0)
+  criteria    Json          // JSON describing how to earn this badge
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+
+  // Relations
+  userBadges  UserBadge[]
+
+  @@index([category])
+}
+
+model UserBadge {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId     String
+  badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  earnedAt    DateTime @default(now())
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+}
+
+enum ActivityType {
+  PLOT_LISTED
+  PLOT_RENTED
+  FIRST_HARVEST
+  JOURNAL_ENTRY
+  COURSE_COMPLETED
+  BADGE_EARNED
+  REVIEW_RECEIVED
+  PRODUCE_SOLD
+  MILESTONE_REACHED
+}
+
+model UserActivity {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        ActivityType
+  title       String
+  description String?
+  points      Int          @default(0)
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ============================================
+// CROP JOURNAL & FARMING TRACKING
+// ============================================
+
+enum CropStage {
+  PLANNING
+  PLANTED
+  GERMINATED
+  GROWING
+  FLOWERING
+  FRUITING
+  HARVESTING
+  COMPLETED
+}
+
+model CropJournal {
+  id              String     @id @default(cuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Crop Info
+  cropName        String
+  variety         String?
+  plantedDate     DateTime?
+  expectedHarvest DateTime?
+  stage           CropStage  @default(PLANNING)
+
+  // Journal Entry
+  title           String
+  content         String
+  images          String[]
+
+  // Tracking
+  plantCount      Int?
+  areaUsed        Float?     // square feet
+
+  // Timestamps
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  harvests        Harvest[]
+
+  @@index([userId])
+  @@index([stage])
+}
+
+model Harvest {
+  id              String      @id @default(cuid())
+  cropJournalId   String
+  cropJournal     CropJournal @relation(fields: [cropJournalId], references: [id], onDelete: Cascade)
+
+  harvestDate     DateTime
+  quantity        Float       // in pounds
+  quality         String?     // excellent, good, fair, poor
+  notes           String?
+
+  createdAt       DateTime    @default(now())
+
+  @@index([cropJournalId])
+  @@index([harvestDate])
+}
+
+// ============================================
+// KNOWLEDGE HUB & EDUCATION
+// ============================================
+
+enum CourseCategory {
+  SOIL_SCIENCE
+  CROP_GUIDES
+  PEST_MANAGEMENT
+  FARMING_METHODS
+  ANIMAL_HUSBANDRY
+  BUSINESS_LEGAL
+  CLIMATE_ADAPTATION
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model Course {
+  id              String          @id @default(cuid())
+  title           String
+  description     String
+  category        CourseCategory
+  level           CourseLevel     @default(BEGINNER)
+
+  // Content
+  thumbnailUrl    String?
+  duration        Int?            // minutes
+  pointsAwarded   Int             @default(0)
+
+  // Certification
+  isCertification Boolean         @default(false)
+  certificateName String?
+
+  isPublished     Boolean         @default(false)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  modules         CourseModule[]
+  progress        CourseProgress[]
+
+  @@index([category])
+  @@index([isPublished])
+}
+
+model CourseModule {
+  id          String   @id @default(cuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  content     String   // Markdown or HTML
+  videoUrl    String?
+  order       Int
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model CourseProgress {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  progressPercent Int       @default(0)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+// ============================================
+// MESSAGING SYSTEM
+// ============================================
+
+model Message {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId  String
+  receiver    User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  bookingId   String?
+  booking     Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  subject     String?
+  content     String
+
+  isRead      Boolean  @default(false)
+  readAt      DateTime?
+
+  createdAt   DateTime @default(now())
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([bookingId])
+  @@index([createdAt])
+}
+
+// ============================================
+// REVIEW & RATING SYSTEM
+// ============================================
+
+enum ReviewType {
+  PLOT
+  USER
+}
+
+model Review {
+  id          String     @id @default(cuid())
+  type        ReviewType
+
+  authorId    String
+  author      User       @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  // For Plot Reviews
+  plotId      String?
+  plot        Plot?      @relation(fields: [plotId], references: [id], onDelete: Cascade)
+
+  // For User Reviews
+  subjectId   String?
+  subject     User?      @relation("ReviewSubject", fields: [subjectId], references: [id], onDelete: Cascade)
+
+  rating      Int        // 1-5
+  title       String?
+  content     String
+
+  // Response
+  response    String?
+  respondedAt DateTime?
+
+  isPublic    Boolean    @default(true)
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([authorId])
+  @@index([plotId])
+  @@index([subjectId])
+  @@index([type])
+}
+
+// ============================================
+// CO-OP MARKETPLACE / TRADING POST
+// ============================================
+
+enum ProduceStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  UNAVAILABLE
+}
+
+enum DeliveryMethod {
+  PICKUP
+  DELIVERY
+  CENTRAL_DROP
+}
+
+model ProduceListing {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Product Info
+  productName     String
+  variety         String?
+  description     String
+  category        String          // vegetables, fruits, herbs, etc.
+
+  // Quantity & Pricing
+  quantity        Float           // in pounds
+  unit            String          @default("lb")
+  pricePerUnit    Float
+
+  // Availability
+  status          ProduceStatus   @default(AVAILABLE)
+  availableDate   DateTime
+  expiresDate     DateTime?
+
+  // Delivery
+  deliveryMethods DeliveryMethod[]
+  pickupLocation  String?
+  deliveryRadius  Int?            // miles
+
+  // Media
+  images          String[]
+
+  // Organic/Certification
+  isOrganic       Boolean         @default(false)
+  isCertified     Boolean         @default(false)
+  certifications  String[]
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  orders          Order[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([category])
+  @@index([availableDate])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  listingId       String
+  listing         ProduceListing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId         String
+  buyer           User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  quantity        Float
+  totalPrice      Float
+
+  status          OrderStatus     @default(PENDING)
+  deliveryMethod  DeliveryMethod
+  deliveryAddress String?
+
+  // Payment
+  stripePaymentId String?
+  paidAt          DateTime?
+
+  // Fulfillment
+  readyAt         DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+
+  notes           String?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([listingId])
+  @@index([buyerId])
+  @@index([status])
+}
+
+// ============================================
+// SYSTEM & CONFIGURATION
+// ============================================
+
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  description String?
+  updatedAt   DateTime @updatedAt
+}
