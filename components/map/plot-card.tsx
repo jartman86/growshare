@@ -22,11 +22,11 @@ export function PlotCard({ plot, onClick, isSelected }: PlotCardProps) {
     >
       {/* Image */}
       <div className="relative aspect-video w-full overflow-hidden rounded-lg mb-3">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={plot.images[0] || '/placeholder-farm.jpg'}
           alt={plot.title}
-          fill
-          className="object-cover transition-transform group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform group-hover:scale-105"
         />
 
         {/* Status Badge */}
