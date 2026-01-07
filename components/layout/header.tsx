@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 
 const navigation = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboardIcon },
+  { name: 'Dashboard', href: '/dashboard', icon: Sprout },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
   { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpenIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
