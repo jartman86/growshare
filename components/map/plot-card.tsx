@@ -2,7 +2,6 @@
 
 import { PlotMarker } from '@/lib/types'
 import { MapPin, Droplet, CheckCircle, Star, Navigation } from 'lucide-react'
-import Image from 'next/image'
 import { cn, formatCurrency } from '@/lib/utils'
 
 interface PlotCardProps {
