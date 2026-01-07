@@ -1,0 +1,184 @@
+'use client'
+
+import { useRef, useEffect, useState } from 'react'
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
+import { PlotMarker } from '@/lib/types'
+
+interface MapProps {
+  plots: PlotMarker[]
+  onPlotClick?: (plot: PlotMarker) => void
+  selectedPlotId?: string | null
+  center?: [number, number]
+  zoom?: number
+}
+
+export function Map({ plots, onPlotClick, selectedPlotId, center = [-82.5515, 35.5951], zoom = 10 }: MapProps) {
+  const mapContainer = useRef<HTMLDivElement>(null)
+  const map = useRef<mapboxgl.Map | null>(null)
+  const markers = useRef<mapboxgl.Marker[]>([])
+  const [mapLoaded, setMapLoaded] = useState(false)
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return
+
+    const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
+
+    if (!mapboxToken || mapboxToken === 'your_mapbox_access_token') {
+      console.warn('Mapbox token not configured. Using fallback view.')
+      return
+    }
+
+    mapboxgl.accessToken = mapboxToken
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/outdoors-v12',
+      center: center,
+      zoom: zoom,
+      pitch: 45,
+    })
+
+    // Add navigation controls
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
+
+    // Add fullscreen control
+    map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right')
+
+    map.current.on('load', () => {
+      setMapLoaded(true)
+    })
+
+    return () => {
+      map.current?.remove()
+      map.current = null
+    }
+  }, [center, zoom])
+
+  // Update markers when plots change
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return
+
+    // Remove existing markers
+    markers.current.forEach(marker => marker.remove())
+    markers.current = []
+
+    // Add new markers
+    plots.forEach(plot => {
+      const el = document.createElement('div')
+      el.className = 'plot-marker'
+      el.style.width = '40px'
+      el.style.height = '40px'
+      el.style.cursor = 'pointer'
+
+      // Status-based colors
+      const color = plot.status === 'ACTIVE'
+        ? '#16a34a' // green-600
+        : plot.status === 'RENTED'
+        ? '#2563eb' // blue-600
+        : '#6b7280' // gray-500
+
+      el.innerHTML = `
+        <div style="
+          background-color: ${color};
+          width: 100%;
+          height: 100%;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          border: 3px solid white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          ${selectedPlotId === plot.id ? 'transform: rotate(-45deg) scale(1.2);' : ''}
+        ">
+          <span style="
+            transform: rotate(45deg);
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+          ">
+            ${plot.acreage}
+          </span>
+        </div>
+      `
+
+      el.addEventListener('click', () => {
+        if (onPlotClick) {
+          onPlotClick(plot)
+        }
+      })
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([plot.longitude, plot.latitude])
+        .setPopup(
+          new mapboxgl.Popup({ offset: 25 })
+            .setHTML(`
+              <div style="padding: 8px;">
+                <h3 style="font-weight: bold; margin-bottom: 4px;">${plot.title}</h3>
+                <p style="color: #666; font-size: 14px;">${plot.acreage} acres • $${plot.pricePerMonth}/mo</p>
+              </div>
+            `)
+        )
+        .addTo(map.current!)
+
+      markers.current.push(marker)
+    })
+  }, [plots, mapLoaded, selectedPlotId, onPlotClick])
+
+  // Fly to selected plot
+  useEffect(() => {
+    if (!map.current || !selectedPlotId || !mapLoaded) return
+
+    const selectedPlot = plots.find(p => p.id === selectedPlotId)
+    if (selectedPlot) {
+      map.current.flyTo({
+        center: [selectedPlot.longitude, selectedPlot.latitude],
+        zoom: 14,
+        essential: true,
+        duration: 1500,
+      })
+    }
+  }, [selectedPlotId, plots, mapLoaded])
+
+  return (
+    <div className="relative w-full h-full">
+      <div ref={mapContainer} className="w-full h-full rounded-lg" />
+
+      {(!process.env.NEXT_PUBLIC_MAPBOX_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_TOKEN === 'your_mapbox_access_token') && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+          <div className="text-center p-8 max-w-md">
+            <div className="text-6xl mb-4">🗺️</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Map View</h3>
+            <p className="text-gray-600 mb-4">
+              Configure your Mapbox token in <code className="bg-gray-200 px-2 py-1 rounded">.env.local</code> to enable the interactive map.
+            </p>
+            <p className="text-sm text-gray-500">
+              Get a free token at <a href="https://mapbox.com" target="_blank" className="text-green-600 hover:underline">mapbox.com</a>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Legend */}
+      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4">
+        <h4 className="text-sm font-semibold text-gray-900 mb-2">Plot Status</h4>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-green-600 rounded-full"></div>
+            <span className="text-sm text-gray-700">Available</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
+            <span className="text-sm text-gray-700">Rented</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-gray-500 rounded-full"></div>
+            <span className="text-sm text-gray-700">Inactive</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
