@@ -36,7 +36,7 @@ export function Header() {
           </Link>
 
           {/* Main Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-1">
+          <div className="flex items-center space-x-1">
             {navigation.map((item) => {
               const Icon = item.icon
               const isActive = pathname.startsWith(item.href)
