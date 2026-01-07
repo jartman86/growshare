@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const navigation = [
+const navigationItems2025 = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
   { name: 'Dashboard', href: '/dashboard', icon: Sprout },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
@@ -25,7 +25,8 @@ export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
 
-  console.log('Navigation array:', navigation)
+  console.log('Navigation array 2025:', navigationItems2025)
+  console.log('HEADER UPDATED - VERSION 2025')
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -39,7 +40,7 @@ export function Header() {
 
           {/* Main Navigation */}
           <div className="flex items-center space-x-1">
-            {navigation.map((item) => {
+            {navigationItems2025.map((item) => {
               const Icon = item.icon
               const isActive = pathname.startsWith(item.href)
 
@@ -93,7 +94,7 @@ export function Header() {
       {/* Mobile Navigation */}
       <div className="border-t border-gray-200 md:hidden">
         <div className="flex items-center justify-around py-2">
-          {navigation.map((item) => {
+          {navigationItems2025.map((item) => {
             const Icon = item.icon
             const isActive = pathname.startsWith(item.href)
 
