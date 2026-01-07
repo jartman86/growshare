@@ -112,7 +112,7 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
         {selectedPlot && (
           <p className="mt-2 text-sm text-gray-600 flex items-center gap-2">
             <Sprout className="h-4 w-4" />
-            {selectedPlot.address.city}, {selectedPlot.address.state}
+            {selectedPlot.city}, {selectedPlot.state}
           </p>
         )}
       </div>
