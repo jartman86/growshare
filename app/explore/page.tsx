@@ -185,7 +185,7 @@ export default function ExplorePage() {
                   <PlotCard
                     key={plot.id}
                     plot={plot}
-                    onClick={() => handlePlotClick(plot)}
+                    showLink={true}
                     isSelected={selectedPlotId === plot.id}
                   />
                 ))}

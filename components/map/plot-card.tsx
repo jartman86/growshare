@@ -3,15 +3,17 @@
 import { PlotMarker } from '@/lib/types'
 import { MapPin, Droplet, CheckCircle, Star, Navigation } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
+import Link from 'next/link'
 
 interface PlotCardProps {
   plot: PlotMarker
   onClick?: () => void
   isSelected?: boolean
+  showLink?: boolean
 }
 
-export function PlotCard({ plot, onClick, isSelected }: PlotCardProps) {
-  return (
+export function PlotCard({ plot, onClick, isSelected, showLink = false }: PlotCardProps) {
+  const CardContent = (
     <div
       onClick={onClick}
       className={cn(
@@ -112,4 +114,14 @@ export function PlotCard({ plot, onClick, isSelected }: PlotCardProps) {
       </div>
     </div>
   )
+
+  if (showLink) {
+    return (
+      <Link href={`/explore/${plot.id}`} className="block">
+        {CardContent}
+      </Link>
+    )
+  }
+
+  return CardContent
 }
