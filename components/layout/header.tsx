@@ -25,6 +25,8 @@ export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
 
+  console.log('Navigation array:', navigation)
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
