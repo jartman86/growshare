@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight, MapIcon, Users, BookOpen, ShoppingBag, Award, TrendingUp } from 'lucide-react'
-import { Header } from '@/components/layout/header-new'
+import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
 export default function HomePage() {

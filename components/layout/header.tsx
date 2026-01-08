@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 
 const navigationItems2025 = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
-  { name: 'Dashboard', href: '/dashboard', icon: Sprout },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboardIcon },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
   { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpenIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
@@ -25,9 +25,6 @@ export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
 
-  console.log('Navigation array 2025:', navigationItems2025)
-  console.log('HEADER UPDATED - VERSION 2025')
-
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -35,7 +32,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Sprout className="h-8 w-8 text-green-600" />
-            <span className="text-xl font-bold text-gray-900">GrowShare 🌱</span>
+            <span className="text-xl font-bold text-gray-900">GrowShare</span>
           </Link>
 
           {/* Main Navigation */}
