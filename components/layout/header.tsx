@@ -9,7 +9,8 @@ import {
   BookOpenIcon,
   MessageSquareIcon,
   LayoutDashboardIcon,
-  Sprout
+  Sprout,
+  TrophyIcon
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -19,6 +20,7 @@ const navigationItems2025 = [
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
   { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpenIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
+  { name: 'Leaderboard', href: '/leaderboard', icon: TrophyIcon },
 ]
 
 export function Header() {
