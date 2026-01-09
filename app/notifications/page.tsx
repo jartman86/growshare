@@ -258,7 +258,7 @@ export default function NotificationsPage() {
                 <p className="text-gray-600">
                   {filterType === 'unread'
                     ? 'You have no unread notifications'
-                    : 'We'll notify you when something happens'}
+                    : "We'll notify you when something happens"}
                 </p>
               </div>
             )}
