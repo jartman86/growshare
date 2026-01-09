@@ -10,7 +10,8 @@ import {
   MessageSquareIcon,
   LayoutDashboardIcon,
   Sprout,
-  TrophyIcon
+  TrophyIcon,
+  WrenchIcon
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -18,6 +19,7 @@ const navigationItems2025 = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboardIcon },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
+  { name: 'Tools', href: '/tools', icon: WrenchIcon },
   { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpenIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
   { name: 'Leaderboard', href: '/leaderboard', icon: TrophyIcon },
