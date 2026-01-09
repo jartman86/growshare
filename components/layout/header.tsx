@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'
@@ -11,9 +12,12 @@ import {
   LayoutDashboardIcon,
   Sprout,
   TrophyIcon,
-  WrenchIcon
+  WrenchIcon,
+  Bell,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
+import { SAMPLE_NOTIFICATIONS, getUnreadCount } from '@/lib/notifications-data'
 
 const navigationItems2025 = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
@@ -28,6 +32,8 @@ const navigationItems2025 = [
 export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
+  const [showNotifications, setShowNotifications] = useState(false)
+  const unreadCount = getUnreadCount(SAMPLE_NOTIFICATIONS)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -66,14 +72,39 @@ export function Header() {
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             {isSignedIn ? (
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: 'h-9 w-9'
-                  }
-                }}
-              />
+              <>
+                {/* Notification Bell */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <Bell className="h-5 w-5 text-gray-700" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notification Dropdown */}
+                  {showNotifications && (
+                    <NotificationDropdown
+                      notifications={SAMPLE_NOTIFICATIONS}
+                      onClose={() => setShowNotifications(false)}
+                    />
+                  )}
+                </div>
+
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: 'h-9 w-9'
+                    }
+                  }}
+                />
+              </>
             ) : (
               <>
                 <SignInButton mode="modal">
