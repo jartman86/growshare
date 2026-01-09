@@ -217,63 +217,111 @@ export default async function ToolDetailPage({
 
             {/* Right Column - Rental Card & Owner */}
             <div className="lg:col-span-1 space-y-6">
-              {/* Rental Card */}
+              {/* Pricing Card */}
               <div className="bg-white rounded-xl border p-6 sticky top-20">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Rental Information</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">
+                  {tool.listingType === 'sale' ? 'Purchase Information' :
+                   tool.listingType === 'both' ? 'Pricing & Availability' :
+                   'Rental Information'}
+                </h3>
 
-                {/* Pricing */}
-                <div className="mb-6">
-                  {tool.dailyRate === 0 ? (
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600 mb-1">Free to Borrow</div>
-                      <p className="text-sm text-gray-600">Just pay ${tool.depositRequired} deposit</p>
+                {/* Sale Price */}
+                {(tool.listingType === 'sale' || tool.listingType === 'both') && tool.salePrice && (
+                  <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="text-sm text-gray-600 mb-2">
+                      {tool.listingType === 'both' ? 'Purchase Price' : 'Price'}
                     </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="flex items-baseline justify-between">
-                        <span className="text-gray-600">Daily Rate</span>
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-5 w-5 text-orange-600" />
-                          <span className="text-2xl font-bold text-gray-900">{tool.dailyRate}</span>
-                        </div>
+                    <div className="flex items-baseline gap-1">
+                      <DollarSign className="h-6 w-6 text-purple-600" />
+                      <span className="text-3xl font-bold text-gray-900">{tool.salePrice}</span>
+                    </div>
+                    {tool.priceNegotiable && (
+                      <p className="text-sm text-gray-600 mt-2">Price is negotiable</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Rental Pricing */}
+                {(tool.listingType === 'rent' || tool.listingType === 'both') && (
+                  <div className="mb-6">
+                    {tool.listingType === 'both' && (
+                      <div className="text-sm text-gray-600 mb-2">Or Rent:</div>
+                    )}
+                    {tool.dailyRate === 0 ? (
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <div className="text-2xl font-bold text-blue-600 mb-1">Free to Borrow</div>
+                        <p className="text-sm text-gray-600">Just pay ${tool.depositRequired} deposit</p>
                       </div>
-                      {tool.weeklyRate && (
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-gray-600">Daily Rate</span>
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="h-5 w-5 text-orange-600" />
+                            <span className="text-2xl font-bold text-gray-900">{tool.dailyRate}</span>
+                          </div>
+                        </div>
+                        {tool.weeklyRate && (
+                          <div className="flex items-baseline justify-between text-sm">
+                            <span className="text-gray-600">Weekly Rate</span>
+                            <span className="font-semibold text-gray-900">${weekCost}</span>
+                          </div>
+                        )}
                         <div className="flex items-baseline justify-between text-sm">
-                          <span className="text-gray-600">Weekly Rate</span>
-                          <span className="font-semibold text-gray-900">${weekCost}</span>
+                          <span className="text-gray-600">Monthly (30 days)</span>
+                          <span className="font-semibold text-gray-900">${monthCost}</span>
                         </div>
-                      )}
-                      <div className="flex items-baseline justify-between text-sm">
-                        <span className="text-gray-600">Monthly (30 days)</span>
-                        <span className="font-semibold text-gray-900">${monthCost}</span>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Rental Terms */}
-                <div className="space-y-3 mb-6 p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Shield className="h-4 w-4" />
-                      <span>Deposit Required</span>
+                {(tool.listingType === 'rent' || tool.listingType === 'both') && tool.depositRequired && (
+                  <div className="space-y-3 mb-6 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Shield className="h-4 w-4" />
+                        <span>Deposit Required</span>
+                      </div>
+                      <span className="font-semibold text-gray-900">${tool.depositRequired}</span>
                     </div>
-                    <span className="font-semibold text-gray-900">${tool.depositRequired}</span>
+                    {tool.maxRentalDays && (
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Clock className="h-4 w-4" />
+                          <span>Max Rental</span>
+                        </div>
+                        <span className="font-semibold text-gray-900">{tool.maxRentalDays} days</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Clock className="h-4 w-4" />
-                      <span>Max Rental</span>
-                    </div>
-                    <span className="font-semibold text-gray-900">{tool.maxRentalDays} days</span>
-                  </div>
-                </div>
+                )}
 
-                {/* CTA */}
+                {/* CTA Buttons */}
                 {tool.status === 'available' ? (
-                  <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors mb-3">
-                    Request to Rent
-                  </button>
+                  <div className="space-y-3">
+                    {tool.listingType === 'sale' && (
+                      <button className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                        Buy Now
+                      </button>
+                    )}
+                    {tool.listingType === 'rent' && (
+                      <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                        Request to Rent
+                      </button>
+                    )}
+                    {tool.listingType === 'both' && (
+                      <>
+                        <button className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                          Buy Now - ${tool.salePrice}
+                        </button>
+                        <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                          Rent - ${tool.dailyRate}/day
+                        </button>
+                      </>
+                    )}
+                  </div>
                 ) : tool.status === 'rented' && tool.nextAvailable ? (
                   <div>
                     <div className="p-3 bg-gray-100 rounded-lg text-center mb-3">
@@ -290,13 +338,17 @@ export default async function ToolDetailPage({
                       Reserve for Next
                     </button>
                   </div>
+                ) : tool.status === 'sold' ? (
+                  <button className="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed mb-3" disabled>
+                    Sold
+                  </button>
                 ) : (
                   <button className="w-full bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed mb-3" disabled>
                     Currently Unavailable
                   </button>
                 )}
 
-                <button className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                <button className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 mt-3">
                   <MessageSquare className="h-5 w-5" />
                   Message Owner
                 </button>

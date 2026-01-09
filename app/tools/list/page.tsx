@@ -40,6 +40,9 @@ export default function ListToolPage() {
     specifications: '',
     instructions: '',
     pickupNotes: '',
+    listingType: '',
+    salePrice: '',
+    priceNegotiable: false,
     dailyRate: '',
     weeklyRate: '',
     depositRequired: '',
@@ -311,12 +314,80 @@ export default function ListToolPage() {
               </div>
             </div>
 
-            {/* Rental Terms */}
+            {/* Listing Type & Pricing */}
             <div className="bg-white rounded-xl border p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Rental Terms</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Listing Type & Pricing</h2>
 
               <div className="space-y-6">
-                {/* Free Option */}
+                {/* Listing Type Selection */}
+                <div>
+                  <label htmlFor="listingType" className="block text-sm font-medium text-gray-700 mb-2">
+                    Listing Type *
+                  </label>
+                  <select
+                    id="listingType"
+                    name="listingType"
+                    required
+                    value={formData.listingType}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  >
+                    <option value="">Select listing type</option>
+                    <option value="rent">For Rent</option>
+                    <option value="sale">For Sale</option>
+                    <option value="both">Rent or Buy</option>
+                  </select>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Choose whether you want to rent, sell, or offer both options for this tool
+                  </p>
+                </div>
+
+                {/* Sale Price (if for sale or both) */}
+                {(formData.listingType === 'sale' || formData.listingType === 'both') && (
+                  <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4">
+                    <h3 className="font-semibold text-gray-900">Sale Information</h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <label htmlFor="salePrice" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-purple-600" />
+                          Sale Price *
+                        </label>
+                        <input
+                          type="number"
+                          id="salePrice"
+                          name="salePrice"
+                          required={formData.listingType === 'sale' || formData.listingType === 'both'}
+                          value={formData.salePrice}
+                          onChange={handleInputChange}
+                          min="0"
+                          step="0.01"
+                          placeholder="150.00"
+                          className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="priceNegotiable"
+                            checked={formData.priceNegotiable}
+                            onChange={handleInputChange}
+                            className="h-5 w-5 text-purple-600 rounded focus:ring-2 focus:ring-purple-500"
+                          />
+                          <span className="text-sm font-medium text-gray-700">Price is negotiable</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Rental Options (if for rent or both) */}
+                {(formData.listingType === 'rent' || formData.listingType === 'both') && (
+                  <>
+                    {formData.listingType === 'both' && (
+                      <h3 className="font-semibold text-gray-900 mt-6">Rental Information</h3>
+                    )}
+                    {/* Free Option */}
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
@@ -420,15 +491,30 @@ export default function ListToolPage() {
                   </div>
                 </div>
 
+                  </>
+                )}
+
+                {/* Pricing Tips */}
                 <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
                   <Info className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-gray-700">
                     <p className="font-semibold text-gray-900 mb-1">Pricing Tips</p>
                     <ul className="list-disc list-inside space-y-1">
-                      <li>Research similar tools to set competitive rates</li>
-                      <li>Consider the tool's purchase price and wear</li>
-                      <li>Factor in cleaning and maintenance time</li>
-                      <li>Weekly rates are typically 4-5x daily rate</li>
+                      {formData.listingType === 'sale' || formData.listingType === 'both' ? (
+                        <>
+                          <li>Research similar used tools online for fair pricing</li>
+                          <li>Consider condition, age, and original purchase price</li>
+                          <li>Include all accessories and original packaging if available</li>
+                          <li>Be open to negotiation for faster sales</li>
+                        </>
+                      ) : (
+                        <>
+                          <li>Research similar tools to set competitive rates</li>
+                          <li>Consider the tool's purchase price and wear</li>
+                          <li>Factor in cleaning and maintenance time</li>
+                          <li>Weekly rates are typically 4-5x daily rate</li>
+                        </>
+                      )}
                     </ul>
                   </div>
                 </div>
