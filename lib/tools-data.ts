@@ -1,7 +1,7 @@
 /**
- * Tool & Equipment Library System
+ * Tool & Equipment Library & Marketplace
  *
- * Enables community members to share and rent tools/equipment
+ * Enables community members to share, rent, and buy/sell tools/equipment
  */
 
 export type ToolCategory =
@@ -15,7 +15,9 @@ export type ToolCategory =
 
 export type ToolCondition = 'Excellent' | 'Good' | 'Fair' | 'Needs Repair'
 
-export type RentalStatus = 'available' | 'rented' | 'maintenance' | 'reserved'
+export type ListingType = 'rent' | 'sale' | 'both'
+
+export type ToolStatus = 'available' | 'rented' | 'sold' | 'pending' | 'maintenance' | 'reserved'
 
 export interface Tool {
   id: string
@@ -31,20 +33,28 @@ export interface Tool {
   ownerAvatar: string
   ownerLocation: string
 
-  // Rental Terms
-  dailyRate: number // 0 means free to borrow
+  // Listing Type
+  listingType: ListingType // 'rent', 'sale', or 'both'
+
+  // Sale Terms (if listingType is 'sale' or 'both')
+  salePrice?: number
+  priceNegotiable?: boolean
+
+  // Rental Terms (if listingType is 'rent' or 'both')
+  dailyRate?: number // 0 means free to borrow
   weeklyRate?: number
-  depositRequired: number
-  maxRentalDays: number
+  depositRequired?: number
+  maxRentalDays?: number
 
   // Availability
-  status: RentalStatus
+  status: ToolStatus
   availableFrom?: Date
   currentRenter?: string
   nextAvailable?: Date
 
   // Stats
   timesRented: number
+  timesSold?: number
   rating: number
   reviews: number
   listedAt: Date
@@ -126,6 +136,7 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Sarah Chen',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
     ownerLocation: 'Portland, OR',
+    listingType: 'rent',
     dailyRate: 35,
     weeklyRate: 150,
     depositRequired: 100,
@@ -161,6 +172,7 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Michael Rodriguez',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
     ownerLocation: 'Eugene, OR',
+    listingType: 'rent',
     dailyRate: 0, // Free to borrow
     depositRequired: 25,
     maxRentalDays: 3,
@@ -192,6 +204,9 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Sarah Chen',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
     ownerLocation: 'Portland, OR',
+    listingType: 'both',
+    salePrice: 125,
+    priceNegotiable: true,
     dailyRate: 15,
     weeklyRate: 60,
     depositRequired: 50,
@@ -210,7 +225,7 @@ export const SAMPLE_TOOLS: Tool[] = [
       'Pressure regulator included',
     ],
     instructions: 'System is easy to set up. I can help you with installation if needed (free).',
-    pickupNotes: 'Pickup from my home. Flexible timing.',
+    pickupNotes: 'Available for rent or purchase. Pickup from my home. Flexible timing.',
   },
   {
     id: 'tool-4',
@@ -225,6 +240,7 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Emma Thompson',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
     ownerLocation: 'Salem, OR',
+    listingType: 'rent',
     dailyRate: 10,
     weeklyRate: 40,
     depositRequired: 75,
@@ -258,6 +274,7 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Michael Rodriguez',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
     ownerLocation: 'Eugene, OR',
+    listingType: 'rent',
     dailyRate: 5,
     weeklyRate: 20,
     depositRequired: 30,
@@ -290,6 +307,7 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Emma Thompson',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
     ownerLocation: 'Salem, OR',
+    listingType: 'rent',
     dailyRate: 0, // Free to borrow
     depositRequired: 20,
     maxRentalDays: 3,
@@ -322,6 +340,7 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Sarah Chen',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
     ownerLocation: 'Portland, OR',
+    listingType: 'rent',
     dailyRate: 20,
     weeklyRate: 80,
     depositRequired: 75,
@@ -360,12 +379,11 @@ export const SAMPLE_TOOLS: Tool[] = [
     ownerName: 'Michael Rodriguez',
     ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
     ownerLocation: 'Eugene, OR',
-    dailyRate: 15,
-    weeklyRate: 50,
-    depositRequired: 50,
-    maxRentalDays: 30,
+    listingType: 'sale',
+    salePrice: 180,
+    priceNegotiable: false,
     status: 'available',
-    timesRented: 6,
+    timesRented: 0,
     rating: 4.8,
     reviews: 5,
     listedAt: new Date('2024-04-15'),
@@ -378,7 +396,107 @@ export const SAMPLE_TOOLS: Tool[] = [
       'Large sliding doors',
     ],
     instructions: 'Great for continuous composting. Use one chamber while the other finishes. Instructions provided.',
-    pickupNotes: 'This is heavy! You\'ll need a truck or SUV. I can help you load it.',
+    pickupNotes: 'For sale only. This is heavy! You\'ll need a truck or SUV. I can help you load it. Retails for $350 new.',
+  },
+  {
+    id: 'tool-9',
+    name: 'Garden Tool Set - 8 Pieces',
+    description: 'Complete garden hand tool set including trowel, transplanter, cultivator, pruners, weeder, and more. All stainless steel with comfortable ergonomic handles. Excellent condition, barely used.',
+    category: 'Hand Tools',
+    condition: 'Excellent',
+    images: [
+      'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
+    ],
+    ownerId: 'user-3',
+    ownerName: 'Emma Thompson',
+    ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
+    ownerLocation: 'Salem, OR',
+    listingType: 'sale',
+    salePrice: 45,
+    priceNegotiable: true,
+    status: 'available',
+    timesRented: 0,
+    rating: 5.0,
+    reviews: 3,
+    listedAt: new Date('2024-06-10'),
+    brand: 'Fiskars',
+    yearPurchased: 2023,
+    specifications: [
+      'Stainless steel construction',
+      'Ergonomic soft-grip handles',
+      'Rust-resistant coating',
+      '8 essential tools included',
+      'Includes storage tote',
+    ],
+    pickupNotes: 'Perfect starter set for new gardeners. Open to reasonable offers. Can deliver locally.',
+  },
+  {
+    id: 'tool-10',
+    name: 'Pressure Sprayer - 2 Gallon',
+    description: 'Multi-purpose pump sprayer for organic pest control, foliar feeding, or watering delicate seedlings. Adjustable brass nozzle and shoulder strap included.',
+    category: 'Irrigation',
+    condition: 'Good',
+    images: [
+      'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800',
+    ],
+    ownerId: 'user-2',
+    ownerName: 'Michael Rodriguez',
+    ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
+    ownerLocation: 'Eugene, OR',
+    listingType: 'both',
+    salePrice: 35,
+    priceNegotiable: false,
+    dailyRate: 5,
+    depositRequired: 20,
+    maxRentalDays: 7,
+    status: 'available',
+    timesRented: 7,
+    rating: 4.8,
+    reviews: 6,
+    listedAt: new Date('2024-05-20'),
+    brand: 'Chapin',
+    yearPurchased: 2022,
+    specifications: [
+      '2-gallon capacity',
+      'Adjustable brass nozzle',
+      'Pressure relief valve',
+      'Padded shoulder strap',
+      '3-year manufacturer warranty still valid',
+    ],
+    instructions: 'Rinse thoroughly after each use, especially if using with fertilizers or pest treatments.',
+    pickupNotes: 'Available for rent ($5/day) or purchase ($35). Great condition, well-maintained.',
+  },
+  {
+    id: 'tool-11',
+    name: 'Hori Hori Garden Knife',
+    description: 'Japanese-style multi-purpose garden knife with serrated edge. Perfect for digging, cutting, weeding, and transplanting. Includes leather sheath.',
+    category: 'Hand Tools',
+    condition: 'Excellent',
+    images: [
+      'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
+    ],
+    ownerId: 'user-1',
+    ownerName: 'Sarah Chen',
+    ownerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+    ownerLocation: 'Portland, OR',
+    listingType: 'sale',
+    salePrice: 28,
+    priceNegotiable: false,
+    status: 'available',
+    timesRented: 0,
+    rating: 5.0,
+    reviews: 2,
+    listedAt: new Date('2024-07-01'),
+    brand: 'Nisaku',
+    yearPurchased: 2023,
+    specifications: [
+      'Stainless steel blade',
+      'Serrated on one edge, sharp on the other',
+      'Measurement markings on blade',
+      'Comfortable wooden handle',
+      'Includes leather sheath',
+    ],
+    pickupNotes: 'Upgraded to a different tool. This one is in excellent shape. Firm price.',
   },
 ]
 
@@ -397,8 +515,24 @@ export function getToolsByOwner(ownerId: string): Tool[] {
   return SAMPLE_TOOLS.filter((tool) => tool.ownerId === ownerId)
 }
 
+// Helper function to get tools by listing type
+export function getToolsByListingType(listingType: ListingType): Tool[] {
+  return SAMPLE_TOOLS.filter((tool) => tool.listingType === listingType)
+}
+
+// Helper function to get tools available for rent
+export function getToolsForRent(): Tool[] {
+  return SAMPLE_TOOLS.filter((tool) => tool.listingType === 'rent' || tool.listingType === 'both')
+}
+
+// Helper function to get tools available for sale
+export function getToolsForSale(): Tool[] {
+  return SAMPLE_TOOLS.filter((tool) => tool.listingType === 'sale' || tool.listingType === 'both')
+}
+
 // Helper function to calculate rental cost
 export function calculateRentalCost(tool: Tool, days: number): number {
+  if (!tool.dailyRate) return 0
   if (tool.weeklyRate && days >= 7) {
     const weeks = Math.floor(days / 7)
     const remainingDays = days % 7

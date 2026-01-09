@@ -29,7 +29,8 @@ const categories: ToolCategory[] = [
 export default function ToolsPage() {
   const availableTools = SAMPLE_TOOLS.filter((tool) => tool.status === 'available')
   const totalTools = SAMPLE_TOOLS.length
-  const freeTools = SAMPLE_TOOLS.filter((tool) => tool.dailyRate === 0).length
+  const forRent = SAMPLE_TOOLS.filter((tool) => tool.listingType === 'rent' || tool.listingType === 'both').length
+  const forSale = SAMPLE_TOOLS.filter((tool) => tool.listingType === 'sale' || tool.listingType === 'both').length
 
   return (
     <>
@@ -41,9 +42,9 @@ export default function ToolsPage() {
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
               <Wrench className="mx-auto h-16 w-16 mb-4" />
-              <h1 className="text-4xl font-bold mb-4">Tool & Equipment Library</h1>
+              <h1 className="text-4xl font-bold mb-4">Tool & Equipment Marketplace</h1>
               <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
-                Borrow and share quality gardening tools with your community. Save money, reduce waste, and build connections.
+                Rent, buy, and sell quality gardening tools with your community. Save money, reduce waste, and build connections.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Link
@@ -67,15 +68,15 @@ export default function ToolsPage() {
             <div className="grid grid-cols-3 gap-8 mt-12 max-w-3xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl font-bold mb-1">{totalTools}</div>
-                <div className="text-orange-100 text-sm">Tools Available</div>
+                <div className="text-orange-100 text-sm">Total Listings</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold mb-1">{freeTools}</div>
-                <div className="text-orange-100 text-sm">Free to Borrow</div>
+                <div className="text-3xl font-bold mb-1">{forRent}</div>
+                <div className="text-orange-100 text-sm">Available to Rent</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold mb-1">{availableTools.length}</div>
-                <div className="text-orange-100 text-sm">Ready Now</div>
+                <div className="text-3xl font-bold mb-1">{forSale}</div>
+                <div className="text-orange-100 text-sm">For Sale</div>
               </div>
             </div>
           </div>
@@ -180,8 +181,18 @@ export default function ToolsPage() {
                       {tool.status}
                     </div>
                   )}
-                  {/* Free Badge */}
-                  {tool.dailyRate === 0 && (
+                  {/* Free/Sale/Rent Badges */}
+                  {tool.listingType === 'sale' && (
+                    <div className="absolute top-3 left-3 px-3 py-1 bg-purple-500 text-white text-xs font-semibold rounded-full">
+                      FOR SALE
+                    </div>
+                  )}
+                  {tool.listingType === 'both' && (
+                    <div className="absolute top-3 left-3 px-3 py-1 bg-indigo-500 text-white text-xs font-semibold rounded-full">
+                      RENT OR BUY
+                    </div>
+                  )}
+                  {tool.listingType === 'rent' && tool.dailyRate === 0 && (
                     <div className="absolute top-3 left-3 px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">
                       FREE
                     </div>
@@ -232,8 +243,30 @@ export default function ToolsPage() {
 
                   {/* Pricing */}
                   <div className="flex items-center justify-between">
-                    <div>
-                      {tool.dailyRate === 0 ? (
+                    <div className="flex-1">
+                      {tool.listingType === 'sale' ? (
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="h-5 w-5 text-purple-600" />
+                            <span className="text-2xl font-bold text-gray-900">{tool.salePrice}</span>
+                          </div>
+                          {tool.priceNegotiable && (
+                            <div className="text-xs text-gray-600">Price negotiable</div>
+                          )}
+                        </div>
+                      ) : tool.listingType === 'both' ? (
+                        <div>
+                          <div className="flex items-center gap-1 mb-1">
+                            <DollarSign className="h-5 w-5 text-orange-600" />
+                            <span className="text-xl font-bold text-gray-900">{tool.dailyRate}</span>
+                            <span className="text-sm text-gray-600">/day</span>
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            or buy for ${tool.salePrice}
+                            {tool.priceNegotiable && ' (OBO)'}
+                          </div>
+                        </div>
+                      ) : tool.dailyRate === 0 ? (
                         <div className="text-lg font-bold text-blue-600">Free to Borrow</div>
                       ) : (
                         <div>
@@ -250,9 +283,11 @@ export default function ToolsPage() {
                         </div>
                       )}
                     </div>
-                    <div className="text-xs text-gray-600">
-                      ${tool.depositRequired} deposit
-                    </div>
+                    {tool.depositRequired && (
+                      <div className="text-xs text-gray-600">
+                        ${tool.depositRequired} deposit
+                      </div>
+                    )}
                   </div>
                 </div>
               </Link>
