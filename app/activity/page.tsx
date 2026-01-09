@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { CommunitySidebar } from '@/components/community/community-sidebar'
 import { SAMPLE_ACTIVITY_FEED, type ActivityFeedItem } from '@/lib/notifications-data'
 import {
   TrendingUp,
@@ -41,8 +42,16 @@ export default function ActivityFeedPage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-          {/* Filter Options */}
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-4">
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <CommunitySidebar />
+            </div>
+
+            {/* Main Content */}
+            <div className="lg:col-span-3">
+              {/* Filter Options */}
           <div className="bg-white rounded-xl border p-4 mb-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm font-medium text-gray-700">Show:</span>
@@ -148,6 +157,8 @@ export default function ActivityFeedPage() {
                   Explore Community Members →
                 </Link>
               </div>
+            </div>
+          </div>
             </div>
           </div>
         </div>

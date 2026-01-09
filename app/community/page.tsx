@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { CommunitySidebar } from '@/components/community/community-sidebar'
 import { SAMPLE_TOPICS, ForumCategory } from '@/lib/community-data'
 import {
   MessageSquare,
@@ -131,11 +132,14 @@ export default function CommunityPage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-4">
             {/* Sidebar */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
+              {/* Community Navigation */}
+              <CommunitySidebar />
+
               {/* New Topic Button */}
               <Link
                 href="/community/new"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors mb-6"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
               >
                 <Plus className="h-5 w-5" />
                 New Topic

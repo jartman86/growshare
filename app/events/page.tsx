@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { CommunitySidebar } from '@/components/community/community-sidebar'
 import { SAMPLE_EVENTS, EventCategory } from '@/lib/events-data'
 import { EventCard } from '@/components/events/event-card'
 import {
@@ -123,22 +124,40 @@ export default function EventsPage() {
         </div>
 
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          {/* Featured Events */}
-          {featuredEvents.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <Star className="h-6 w-6 text-yellow-500 fill-yellow-500" />
-                <h2 className="text-2xl font-bold text-gray-900">Featured Events</h2>
-              </div>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {featuredEvents.slice(0, 3).map((event) => (
-                  <EventCard key={event.id} event={event} featured />
-                ))}
-              </div>
-            </div>
-          )}
+          <div className="grid gap-8 lg:grid-cols-4">
+            {/* Sidebar */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Community Navigation */}
+              <CommunitySidebar />
 
-          {/* Search & Filters */}
+              {/* Create Event Button */}
+              <Link
+                href="/events/new"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+              >
+                <Plus className="h-5 w-5" />
+                Create Event
+              </Link>
+            </div>
+
+            {/* Main Content */}
+            <div className="lg:col-span-3">
+              {/* Featured Events */}
+              {featuredEvents.length > 0 && (
+                <div className="mb-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Star className="h-6 w-6 text-yellow-500 fill-yellow-500" />
+                    <h2 className="text-2xl font-bold text-gray-900">Featured Events</h2>
+                  </div>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {featuredEvents.slice(0, 2).map((event) => (
+                      <EventCard key={event.id} event={event} featured />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Search & Filters */}
           <div className="bg-white rounded-xl border p-6 mb-6">
             {/* Search Bar */}
             <div className="mb-4">
@@ -221,17 +240,6 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Create Event Button */}
-          <div className="mb-6">
-            <Link
-              href="/events/new"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-            >
-              <Plus className="h-5 w-5" />
-              Create Event
-            </Link>
-          </div>
-
           {/* Events Grid */}
           {filteredEvents.length > 0 ? (
             <>
@@ -247,7 +255,7 @@ export default function EventsPage() {
                 </p>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2">
                 {filteredEvents.map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
@@ -270,6 +278,8 @@ export default function EventsPage() {
               )}
             </div>
           )}
+            </div>
+          </div>
         </div>
       </main>
 
