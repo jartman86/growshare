@@ -1,8 +1,15 @@
-import { notFound } from 'next/navigation'
+'use client'
+
+import { useState } from 'react'
+import { notFound, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_TOOLS, calculateRentalCost } from '@/lib/tools-data'
+import { getReviewsForTarget, getReviewSummary, sortReviews, filterReviewsByRating } from '@/lib/reviews-data'
+import { StarRating } from '@/components/reviews/star-rating'
+import { ReviewCard } from '@/components/reviews/review-card'
+import { ReviewForm } from '@/components/reviews/review-form'
 import {
   ArrowLeft,
   Star,
@@ -18,22 +25,40 @@ import {
   User,
   Wrench,
   Package,
+  Edit,
+  Filter,
 } from 'lucide-react'
 
-export default async function ToolDetailPage({
-  params,
-}: {
-  params: Promise<{ toolId: string }>
-}) {
-  const { toolId } = await params
+export default function ToolDetailPage() {
+  const params = useParams()
+  const toolId = params.toolId as string
   const tool = SAMPLE_TOOLS.find((t) => t.id === toolId)
+
+  // Reviews state
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [sortBy, setSortBy] = useState<'recent' | 'helpful' | 'rating_high' | 'rating_low'>('recent')
+  const [filterRating, setFilterRating] = useState<number | undefined>(undefined)
 
   if (!tool) {
     notFound()
   }
 
+  // Get reviews for this tool
+  const allReviews = getReviewsForTarget('tool', tool.id)
+  const reviewSummary = getReviewSummary(allReviews)
+  const filteredReviews = filterReviewsByRating(allReviews, filterRating)
+  const sortedReviews = sortReviews(filteredReviews, sortBy)
+
   const weekCost = tool.weeklyRate || calculateRentalCost(tool, 7)
   const monthCost = calculateRentalCost(tool, 30)
+
+  const handleSubmitReview = (reviewData: any) => {
+    // TODO: Submit review to backend
+    console.log('Review submitted:', reviewData)
+    setShowReviewForm(false)
+    // Show success message
+    alert('Review submitted successfully!')
+  }
 
   return (
     <>
@@ -203,15 +228,153 @@ export default async function ToolDetailPage({
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <Star className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-gray-900 mb-1">{tool.rating.toFixed(1)}</div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">{reviewSummary.averageRating.toFixed(1)}</div>
                     <div className="text-sm text-gray-600">Average Rating</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
                     <MessageSquare className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-gray-900 mb-1">{tool.reviews}</div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">{reviewSummary.totalReviews}</div>
                     <div className="text-sm text-gray-600">Reviews</div>
                   </div>
                 </div>
+              </div>
+
+              {/* Reviews Section */}
+              <div className="bg-white rounded-xl border p-8" id="reviews">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">Reviews & Ratings</h3>
+                  <button
+                    onClick={() => setShowReviewForm(!showReviewForm)}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Write a Review
+                  </button>
+                </div>
+
+                {/* Review Form */}
+                {showReviewForm && (
+                  <div className="mb-8">
+                    <ReviewForm
+                      targetName={tool.name}
+                      targetType="tool"
+                      onSubmit={handleSubmitReview}
+                      onCancel={() => setShowReviewForm(false)}
+                      isVerified={false}
+                    />
+                  </div>
+                )}
+
+                {reviewSummary.totalReviews > 0 ? (
+                  <>
+                    {/* Review Summary */}
+                    <div className="mb-8 p-6 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200">
+                      <div className="grid md:grid-cols-2 gap-8">
+                        {/* Overall Rating */}
+                        <div className="text-center">
+                          <div className="text-5xl font-bold text-gray-900 mb-2">
+                            {reviewSummary.averageRating.toFixed(1)}
+                          </div>
+                          <StarRating rating={reviewSummary.averageRating} size="lg" />
+                          <p className="text-sm text-gray-600 mt-2">
+                            Based on {reviewSummary.totalReviews} review{reviewSummary.totalReviews !== 1 ? 's' : ''}
+                          </p>
+                          {(reviewSummary.verifiedPurchaseCount > 0 || reviewSummary.verifiedRentalCount > 0) && (
+                            <p className="text-xs text-blue-700 mt-2">
+                              {reviewSummary.verifiedRentalCount + reviewSummary.verifiedPurchaseCount} verified transaction{(reviewSummary.verifiedRentalCount + reviewSummary.verifiedPurchaseCount) !== 1 ? 's' : ''}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Rating Distribution */}
+                        <div className="space-y-2">
+                          {[5, 4, 3, 2, 1].map((rating) => {
+                            const count = reviewSummary.ratingDistribution[rating as keyof typeof reviewSummary.ratingDistribution]
+                            const percentage = reviewSummary.totalReviews > 0
+                              ? (count / reviewSummary.totalReviews) * 100
+                              : 0
+
+                            return (
+                              <button
+                                key={rating}
+                                onClick={() => setFilterRating(filterRating === rating ? undefined : rating)}
+                                className={`w-full flex items-center gap-3 p-2 rounded-lg transition-colors ${
+                                  filterRating === rating ? 'bg-yellow-100' : 'hover:bg-yellow-50'
+                                }`}
+                              >
+                                <span className="text-sm font-medium text-gray-700 w-8">{rating} ★</span>
+                                <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-yellow-400 transition-all"
+                                    style={{ width: `${percentage}%` }}
+                                  />
+                                </div>
+                                <span className="text-sm text-gray-600 w-8 text-right">{count}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Sort & Filter Options */}
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b">
+                      <div className="flex items-center gap-3">
+                        <Filter className="h-5 w-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">
+                          {filterRating ? `Showing ${filterRating}-star reviews` : 'All reviews'}
+                        </span>
+                        {filterRating && (
+                          <button
+                            onClick={() => setFilterRating(undefined)}
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            Clear filter
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Sort by:</span>
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value as any)}
+                          className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                          <option value="recent">Most Recent</option>
+                          <option value="helpful">Most Helpful</option>
+                          <option value="rating_high">Highest Rating</option>
+                          <option value="rating_low">Lowest Rating</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Reviews List */}
+                    {sortedReviews.length > 0 ? (
+                      <div className="space-y-6">
+                        {sortedReviews.map((review) => (
+                          <ReviewCard key={review.id} review={review} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-600">
+                        No {filterRating}-star reviews yet
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">No reviews yet</h4>
+                    <p className="text-gray-600 mb-6">Be the first to review this tool!</p>
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                    >
+                      <Edit className="h-5 w-5" />
+                      Write the First Review
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
