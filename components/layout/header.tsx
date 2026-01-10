@@ -17,6 +17,7 @@ import {
   Mail,
   Users,
   Target,
+  BookIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
@@ -32,6 +33,7 @@ const navigationItems2025 = [
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
   { name: 'Groups', href: '/groups', icon: Users },
   { name: 'Challenges', href: '/challenges', icon: Target },
+  { name: 'Journal', href: '/journal', icon: BookIcon },
   { name: 'Leaderboard', href: '/leaderboard', icon: TrophyIcon },
 ]
 
