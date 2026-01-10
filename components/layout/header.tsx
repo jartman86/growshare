@@ -15,6 +15,7 @@ import {
   WrenchIcon,
   Bell,
   Mail,
+  Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
@@ -28,6 +29,7 @@ const navigationItems2025 = [
   { name: 'Tools', href: '/tools', icon: WrenchIcon },
   { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpenIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
+  { name: 'Groups', href: '/groups', icon: Users },
   { name: 'Leaderboard', href: '/leaderboard', icon: TrophyIcon },
 ]
 
