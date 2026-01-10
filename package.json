@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.6",
@@ -32,6 +36,7 @@
     "react-hook-form": "^7.70.0",
     "react-map-gl": "^8.1.0",
     "stripe": "^20.1.1",
+    "svix": "^1.84.1",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.5"
   },
@@ -45,6 +50,7 @@
     "eslint-config-next": "16.1.1",
     "prisma": "^7.2.0",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
