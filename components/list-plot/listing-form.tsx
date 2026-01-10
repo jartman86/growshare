@@ -49,6 +49,8 @@ const STEPS = [
 export function ListingForm() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState<ListingFormData>({
     title: '',
     description: '',
@@ -90,14 +92,65 @@ export function ListingForm() {
   }
 
   const handleSubmit = async () => {
-    // In production, this would send to API
-    console.log('Submitting listing:', formData)
+    setIsSubmitting(true)
+    setError(null)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      // Transform form data to match API schema
+      const plotData = {
+        title: formData.title,
+        description: formData.description,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        county: '', // Optional field
+        latitude: parseFloat(formData.latitude) || 0,
+        longitude: parseFloat(formData.longitude) || 0,
+        acreage: parseFloat(formData.acreage) || 0,
+        soilType: formData.soilTypes,
+        waterAccess: formData.waterAccess,
+        usdaZone: formData.usdaZone,
+        sunExposure: 'full', // Default
+        hasIrrigation: formData.hasIrrigation,
+        hasFencing: formData.hasFencing,
+        hasGreenhouse: formData.hasGreenhouse,
+        hasElectricity: formData.hasElectricity,
+        hasRoadAccess: true, // Default
+        hasToolStorage: false, // Default
+        isADAAccessible: false, // Default
+        allowsLivestock: false, // Default
+        allowsStructures: false, // Default
+        pricePerMonth: parseFloat(formData.pricePerMonth) || 0,
+        securityDeposit: parseFloat(formData.securityDeposit) || 0,
+        minimumLease: parseInt(formData.minimumRental) || 3,
+        instantBook: false,
+        images: [],
+      }
 
-    // Redirect to success page
-    router.push('/list-plot/success')
+      const response = await fetch('/api/plots', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(plotData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create plot listing')
+      }
+
+      const createdPlot = await response.json()
+      console.log('Plot created successfully:', createdPlot)
+
+      // Redirect to success page
+      router.push('/list-plot/success')
+    } catch (err) {
+      console.error('Error submitting listing:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      setIsSubmitting(false)
+    }
   }
 
   const CurrentStepComponent = STEPS[currentStep - 1].component
@@ -153,6 +206,15 @@ export function ListingForm() {
         />
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-800">
+            <strong>Error:</strong> {error}
+          </p>
+        </div>
+      )}
+
       {/* Navigation Buttons */}
       <div className="flex items-center justify-between pt-6 border-t">
         <button
@@ -178,9 +240,10 @@ export function ListingForm() {
           <button
             type="button"
             onClick={handleSubmit}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+            disabled={isSubmitting}
+            className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Submit Listing
+            {isSubmitting ? 'Creating Listing...' : 'Submit Listing'}
           </button>
         )}
       </div>

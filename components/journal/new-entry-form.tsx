@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CROP_TYPES, GROWTH_STAGES } from '@/lib/journal-data'
-import { X, Plus, Image as ImageIcon } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 
 interface NewEntryFormProps {
   onClose: () => void
@@ -10,21 +9,18 @@ interface NewEntryFormProps {
 }
 
 export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    plotId: '',
-    plotName: '',
     cropName: '',
-    cropType: '',
-    plantingDate: new Date().toISOString().split('T')[0],
-    expectedHarvestDate: '',
-    status: 'PLANNING' as const,
-    growthStage: '',
-    notes: '',
-    weatherConditions: '',
-    soilCondition: '',
-    pestIssues: '',
-    fertilizer: '',
-    wateringSchedule: '',
+    variety: '',
+    plantedDate: new Date().toISOString().split('T')[0],
+    expectedHarvest: '',
+    stage: 'PLANNING' as const,
+    title: '',
+    content: '',
+    plantCount: '',
+    areaUsed: '',
     images: [] as string[],
   })
 
@@ -54,38 +50,61 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setError(null)
 
-    const entry = {
-      id: `entry-${Date.now()}`,
-      userId: 'user-1', // Current user
-      plotId: formData.plotId,
-      plotName: formData.plotName,
-      cropName: formData.cropName,
-      cropType: formData.cropType,
-      plantingDate: new Date(formData.plantingDate),
-      expectedHarvestDate: formData.expectedHarvestDate
-        ? new Date(formData.expectedHarvestDate)
-        : undefined,
-      status: formData.status,
-      growthStage: formData.growthStage,
-      notes: formData.notes,
-      images: formData.images,
-      weatherConditions: formData.weatherConditions || undefined,
-      soilCondition: formData.soilCondition || undefined,
-      pestIssues: formData.pestIssues || undefined,
-      fertilizer: formData.fertilizer || undefined,
-      wateringSchedule: formData.wateringSchedule || undefined,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    try {
+      const journalData = {
+        cropName: formData.cropName,
+        variety: formData.variety || null,
+        plantedDate: formData.plantedDate || null,
+        expectedHarvest: formData.expectedHarvest || null,
+        stage: formData.stage,
+        title: formData.title,
+        content: formData.content,
+        plantCount: formData.plantCount ? parseInt(formData.plantCount) : null,
+        areaUsed: formData.areaUsed ? parseFloat(formData.areaUsed) : null,
+        images: formData.images,
+      }
+
+      const response = await fetch('/api/journals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(journalData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create journal entry')
+      }
+
+      const createdJournal = await response.json()
+      console.log('Journal created successfully:', createdJournal)
+
+      // Call the onSubmit callback with the created entry
+      onSubmit(createdJournal)
+      onClose()
+    } catch (err) {
+      console.error('Error creating journal entry:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      setIsSubmitting(false)
     }
-
-    onSubmit(entry)
-    onClose()
   }
 
-  const availableGrowthStages = GROWTH_STAGES[formData.status] || []
+  const availableStages = [
+    { value: 'PLANNING', label: 'Planning' },
+    { value: 'PLANTED', label: 'Planted' },
+    { value: 'GERMINATED', label: 'Germinated' },
+    { value: 'GROWING', label: 'Growing' },
+    { value: 'FLOWERING', label: 'Flowering' },
+    { value: 'FRUITING', label: 'Fruiting' },
+    { value: 'HARVESTING', label: 'Harvesting' },
+    { value: 'COMPLETED', label: 'Completed' },
+  ]
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -95,6 +114,7 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
           <h2 className="text-2xl font-bold text-gray-900">New Journal Entry</h2>
           <button
             onClick={onClose}
+            type="button"
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <X className="h-5 w-5 text-gray-600" />
@@ -103,39 +123,29 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Plot Information */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-gray-900">Plot Information</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Plot ID <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="plotId"
-                  value={formData.plotId}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., 1, bed-a, etc."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Plot Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="plotName"
-                  value={formData.plotName}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., Sunny 5-Acre Organic Farm Plot"
-                />
-              </div>
+          {/* Error Message */}
+          {error && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-800">
+                <strong>Error:</strong> {error}
+              </p>
             </div>
+          )}
+
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Entry Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="e.g., First Tomato Planting"
+            />
           </div>
 
           {/* Crop Information */}
@@ -153,27 +163,21 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., Heritage Tomatoes"
+                  placeholder="e.g., Tomatoes"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Crop Type <span className="text-red-500">*</span>
+                  Variety
                 </label>
-                <select
-                  name="cropType"
-                  value={formData.cropType}
+                <input
+                  type="text"
+                  name="variety"
+                  value={formData.variety}
                   onChange={handleChange}
-                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Select type...</option>
-                  {CROP_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="e.g., Cherokee Purple"
+                />
               </div>
             </div>
           </div>
@@ -184,14 +188,13 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Planting Date <span className="text-red-500">*</span>
+                  Planted Date
                 </label>
                 <input
                   type="date"
-                  name="plantingDate"
-                  value={formData.plantingDate}
+                  name="plantedDate"
+                  value={formData.plantedDate}
                   onChange={handleChange}
-                  required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
@@ -201,8 +204,8 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
                 </label>
                 <input
                   type="date"
-                  name="expectedHarvestDate"
-                  value={formData.expectedHarvestDate}
+                  name="expectedHarvest"
+                  value={formData.expectedHarvest}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
@@ -210,46 +213,58 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
             </div>
           </div>
 
-          {/* Status & Growth */}
+          {/* Growth Stage */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Growth Stage <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="stage"
+              value={formData.stage}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              {availableStages.map((stage) => (
+                <option key={stage.value} value={stage.value}>
+                  {stage.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Plant Details */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-gray-900">Status & Growth</h3>
+            <h3 className="font-semibold text-gray-900">Plant Details</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status <span className="text-red-500">*</span>
+                  Plant Count
                 </label>
-                <select
-                  name="status"
-                  value={formData.status}
+                <input
+                  type="number"
+                  name="plantCount"
+                  value={formData.plantCount}
                   onChange={handleChange}
-                  required
+                  min="0"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="PLANNING">Planning</option>
-                  <option value="PLANTED">Planted</option>
-                  <option value="GROWING">Growing</option>
-                  <option value="HARVESTED">Harvested</option>
-                  <option value="COMPLETED">Completed</option>
-                </select>
+                  placeholder="e.g., 6"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Growth Stage <span className="text-red-500">*</span>
+                  Area Used (sq ft)
                 </label>
-                <select
-                  name="growthStage"
-                  value={formData.growthStage}
+                <input
+                  type="number"
+                  name="areaUsed"
+                  value={formData.areaUsed}
                   onChange={handleChange}
-                  required
+                  min="0"
+                  step="0.1"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Select stage...</option>
-                  {availableGrowthStages.map((stage) => (
-                    <option key={stage} value={stage}>
-                      {stage}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="e.g., 48.0"
+                />
               </div>
             </div>
           </div>
@@ -260,78 +275,14 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
               Notes <span className="text-red-500">*</span>
             </label>
             <textarea
-              name="notes"
-              value={formData.notes}
+              name="content"
+              value={formData.content}
               onChange={handleChange}
               required
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="Describe what's happening with your crop..."
             />
-          </div>
-
-          {/* Growing Conditions */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-gray-900">Growing Conditions</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Weather Conditions
-                </label>
-                <input
-                  type="text"
-                  name="weatherConditions"
-                  value={formData.weatherConditions}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., Sunny, 75°F"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Soil Condition</label>
-                <input
-                  type="text"
-                  name="soilCondition"
-                  value={formData.soilCondition}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., Moist, well-draining"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Watering Schedule</label>
-                <input
-                  type="text"
-                  name="wateringSchedule"
-                  value={formData.wateringSchedule}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., Daily, morning"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fertilizer</label>
-                <input
-                  type="text"
-                  name="fertilizer"
-                  value={formData.fertilizer}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="e.g., Organic compost"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Pest Issues</label>
-              <input
-                type="text"
-                name="pestIssues"
-                value={formData.pestIssues}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Any pest or disease problems..."
-              />
-            </div>
           </div>
 
           {/* Images */}
@@ -381,15 +332,17 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Entry
+              {isSubmitting ? 'Creating Entry...' : 'Create Entry'}
             </button>
           </div>
         </form>
