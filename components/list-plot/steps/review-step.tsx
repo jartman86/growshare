@@ -5,6 +5,9 @@ import { MapPin, DollarSign, Droplets, Sprout, CheckCircle } from 'lucide-react'
 
 interface ReviewStepProps {
   formData: ListingFormData
+  updateFormData?: (data: Partial<ListingFormData>) => void
+  onNext?: () => void
+  onBack?: () => void
   onSubmit: () => void
 }
 

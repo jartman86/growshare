@@ -7,6 +7,8 @@ interface DetailsStepProps {
   formData: ListingFormData
   updateFormData: (data: Partial<ListingFormData>) => void
   onNext: () => void
+  onBack?: () => void
+  onSubmit?: () => void
 }
 
 const SOIL_TYPES = [
