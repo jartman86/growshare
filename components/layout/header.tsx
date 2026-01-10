@@ -16,6 +16,7 @@ import {
   Bell,
   Mail,
   Users,
+  Target,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
@@ -30,6 +31,7 @@ const navigationItems2025 = [
   { name: 'Knowledge Hub', href: '/knowledge', icon: BookOpenIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
   { name: 'Groups', href: '/groups', icon: Users },
+  { name: 'Challenges', href: '/challenges', icon: Target },
   { name: 'Leaderboard', href: '/leaderboard', icon: TrophyIcon },
 ]
 
