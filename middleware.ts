@@ -19,6 +19,7 @@ const isPublicRoute = createRouteMatcher([
   '/tools(.*)',
   '/notifications(.*)',
   '/activity(.*)',
+  '/messages(.*)',
 ])
 
 export default clerkMiddleware(async (auth, request) => {

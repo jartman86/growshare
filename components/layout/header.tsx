@@ -14,10 +14,12 @@ import {
   TrophyIcon,
   WrenchIcon,
   Bell,
+  Mail,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { SAMPLE_NOTIFICATIONS, getUnreadCount } from '@/lib/notifications-data'
+import { SAMPLE_CONVERSATIONS, getUnreadConversationsCount } from '@/lib/messages-data'
 
 const navigationItems2025 = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
@@ -34,6 +36,7 @@ export function Header() {
   const { isSignedIn, user } = useUser()
   const [showNotifications, setShowNotifications] = useState(false)
   const unreadCount = getUnreadCount(SAMPLE_NOTIFICATIONS)
+  const unreadMessagesCount = getUnreadConversationsCount(SAMPLE_CONVERSATIONS)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -73,6 +76,19 @@ export function Header() {
           <div className="flex items-center space-x-4">
             {isSignedIn ? (
               <>
+                {/* Messages Icon */}
+                <Link
+                  href="/messages"
+                  className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Mail className="h-5 w-5 text-gray-700" />
+                  {unreadMessagesCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+                    </span>
+                  )}
+                </Link>
+
                 {/* Notification Bell */}
                 <div className="relative">
                   <button
