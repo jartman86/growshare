@@ -76,6 +76,7 @@ model User {
   orders            Order[]
   activities        UserActivity[]
   posts             UserPost[]
+  postComments      PostComment[]
 
   @@index([clerkId])
   @@index([email])
@@ -726,11 +727,31 @@ model UserPost {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
+  // Relations
+  comments    PostComment[]
+
   @@index([authorId])
   @@index([slug])
   @@index([status])
   @@index([type])
   @@index([publishedAt])
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      UserPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  content   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([createdAt])
 }
 
 // ============================================

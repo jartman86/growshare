@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent } from '@/components/ui/card'
+import { CommentSection } from '@/components/posts/comment-section'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import {
@@ -242,6 +243,11 @@ export default async function PostPage({
               </div>
             </CardContent>
           </Card>
+
+          {/* Comment Section */}
+          <div className="mt-8">
+            <CommentSection postId={post.id} isSignedIn={!!userId} />
+          </div>
         </div>
       </main>
 
