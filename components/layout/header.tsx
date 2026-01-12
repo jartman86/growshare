@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'
@@ -22,6 +22,7 @@ import {
   BugIcon,
   FlowerIcon,
   CalendarDays,
+  User as UserIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavDropdown } from '@/components/ui/dropdown-menu'
@@ -98,7 +99,7 @@ const communityDropdownItems = [
   },
 ]
 
-// Bottom mobile navigation - only most essential items
+// Bottom mobile navigation - only most essential items (Profile is dynamic, added in component)
 const mobileNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboardIcon },
@@ -110,8 +111,23 @@ export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
   const [showNotifications, setShowNotifications] = useState(false)
+  const [username, setUsername] = useState<string | null>(null)
   const unreadCount = getUnreadCount(SAMPLE_NOTIFICATIONS)
   const unreadMessagesCount = getUnreadConversationsCount(SAMPLE_CONVERSATIONS)
+
+  // Fetch user's username for profile link
+  useEffect(() => {
+    if (isSignedIn) {
+      fetch('/api/profile')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.username) {
+            setUsername(data.username)
+          }
+        })
+        .catch((err) => console.error('Failed to fetch username:', err))
+    }
+  }, [isSignedIn])
 
   const isDashboardActive =
     pathname.startsWith('/dashboard') ||
@@ -228,6 +244,17 @@ export function Header() {
                     )}
                   </div>
 
+                  {/* Profile Link */}
+                  {username && (
+                    <Link
+                      href={`/profile/${username}`}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-all hover:scale-105"
+                      title="View Profile"
+                    >
+                      <UserIcon className="h-5 w-5 text-gray-700" />
+                    </Link>
+                  )}
+
                   <UserButton
                     afterSignOutUrl="/"
                     appearance={{
@@ -259,7 +286,7 @@ export function Header() {
       {/* Mobile Bottom Navigation */}
       {isSignedIn && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
-          <div className="grid grid-cols-4 gap-1 px-2 py-2">
+          <div className="grid grid-cols-5 gap-1 px-2 py-2">
             {mobileNavItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname.startsWith(item.href)
@@ -280,6 +307,22 @@ export function Header() {
                 </Link>
               )
             })}
+
+            {/* Profile Link */}
+            {username && (
+              <Link
+                href={`/profile/${username}`}
+                className={cn(
+                  'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                  pathname.startsWith(`/profile/${username}`)
+                    ? 'text-green-600 bg-green-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                )}
+              >
+                <UserIcon className={cn('h-5 w-5', pathname.startsWith(`/profile/${username}`) && 'scale-110')} />
+                <span className="text-[10px]">Profile</span>
+              </Link>
+            )}
           </div>
         </div>
       )}
