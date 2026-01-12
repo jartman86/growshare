@@ -18,6 +18,7 @@ export default function EditProfilePage() {
     bio: '',
     location: '',
     website: '',
+    avatar: '',
     coverImage: '',
   })
 
@@ -35,6 +36,7 @@ export default function EditProfilePage() {
             bio: data.bio || '',
             location: data.location || '',
             website: data.website || '',
+            avatar: data.avatar || '',
             coverImage: data.coverImage || '',
           })
         }
@@ -187,6 +189,37 @@ export default function EditProfilePage() {
                   />
                 </div>
 
+                {/* Profile Image */}
+                <div>
+                  <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 mb-1">
+                    Profile Image URL
+                  </label>
+                  <input
+                    type="url"
+                    id="avatar"
+                    value={formData.avatar}
+                    onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="https://example.com/profile.jpg"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    Recommended: Square image, at least 400x400px
+                  </p>
+                  {formData.avatar && (
+                    <div className="mt-2 flex items-center gap-4">
+                      <img
+                        src={formData.avatar}
+                        alt="Profile preview"
+                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                      <span className="text-sm text-gray-500">Preview</span>
+                    </div>
+                  )}
+                </div>
+
                 {/* Cover Image */}
                 <div>
                   <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 mb-1">
@@ -203,6 +236,18 @@ export default function EditProfilePage() {
                   <p className="mt-1 text-sm text-gray-500">
                     Recommended: 1500x400px image
                   </p>
+                  {formData.coverImage && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.coverImage}
+                        alt="Cover preview"
+                        className="w-full h-32 object-cover rounded-lg"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Message */}

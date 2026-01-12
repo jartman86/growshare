@@ -46,7 +46,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { username, firstName, lastName, bio, location, website, coverImage } = body
+    const { username, firstName, lastName, bio, location, website, avatar, coverImage } = body
 
     // Check if username is already taken (if changed)
     if (username) {
@@ -74,6 +74,7 @@ export async function PATCH(request: NextRequest) {
         ...(bio !== undefined && { bio }),
         ...(location !== undefined && { location }),
         ...(website !== undefined && { website }),
+        ...(avatar !== undefined && { avatar }),
         ...(coverImage !== undefined && { coverImage }),
       },
       select: {
