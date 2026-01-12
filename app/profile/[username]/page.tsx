@@ -71,16 +71,21 @@ export default async function ProfilePage({
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 topo-bg">
         {/* Cover Image */}
         {user.coverImage && (
           <div
-            className="h-64 bg-cover bg-center"
+            className="h-64 bg-cover bg-center relative"
             style={{ backgroundImage: `url(${user.coverImage})` }}
-          />
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#f4e4c1]/40"></div>
+          </div>
         )}
         {!user.coverImage && (
-          <div className="h-64 bg-gradient-to-r from-green-600 to-emerald-600" />
+          <div className="h-64 relative overflow-hidden garden-gradient-vibrant">
+            <div className="absolute inset-0 topo-contour opacity-30"></div>
+            <div className="absolute inset-0 leaf-pattern opacity-20"></div>
+          </div>
         )}
 
         <div className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
@@ -97,7 +102,7 @@ export default async function ProfilePage({
                       className="w-32 h-32 rounded-full border-4 border-white shadow-xl"
                     />
                   ) : (
-                    <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                    <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] flex items-center justify-center">
                       <span className="text-4xl font-bold text-white">
                         {user.firstName.charAt(0)}{user.lastName.charAt(0)}
                       </span>
@@ -108,15 +113,15 @@ export default async function ProfilePage({
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                      <h1 className="text-3xl font-bold text-[#2d5016] mb-1">
                         {user.firstName} {user.lastName}
                       </h1>
-                      <p className="text-gray-600">@{user.username}</p>
+                      <p className="text-[#4a3f35]">@{user.username}</p>
                       <div className="flex items-center gap-2 mt-2">
                         {user.role.map((role) => (
                           <span
                             key={role}
-                            className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium"
+                            className="px-2 py-1 bg-[#aed581]/30 text-[#2d5016] rounded text-xs font-medium"
                           >
                             {role}
                           </span>
@@ -127,7 +132,7 @@ export default async function ProfilePage({
                       {isOwnProfile ? (
                         <Link
                           href="/profile/edit"
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg font-medium transition-colors"
+                          className="flex items-center gap-2 px-4 py-2 bg-[#aed581]/20 hover:bg-[#aed581]/40 text-[#2d5016] rounded-lg font-medium transition-all shadow-sm"
                         >
                           <Edit className="h-4 w-4" />
                           Edit Profile
@@ -135,7 +140,7 @@ export default async function ProfilePage({
                       ) : (
                         <Link
                           href={`/messages?user=${user.id}`}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] hover:from-[#4a7c2c] hover:to-[#2d5016] text-white rounded-lg font-medium transition-all shadow-md"
                         >
                           <Mail className="h-4 w-4" />
                           Message
@@ -145,12 +150,12 @@ export default async function ProfilePage({
                   </div>
 
                   {user.bio && (
-                    <p className="text-gray-700 mb-4 max-w-2xl leading-relaxed">
+                    <p className="text-[#4a3f35] mb-4 max-w-2xl leading-relaxed">
                       {user.bio}
                     </p>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-[#4a3f35]">
                     {user.location && (
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
@@ -162,7 +167,7 @@ export default async function ProfilePage({
                         href={user.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:text-green-600"
+                        className="flex items-center gap-1 hover:text-[#4a7c2c]"
                       >
                         <Globe className="h-4 w-4" />
                         <span>Website</span>
@@ -173,7 +178,7 @@ export default async function ProfilePage({
                       <span>Joined {formatDate(user.createdAt)}</span>
                     </div>
                     {user.isVerified && (
-                      <div className="flex items-center gap-1 text-green-600">
+                      <div className="flex items-center gap-1 text-[#4a7c2c]">
                         <Award className="h-4 w-4" />
                         <span className="font-medium">Verified</span>
                       </div>
@@ -183,30 +188,30 @@ export default async function ProfilePage({
               </div>
 
               {/* Level & Points */}
-              <div className="mt-6 pt-6 border-t">
+              <div className="mt-6 pt-6 border-t-2 border-[#aed581]/20">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Level {user.level}</p>
+                    <p className="text-sm text-[#4a3f35]">Level {user.level}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <div className="w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="w-48 h-2 bg-[#f4e4c1] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
+                          className="h-full bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c]"
                           style={{
                             width: `${((user.totalPoints % 1000) / 1000) * 100}%`,
                           }}
                         />
                       </div>
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-[#2d5016]">
                         {user.totalPoints} pts
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-500" />
-                    <span className="text-2xl font-bold text-gray-900">
+                    <Star className="h-5 w-5 text-[#ffb703]" />
+                    <span className="text-2xl font-bold text-[#2d5016]">
                       {user.userBadges.length}
                     </span>
-                    <span className="text-gray-600">badges</span>
+                    <span className="text-[#4a3f35]">badges</span>
                   </div>
                 </div>
               </div>
