@@ -82,11 +82,13 @@ export function JournalEntryCard({ entry, showPlotLink = true }: JournalEntryCar
           </span>
           <div className="flex items-center gap-1 text-xs text-gray-500">
             <Calendar className="h-3 w-3" />
-            {entry.plantingDate.toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })}
+            {entry.plantingDate
+              ? new Date(entry.plantingDate).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
+              : 'No date set'}
           </div>
         </div>
 
@@ -179,7 +181,7 @@ export function JournalEntryCard({ entry, showPlotLink = true }: JournalEntryCar
                 {entry.actualHarvestDate && (
                   <div className="text-xs text-gray-600">
                     on{' '}
-                    {entry.actualHarvestDate.toLocaleDateString('en-US', {
+                    {new Date(entry.actualHarvestDate).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
                     })}
@@ -195,7 +197,7 @@ export function JournalEntryCard({ entry, showPlotLink = true }: JournalEntryCar
           <div className="flex items-center gap-2 text-xs text-gray-600">
             <Clock className="h-3 w-3" />
             Expected harvest:{' '}
-            {entry.expectedHarvestDate.toLocaleDateString('en-US', {
+            {new Date(entry.expectedHarvestDate).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
             })}
@@ -205,7 +207,7 @@ export function JournalEntryCard({ entry, showPlotLink = true }: JournalEntryCar
         {/* Updated timestamp */}
         <div className="mt-3 pt-3 border-t border-gray-100">
           <div className="text-xs text-gray-500">
-            Updated {entry.updatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            Updated {new Date(entry.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </div>
         </div>
       </div>
