@@ -33,7 +33,6 @@ const standaloneNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
   { name: 'Tools', href: '/tools', icon: WrenchIcon },
-  { name: 'Resources', href: '/resources', icon: BookOpenIcon },
 ]
 
 const dashboardDropdownItems = [
@@ -60,6 +59,21 @@ const dashboardDropdownItems = [
     href: '/leaderboard',
     icon: <TrophyIcon className="h-4 w-4" />,
     description: 'Top growers',
+  },
+]
+
+const learningDropdownItems = [
+  {
+    label: 'Courses',
+    href: '/knowledge',
+    icon: <BookOpenIcon className="h-4 w-4" />,
+    description: 'Educational courses',
+  },
+  {
+    label: 'Resources',
+    href: '/resources',
+    icon: <Sprout className="h-4 w-4" />,
+    description: 'Plant guides & tips',
   },
 ]
 
@@ -105,6 +119,10 @@ export function Header() {
     pathname.startsWith('/leaderboard') ||
     pathname.startsWith('/journal')
 
+  const isLearningActive =
+    pathname.startsWith('/knowledge') ||
+    pathname.startsWith('/resources')
+
   const isCommunityActive =
     pathname.startsWith('/community') ||
     pathname.startsWith('/groups') ||
@@ -144,6 +162,14 @@ export function Header() {
                   </Link>
                 )
               })}
+
+              {/* Learning Dropdown */}
+              <NavDropdown
+                trigger="Learning"
+                icon={<BookOpenIcon className="h-4 w-4" />}
+                items={learningDropdownItems}
+                isActive={isLearningActive}
+              />
 
               {/* Dashboard Dropdown */}
               <NavDropdown
