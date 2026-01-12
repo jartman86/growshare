@@ -44,34 +44,35 @@ export default function KnowledgeHubPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="garden-gradient-vibrant topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="flex items-center gap-3 mb-4">
-              <BookOpen className="h-12 w-12" />
-              <h1 className="text-5xl font-bold">Knowledge Hub</h1>
+              <BookOpen className="h-12 w-12 drop-shadow-md" />
+              <h1 className="text-5xl font-bold drop-shadow-lg">Knowledge Hub</h1>
             </div>
-            <p className="text-blue-100 text-xl max-w-3xl">
+            <p className="text-[#f4e4c1] text-xl max-w-3xl drop-shadow-md font-medium">
               Learn from expert farmers and agronomists. Earn certifications that build trust
               with landowners and unlock new opportunities.
             </p>
             <div className="mt-8 flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-4xl font-bold">{SAMPLE_COURSES.length}</div>
-                <div className="text-blue-200 text-sm">Courses Available</div>
+              <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                <div className="text-4xl font-bold drop-shadow-md">{SAMPLE_COURSES.length}</div>
+                <div className="text-[#f4e4c1] text-sm drop-shadow-sm">Courses Available</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold">
+              <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                <div className="text-4xl font-bold drop-shadow-md">
                   {SAMPLE_COURSES.filter((c) => c.certification).length}
                 </div>
-                <div className="text-blue-200 text-sm">Certifications</div>
+                <div className="text-[#f4e4c1] text-sm drop-shadow-sm">Certifications</div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold">
+              <div className="text-center bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                <div className="text-4xl font-bold drop-shadow-md">
                   {SAMPLE_COURSES.filter((c) => c.price === 0).length}
                 </div>
-                <div className="text-blue-200 text-sm">Free Courses</div>
+                <div className="text-[#f4e4c1] text-sm drop-shadow-sm">Free Courses</div>
               </div>
             </div>
           </div>
@@ -79,10 +80,10 @@ export default function KnowledgeHubPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Filters */}
-          <div className="bg-white rounded-xl border shadow-sm p-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 shadow-md p-6 mb-8">
             <div className="flex items-center gap-3 mb-6">
-              <Filter className="h-5 w-5 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-900">Find Your Course</h2>
+              <Filter className="h-5 w-5 text-[#4a7c2c]" />
+              <h2 className="text-xl font-bold text-[#2d5016]">Find Your Course</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">

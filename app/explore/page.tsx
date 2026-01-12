@@ -78,28 +78,28 @@ export default function ExplorePage() {
       <Header />
 
       {/* Search Bar */}
-      <div className="border-b bg-white p-4 lg:px-8">
+      <div className="border-b-2 border-[#8bc34a]/30 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur p-4 lg:px-8 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c]" />
             <input
               type="text"
               placeholder="Search by location, city, or plot name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
             />
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center bg-[#aed581]/20 rounded-lg p-1 border border-[#8bc34a]/30">
             <button
               onClick={() => setViewMode('map')}
               className={cn(
-                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+                'px-4 py-2 rounded-md text-sm font-medium transition-all',
                 viewMode === 'map'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
+                  : 'text-[#4a3f35] hover:text-[#2d5016]'
               )}
             >
               <MapIcon className="h-4 w-4" />
@@ -107,10 +107,10 @@ export default function ExplorePage() {
             <button
               onClick={() => setViewMode('grid')}
               className={cn(
-                'px-4 py-2 rounded-md text-sm font-medium transition-colors',
+                'px-4 py-2 rounded-md text-sm font-medium transition-all',
                 viewMode === 'grid'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
+                  : 'text-[#4a3f35] hover:text-[#2d5016]'
               )}
             >
               <LayoutGrid className="h-4 w-4" />
@@ -141,9 +141,9 @@ export default function ExplorePage() {
             </div>
 
             {/* Plot List Panel */}
-            <div className="w-96 border-l bg-white overflow-y-auto">
+            <div className="w-96 border-l-2 border-[#8bc34a]/30 bg-gradient-to-b from-white to-[#aed581]/10 overflow-y-auto">
               <div className="p-4">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">
+                <h2 className="text-lg font-bold text-[#2d5016] mb-4">
                   {filteredPlots.length} {filteredPlots.length === 1 ? 'Plot' : 'Plots'} Available
                 </h2>
 
@@ -160,10 +160,10 @@ export default function ExplorePage() {
                   {filteredPlots.length === 0 && (
                     <div className="text-center py-12">
                       <div className="text-4xl mb-4">🔍</div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <h3 className="text-lg font-semibold text-[#2d5016] mb-2">
                         No plots found
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-[#4a3f35]">
                         Try adjusting your filters or search query
                       </p>
                     </div>
@@ -174,9 +174,9 @@ export default function ExplorePage() {
           </div>
         ) : (
           // Grid View
-          <div className="flex-1 overflow-y-auto bg-gray-50 p-8">
+          <div className="flex-1 overflow-y-auto topo-lines p-8">
             <div className="max-w-7xl mx-auto">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <h2 className="text-2xl font-bold text-[#2d5016] mb-6">
                 {filteredPlots.length} {filteredPlots.length === 1 ? 'Plot' : 'Plots'} Available
               </h2>
 
@@ -192,12 +192,12 @@ export default function ExplorePage() {
               </div>
 
               {filteredPlots.length === 0 && (
-                <div className="text-center py-12">
+                <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
                   <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                  <h3 className="text-2xl font-semibold text-[#2d5016] mb-2">
                     No plots found
                   </h3>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-lg text-[#4a3f35]">
                     Try adjusting your filters or search query
                   </p>
                 </div>

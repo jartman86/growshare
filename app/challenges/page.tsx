@@ -61,41 +61,42 @@ export default function ChallengesPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <Trophy className="h-8 w-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Challenges & Seasonal Quests</h1>
-              <p className="text-xl text-orange-100 max-w-2xl mx-auto mb-8">
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Challenges & Seasonal Quests</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto mb-8 drop-shadow-md font-medium">
                 Test your skills, earn rewards, and grow with the community through seasonal
                 challenges and quests
               </p>
 
               {/* Quick Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{activeChallenges.length}</p>
-                  <p className="text-sm text-orange-100">Active</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{activeChallenges.length}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Active</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{upcomingChallenges.length}</p>
-                  <p className="text-sm text-orange-100">Upcoming</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{upcomingChallenges.length}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Upcoming</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">
                     {SAMPLE_CHALLENGES.reduce((sum, c) => sum + c.participants, 0)}
                   </p>
-                  <p className="text-sm text-orange-100">Participants</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Participants</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">
                     {SAMPLE_CHALLENGES.reduce((sum, c) => sum + c.rewards.points, 0)}
                   </p>
-                  <p className="text-sm text-orange-100">Total Points</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Total Points</p>
                 </div>
               </div>
             </div>
@@ -104,17 +105,17 @@ export default function ChallengesPage() {
 
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Search & Filters */}
-          <div className="bg-white rounded-xl border p-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 mb-8 shadow-md">
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c]" />
                 <input
                   type="text"
                   placeholder="Search challenges..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
                 />
               </div>
             </div>

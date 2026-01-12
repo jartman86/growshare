@@ -49,18 +49,19 @@ export default function MessagesPage() {
     <>
       <Header />
 
-      <main className="h-screen flex flex-col bg-gray-50">
+      <main className="h-screen flex flex-col topo-lines">
         {/* Page Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="garden-gradient-vibrant topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <MessageSquare className="h-8 w-8" />
-                <h1 className="text-3xl font-bold">Messages</h1>
+                <MessageSquare className="h-8 w-8 drop-shadow-md" />
+                <h1 className="text-3xl font-bold drop-shadow-lg">Messages</h1>
               </div>
               <button
                 onClick={() => setShowNewMessageModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-white text-[#4a7c2c] rounded-lg font-semibold hover:bg-[#f4e4c1] transition-all shadow-lg hover:shadow-xl"
               >
                 <Plus className="h-5 w-5" />
                 New Message
@@ -74,7 +75,7 @@ export default function MessagesPage() {
           <div className="mx-auto max-w-7xl h-full">
             <div className="grid grid-cols-12 gap-0 h-full">
               {/* Conversations Sidebar */}
-              <div className="col-span-12 md:col-span-4 lg:col-span-3 h-full border-r bg-white">
+              <div className="col-span-12 md:col-span-4 lg:col-span-3 h-full border-r-2 border-[#8bc34a]/30 bg-gradient-to-b from-white to-[#aed581]/10">
                 <ConversationList
                   conversations={conversations}
                   selectedConversationId={selectedConversationId ?? undefined}
@@ -93,18 +94,18 @@ export default function MessagesPage() {
                     onSendMessage={handleSendMessage}
                   />
                 ) : (
-                  <div className="h-full flex items-center justify-center bg-white">
+                  <div className="h-full flex items-center justify-center bg-white/80 backdrop-blur-sm">
                     <div className="text-center">
-                      <MessageSquare className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <MessageSquare className="h-16 w-16 text-[#aed581] mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-[#2d5016] mb-2">
                         Select a conversation
                       </h3>
-                      <p className="text-gray-600 mb-6">
+                      <p className="text-[#4a3f35] mb-6">
                         Choose a conversation from the list to start messaging
                       </p>
                       <button
                         onClick={() => setShowNewMessageModal(true)}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
                       >
                         <Plus className="h-5 w-5" />
                         Start New Conversation

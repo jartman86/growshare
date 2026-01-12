@@ -93,36 +93,37 @@ export default function CommunityPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-earthy topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <MessageSquare className="h-8 w-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Community Forum</h1>
-              <p className="text-xl text-purple-100 max-w-2xl mx-auto">
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Community Forum</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto drop-shadow-md font-medium">
                 Connect with fellow growers, ask questions, share knowledge, and learn together
               </p>
 
               {/* Stats */}
               <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.totalTopics}</p>
-                  <p className="text-sm text-purple-100">Topics</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.totalTopics}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Topics</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.totalReplies}</p>
-                  <p className="text-sm text-purple-100">Replies</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.totalReplies}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Replies</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.activeMembers}</p>
-                  <p className="text-sm text-purple-100">Members</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.activeMembers}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Members</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.solvedTopics}</p>
-                  <p className="text-sm text-purple-100">Solved</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.solvedTopics}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Solved</p>
                 </div>
               </div>
             </div>
@@ -139,15 +140,15 @@ export default function CommunityPage() {
               {/* New Topic Button */}
               <Link
                 href="/community/new"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
               >
                 <Plus className="h-5 w-5" />
                 New Topic
               </Link>
 
               {/* Categories */}
-              <div className="bg-white rounded-xl border p-4 mb-6">
-                <h3 className="font-semibold text-gray-900 mb-3">Categories</h3>
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-4 mb-6 shadow-md">
+                <h3 className="font-semibold text-[#2d5016] mb-3">Categories</h3>
                 <div className="space-y-1">
                   {categories.map((category) => {
                     const count =
@@ -158,17 +159,17 @@ export default function CommunityPage() {
                       <button
                         key={category}
                         onClick={() => setSelectedCategory(category)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
                           selectedCategory === category
-                            ? 'bg-purple-100 text-purple-700 font-medium'
-                            : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white font-medium shadow-md'
+                            : 'text-[#4a3f35] hover:bg-[#aed581]/20'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span>{category}</span>
                           <span
                             className={`text-xs ${
-                              selectedCategory === category ? 'text-purple-600' : 'text-gray-500'
+                              selectedCategory === category ? 'text-[#f4e4c1]' : 'text-[#4a3f35]'
                             }`}
                           >
                             {count}
@@ -181,9 +182,9 @@ export default function CommunityPage() {
               </div>
 
               {/* Community Guidelines */}
-              <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
-                <h3 className="font-semibold text-blue-900 mb-2">💡 Guidelines</h3>
-                <ul className="text-xs text-blue-800 space-y-1">
+              <div className="bg-[#a8dadc]/20 rounded-xl border-2 border-[#87ceeb]/30 p-4">
+                <h3 className="font-semibold text-[#2d5016] mb-2">💡 Guidelines</h3>
+                <ul className="text-xs text-[#4a3f35] space-y-1 font-medium">
                   <li>• Be respectful and kind</li>
                   <li>• Search before posting</li>
                   <li>• Use relevant categories</li>
@@ -196,51 +197,51 @@ export default function CommunityPage() {
             {/* Main Content */}
             <div className="lg:col-span-3">
               {/* Search & Filters */}
-              <div className="bg-white rounded-xl border p-4 mb-6">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-4 mb-6 shadow-md">
                 {/* Search Bar */}
                 <div className="mb-4">
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c]" />
                     <input
                       type="text"
                       placeholder="Search topics, tags, or keywords..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
                     />
                   </div>
                 </div>
 
                 {/* Sort Options & Filters */}
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                  <span className="text-sm font-medium text-[#2d5016]">Sort by:</span>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setSortBy('recent')}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-sm ${
                         sortBy === 'recent'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                          : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                       }`}
                     >
                       Recent
                     </button>
                     <button
                       onClick={() => setSortBy('popular')}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-sm ${
                         sortBy === 'popular'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                          : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                       }`}
                     >
                       Popular
                     </button>
                     <button
                       onClick={() => setSortBy('unanswered')}
-                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                      className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-sm ${
                         sortBy === 'unanswered'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                          : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                       }`}
                     >
                       Unanswered
@@ -250,7 +251,7 @@ export default function CommunityPage() {
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}
-                      className="ml-auto flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-900"
+                      className="ml-auto flex items-center gap-1 px-3 py-1 text-sm text-[#4a3f35] hover:text-[#2d5016] font-medium"
                     >
                       <X className="h-4 w-4" />
                       Clear
@@ -266,7 +267,7 @@ export default function CommunityPage() {
                     <Link
                       key={topic.id}
                       href={`/community/${topic.id}`}
-                      className="block bg-white rounded-xl border hover:shadow-md transition-all"
+                      className="block bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 hover:shadow-lg transition-all hover:border-[#4a7c2c]/50"
                     >
                       <div className="p-6">
                         <div className="flex items-start gap-4">
@@ -281,30 +282,30 @@ export default function CommunityPage() {
                           <div className="flex-1 min-w-0">
                             {/* Title & Badges */}
                             <div className="flex items-start gap-2 mb-2">
-                              <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors flex-1">
+                              <h3 className="text-lg font-bold text-[#2d5016] group-hover:text-[#4a7c2c] transition-colors flex-1">
                                 {topic.title}
                               </h3>
                               {topic.isPinned && (
                                 <div className="flex-shrink-0">
-                                  <Pin className="h-5 w-5 text-purple-600" />
+                                  <Pin className="h-5 w-5 text-[#9c4dcc]" />
                                 </div>
                               )}
                               {topic.isSolved && (
                                 <div className="flex-shrink-0">
-                                  <CheckCircle className="h-5 w-5 text-green-600" />
+                                  <CheckCircle className="h-5 w-5 text-[#4a7c2c]" />
                                 </div>
                               )}
                             </div>
 
                             {/* Category & Tags */}
                             <div className="flex flex-wrap gap-2 mb-3">
-                              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                              <span className="px-2 py-1 bg-[#a8dadc]/30 text-[#457b9d] rounded text-xs font-medium border border-[#87ceeb]/30">
                                 {topic.category}
                               </span>
                               {topic.tags.slice(0, 3).map((tag) => (
                                 <span
                                   key={tag}
-                                  className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
+                                  className="px-2 py-1 bg-[#aed581]/20 text-[#4a3f35] rounded text-xs"
                                 >
                                   #{tag}
                                 </span>
@@ -312,8 +313,8 @@ export default function CommunityPage() {
                             </div>
 
                             {/* Meta Info */}
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                              <span className="font-medium text-gray-900">{topic.authorName}</span>
+                            <div className="flex flex-wrap items-center gap-4 text-sm text-[#4a3f35]">
+                              <span className="font-medium text-[#2d5016]">{topic.authorName}</span>
                               <span>{formatTimeAgo(topic.updatedAt)}</span>
                               <div className="flex items-center gap-1">
                                 <Eye className="h-4 w-4" />
@@ -331,7 +332,7 @@ export default function CommunityPage() {
 
                             {/* Last Reply */}
                             {topic.lastReplyBy && (
-                              <div className="mt-2 pt-2 border-t text-xs text-gray-600">
+                              <div className="mt-2 pt-2 border-t border-[#aed581]/20 text-xs text-[#4a3f35]">
                                 Last reply by <span className="font-medium">{topic.lastReplyBy}</span>{' '}
                                 {formatTimeAgo(topic.lastReplyAt!)}
                               </div>
@@ -343,16 +344,16 @@ export default function CommunityPage() {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-xl border p-12 text-center">
-                  <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No topics found</h3>
-                  <p className="text-gray-600 mb-6">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-12 text-center shadow-md">
+                  <MessageSquare className="h-12 w-12 text-[#4a7c2c] mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-[#2d5016] mb-2">No topics found</h3>
+                  <p className="text-[#4a3f35] mb-6">
                     Try adjusting your search or filters, or start a new discussion!
                   </p>
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
                     >
                       Clear Filters
                     </button>

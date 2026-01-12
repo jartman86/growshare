@@ -43,16 +43,17 @@ export default function LeaderboardPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <Trophy className="h-8 w-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Community Leaderboard</h1>
-              <p className="text-xl text-orange-100 max-w-2xl mx-auto">
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Community Leaderboard</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto drop-shadow-md font-medium">
                 Top growers ranked by their contributions and achievements
               </p>
             </div>
@@ -61,36 +62,36 @@ export default function LeaderboardPage() {
 
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Filters */}
-          <div className="bg-white rounded-xl border p-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 mb-8 shadow-md">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Rankings</h2>
+              <h2 className="text-lg font-bold text-[#2d5016]">Rankings</h2>
               <div className="flex gap-2">
                 <button
                   onClick={() => setTimeframe('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm ${
                     timeframe === 'all'
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#ffb703] to-[#fb8500] text-white shadow-md'
+                      : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                   }`}
                 >
                   All Time
                 </button>
                 <button
                   onClick={() => setTimeframe('month')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm ${
                     timeframe === 'month'
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#ffb703] to-[#fb8500] text-white shadow-md'
+                      : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                   }`}
                 >
                   This Month
                 </button>
                 <button
                   onClick={() => setTimeframe('week')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm ${
                     timeframe === 'week'
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#ffb703] to-[#fb8500] text-white shadow-md'
+                      : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                   }`}
                 >
                   This Week

@@ -67,37 +67,38 @@ export default function MarketplacePage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <ShoppingBag className="h-8 w-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Co-op Trading Post</h1>
-              <p className="text-xl text-green-100 max-w-2xl mx-auto">
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Co-op Trading Post</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto drop-shadow-md font-medium">
                 Fresh, local produce directly from growers in your community. Support sustainable
                 agriculture and enjoy the highest quality food.
               </p>
 
               {/* Stats */}
               <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.totalProducts}</p>
-                  <p className="text-sm text-green-100">Products</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.totalProducts}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Products</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.sellers}</p>
-                  <p className="text-sm text-green-100">Local Growers</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.sellers}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Local Growers</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.organicProducts}</p>
-                  <p className="text-sm text-green-100">Organic</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.organicProducts}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Organic</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.certifiedProducts}</p>
-                  <p className="text-sm text-green-100">Certified</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.certifiedProducts}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Certified</p>
                 </div>
               </div>
             </div>
@@ -105,18 +106,18 @@ export default function MarketplacePage() {
         </div>
 
         {/* Filters Section */}
-        <div className="bg-white border-b sticky top-0 z-10 shadow-sm">
+        <div className="bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur border-b-2 border-[#8bc34a]/30 sticky top-0 z-10 shadow-md">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c]" />
                 <input
                   type="text"
                   placeholder="Search products, tags, or descriptions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
                 />
               </div>
             </div>
@@ -127,10 +128,10 @@ export default function MarketplacePage() {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-sm ${
                     selectedCategory === category
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                      : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                   }`}
                 >
                   {category}
@@ -142,10 +143,10 @@ export default function MarketplacePage() {
             <div className="flex flex-wrap gap-3 items-center">
               <button
                 onClick={() => setShowOnlyOrganic(!showOnlyOrganic)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   showOnlyOrganic
-                    ? 'bg-green-100 text-green-700 border-2 border-green-600'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-[#aed581]/30 text-[#2d5016] border-2 border-[#4a7c2c] shadow-md'
+                    : 'bg-white text-[#4a3f35] border-2 border-[#8bc34a]/30 hover:bg-[#aed581]/10'
                 }`}
               >
                 <Sprout className="h-4 w-4" />
@@ -154,10 +155,10 @@ export default function MarketplacePage() {
 
               <button
                 onClick={() => setShowOnlyCertified(!showOnlyCertified)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   showOnlyCertified
-                    ? 'bg-blue-100 text-blue-700 border-2 border-blue-600'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-[#ffb703]/30 text-[#2d5016] border-2 border-[#fb8500] shadow-md'
+                    : 'bg-white text-[#4a3f35] border-2 border-[#8bc34a]/30 hover:bg-[#aed581]/10'
                 }`}
               >
                 <Award className="h-4 w-4" />
@@ -165,11 +166,11 @@ export default function MarketplacePage() {
               </button>
 
               <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-gray-500" />
+                <Package className="h-4 w-4 text-[#4a7c2c]" />
                 <select
                   value={deliveryFilter}
                   onChange={(e) => setDeliveryFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="px-3 py-2 border-2 border-[#8bc34a]/30 rounded-lg text-sm focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
                 >
                   <option value="all">All Delivery Methods</option>
                   <option value="pickup">Pickup</option>
@@ -182,7 +183,7 @@ export default function MarketplacePage() {
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-[#4a3f35] hover:text-[#2d5016] font-medium"
                 >
                   <X className="h-4 w-4" />
                   Clear All
@@ -196,7 +197,7 @@ export default function MarketplacePage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Results Count */}
           <div className="mb-6">
-            <p className="text-gray-600">
+            <p className="text-[#4a3f35] font-medium">
               {filteredProducts.length === SAMPLE_PRODUCTS.length ? (
                 <>Showing all {filteredProducts.length} products</>
               ) : (
@@ -215,18 +216,18 @@ export default function MarketplacePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <div className="inline-flex items-center justify-center p-4 bg-gray-100 rounded-full mb-4">
-                <ShoppingBag className="h-8 w-8 text-gray-400" />
+            <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
+              <div className="inline-flex items-center justify-center p-4 bg-[#aed581]/20 rounded-full mb-4">
+                <ShoppingBag className="h-8 w-8 text-[#4a7c2c]" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-lg font-semibold text-[#2d5016] mb-2">No products found</h3>
+              <p className="text-[#4a3f35] mb-6">
                 Try adjusting your filters or search query to find what you're looking for.
               </p>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
                 >
                   Clear Filters
                 </button>
