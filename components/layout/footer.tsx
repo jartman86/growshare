@@ -30,8 +30,7 @@ const footerNavigation = {
 
 export function Footer() {
   return (
-    <footer className="relative border-t-2 border-[#8bc34a]/30 bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 topo-contour">
-      <div className="absolute inset-0 garden-texture opacity-10"></div>
+    <footer className="relative border-t-2 border-[#8bc34a]/30 topo-dense bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30">
       <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Brand */}

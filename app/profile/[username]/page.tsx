@@ -71,7 +71,7 @@ export default async function ProfilePage({
     <>
       <Header />
 
-      <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 topo-bg">
+      <main className="min-h-screen topo-lines">
         {/* Cover Image */}
         {user.coverImage && (
           <div
@@ -82,9 +82,7 @@ export default async function ProfilePage({
           </div>
         )}
         {!user.coverImage && (
-          <div className="h-64 relative overflow-hidden garden-gradient-vibrant">
-            <div className="absolute inset-0 topo-contour opacity-30"></div>
-            <div className="absolute inset-0 leaf-pattern opacity-20"></div>
+          <div className="h-64 relative overflow-hidden garden-gradient-vibrant topo-lines">
           </div>
         )}
 

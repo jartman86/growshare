@@ -9,8 +9,7 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden garden-gradient-light topo-contour">
-        <div className="absolute inset-0 topo-organic opacity-30"></div>
+      <section className="relative overflow-hidden garden-gradient-light topo-lines">
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white/80 to-transparent"></div>
         <div className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
           <div className="text-center">
@@ -62,8 +61,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-white relative topo-bg">
-        <div className="absolute inset-0 garden-texture opacity-20"></div>
+      <section className="py-24 relative topo-lines">
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-[#2d5016]">Everything You Need to Grow</h2>
@@ -149,8 +147,7 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-24 relative topo-contour bg-gradient-to-br from-[#f4e4c1] via-[#aed581]/20 to-[#a8dadc]/30">
-        <div className="absolute inset-0 leaf-pattern opacity-30"></div>
+      <section className="py-24 relative topo-dense bg-gradient-to-br from-[#f4e4c1] via-[#aed581]/20 to-[#a8dadc]/30">
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-[#2d5016]">How It Works</h2>
@@ -250,11 +247,9 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-16 garden-gradient-vibrant overflow-hidden">
-        <div className="absolute inset-0 topo-contour opacity-20"></div>
+      <section className="relative py-16 garden-gradient-vibrant topo-lines overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
-          <div className="absolute inset-0 leaf-pattern opacity-10"></div>
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
