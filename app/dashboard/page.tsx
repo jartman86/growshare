@@ -5,6 +5,7 @@ import { BadgeShowcase } from '@/components/dashboard/badge-showcase'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
 import { StatsCards } from '@/components/dashboard/stats-cards'
 import { QuickActions } from '@/components/dashboard/quick-actions'
+import { auth, currentUser } from '@clerk/nextjs/server'
 
 // Mock user data - in production, this would come from database/API
 const mockUserData = {
@@ -76,7 +77,9 @@ const mockUserData = {
   ],
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const { userId } = await auth()
+  const clerkUser = await currentUser()
   const { user, stats, earnedBadges, recentActivities } = mockUserData
 
   return (
@@ -84,6 +87,20 @@ export default function DashboardPage() {
       <Header />
 
       <main className="min-h-screen bg-gray-50">
+        {/* CLERK USER ID - TEMPORARY DEBUG INFO */}
+        {userId && clerkUser && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="text-lg font-bold text-yellow-900 mb-2">🔧 Clerk User Info (for setup)</h2>
+              <div className="bg-white p-3 rounded border border-yellow-300 font-mono text-sm space-y-1">
+                <div><strong>Clerk ID:</strong> {userId}</div>
+                <div><strong>Email:</strong> {clerkUser.emailAddresses[0]?.emailAddress}</div>
+                <div><strong>Name:</strong> {clerkUser.firstName} {clerkUser.lastName}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Hero Section */}
         <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
