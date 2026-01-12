@@ -13,7 +13,7 @@ async function createUser() {
         email: 'james@extremeresilience.net',
         firstName: 'Jim',
         lastName: 'Artman',
-        role: ['GROWER'],
+        role: ['LANDOWNER', 'RENTER'],
         status: 'ACTIVE',
         totalPoints: 0,
         level: 1,
