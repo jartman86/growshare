@@ -67,7 +67,7 @@ export default async function PostPage({
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Cover Image */}
         {post.coverImage && (
           <div
@@ -82,7 +82,7 @@ export default async function PostPage({
           {/* Back Button */}
           <Link
             href={`/profile/${username}`}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+            className="inline-flex items-center gap-2 text-[#4a3f35] hover:text-[#4a7c2c] mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to {post.author.firstName}'s Profile
@@ -92,20 +92,20 @@ export default async function PostPage({
           <Card className={post.coverImage ? '-mt-32 relative z-10' : ''}>
             <CardContent className="p-8">
               {/* Post Type Badge */}
-              <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium mb-4">
+              <span className="inline-block px-3 py-1 bg-[#aed581]/30 text-[#2d5016] rounded-full text-sm font-medium mb-4">
                 {post.type}
               </span>
 
               {/* Title */}
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl font-bold text-[#2d5016] mb-4">
                 {post.title}
               </h1>
 
               {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6 pb-6 border-b">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-[#4a3f35] mb-6 pb-6 border-b-2 border-[#aed581]/20">
                 <Link
                   href={`/profile/${username}`}
-                  className="flex items-center gap-2 hover:text-green-600"
+                  className="flex items-center gap-2 hover:text-[#4a7c2c]"
                 >
                   {post.author.avatar ? (
                     <img
@@ -114,7 +114,7 @@ export default async function PostPage({
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] flex items-center justify-center">
                       <span className="text-sm font-bold text-white">
                         {post.author.firstName.charAt(0)}
                         {post.author.lastName.charAt(0)}
@@ -122,7 +122,7 @@ export default async function PostPage({
                     </div>
                   )}
                   <div>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-[#2d5016]">
                       {post.author.firstName} {post.author.lastName}
                     </div>
                     <div className="text-xs">@{username}</div>
