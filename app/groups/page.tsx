@@ -68,42 +68,43 @@ export default function GroupsPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <Users className="h-8 w-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Local Groups & Chapters</h1>
-              <p className="text-xl text-green-100 max-w-2xl mx-auto mb-8">
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Local Groups & Chapters</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto mb-8 drop-shadow-md font-medium">
                 Connect with growers in your area. Share tools, knowledge, and build community.
               </p>
 
               {/* Quick Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{SAMPLE_LOCAL_GROUPS.length}</p>
-                  <p className="text-sm text-green-100">Groups</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{SAMPLE_LOCAL_GROUPS.length}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Groups</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">
                     {SAMPLE_LOCAL_GROUPS.reduce((sum, g) => sum + g.memberCount, 0)}
                   </p>
-                  <p className="text-sm text-green-100">Members</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Members</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">
                     {SAMPLE_LOCAL_GROUPS.reduce((sum, g) => sum + g.stats.events, 0)}
                   </p>
-                  <p className="text-sm text-green-100">Events</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Events</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">
                     {new Set(SAMPLE_LOCAL_GROUPS.map((g) => g.location.city)).size}
                   </p>
-                  <p className="text-sm text-green-100">Cities</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Cities</p>
                 </div>
               </div>
             </div>
@@ -112,7 +113,7 @@ export default function GroupsPage() {
 
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Search & Filters */}
-          <div className="bg-white rounded-xl border p-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 mb-8 shadow-md">
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
@@ -122,7 +123,7 @@ export default function GroupsPage() {
                   placeholder="Search groups by name, description, or tags..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
                 />
               </div>
             </div>
@@ -172,7 +173,7 @@ export default function GroupsPage() {
               )}
 
               {/* Create Group Button */}
-              <button className="ml-auto flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
+              <button className="ml-auto flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl">
                 <Plus className="h-5 w-5" />
                 Create Group
               </button>
@@ -200,16 +201,16 @@ export default function GroupsPage() {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-xl border p-12 text-center">
-              <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No groups found</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-12 text-center shadow-md">
+              <Users className="h-16 w-16 text-[#4a7c2c] mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-[#2d5016] mb-2">No groups found</h3>
+              <p className="text-[#4a3f35] mb-6">
                 Try adjusting your search or filters, or create a new group!
               </p>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
                 >
                   Clear Filters
                 </button>
@@ -218,15 +219,15 @@ export default function GroupsPage() {
           )}
 
           {/* Create Your Own CTA */}
-          <div className="mt-12 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="mt-12 bg-gradient-to-br from-[#f4e4c1]/50 to-[#aed581]/30 rounded-xl border-2 border-[#8bc34a]/30 p-8 text-center shadow-md">
+            <h2 className="text-2xl font-bold text-[#2d5016] mb-2">
               Don't see a group in your area?
             </h2>
-            <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
+            <p className="text-[#4a3f35] mb-6 max-w-2xl mx-auto">
               Start your own local chapter and connect with growers nearby. Build a community of
               knowledge sharing and tool lending.
             </p>
-            <button className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors">
+            <button className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl">
               <Plus className="h-5 w-5" />
               Create a New Group
             </button>

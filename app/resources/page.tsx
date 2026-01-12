@@ -78,38 +78,39 @@ export default function ResourcesPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-emerald-600 to-green-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-vibrant topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <BookOpen className="h-8 w-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Growing Resources Library</h1>
-              <p className="text-xl text-emerald-100 max-w-2xl mx-auto mb-6">
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Growing Resources Library</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto mb-6 drop-shadow-md font-medium">
                 Comprehensive growing guides powered by USDA Plants Database and OpenFarm
               </p>
 
               {/* Data Sources Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm shadow-md">
                 <Database className="h-4 w-4" />
                 <span>Data from USDA • OpenFarm • Hardiness Zones</span>
               </div>
 
               {/* Stats */}
               <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.totalGuides}+</p>
-                  <p className="text-sm text-emerald-100">Plant Guides</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.totalGuides}+</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Plant Guides</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.categories}</p>
-                  <p className="text-sm text-emerald-100">Categories</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.categories}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Categories</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4 col-span-2 md:col-span-1">
-                  <p className="text-2xl font-bold">{stats.easyPlants}</p>
-                  <p className="text-sm text-emerald-100">Beginner-Friendly</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 col-span-2 md:col-span-1 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.easyPlants}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Beginner-Friendly</p>
                 </div>
               </div>
             </div>
@@ -121,7 +122,7 @@ export default function ResourcesPage() {
           <div className="grid gap-4 md:grid-cols-3 mb-8">
             <Link
               href="/resources/calendar"
-              className="bg-white rounded-xl border p-6 hover:shadow-lg transition-all group"
+              className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 hover:shadow-lg transition-all group"
             >
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
@@ -136,7 +137,7 @@ export default function ResourcesPage() {
 
             <Link
               href="/resources/pests"
-              className="bg-white rounded-xl border p-6 hover:shadow-lg transition-all group"
+              className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 hover:shadow-lg transition-all group"
             >
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
@@ -151,7 +152,7 @@ export default function ResourcesPage() {
 
             <Link
               href="/resources/companion"
-              className="bg-white rounded-xl border p-6 hover:shadow-lg transition-all group"
+              className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 hover:shadow-lg transition-all group"
             >
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
@@ -166,7 +167,7 @@ export default function ResourcesPage() {
           </div>
 
           {/* Search & Filters */}
-          <div className="bg-white rounded-xl border p-6 mb-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 mb-6 shadow-md">
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
@@ -189,10 +190,10 @@ export default function ResourcesPage() {
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-sm ${
                       selectedCategory === category
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                        : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                     }`}
                   >
                     {category}
@@ -268,16 +269,16 @@ export default function ResourcesPage() {
               </div>
             </>
           ) : (
-            <div className="bg-white rounded-xl border p-12 text-center">
-              <Leaf className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No plants found</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-12 text-center shadow-md">
+              <Leaf className="h-12 w-12 text-[#4a7c2c] mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-[#2d5016] mb-2">No plants found</h3>
+              <p className="text-[#4a3f35] mb-6">
                 Try adjusting your filters or search query to find what you're looking for.
               </p>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
                 >
                   Clear Filters
                 </button>
@@ -286,12 +287,12 @@ export default function ResourcesPage() {
           )}
 
           {/* Info Banner */}
-          <div className="mt-12 bg-blue-50 border border-blue-200 rounded-xl p-6">
-            <h3 className="font-semibold text-blue-900 mb-2">📊 Data Sources</h3>
-            <p className="text-sm text-blue-800 mb-3">
+          <div className="mt-12 bg-gradient-to-br from-[#a8dadc]/30 to-[#87ceeb]/20 border-2 border-[#87ceeb]/30 rounded-xl p-6 shadow-md">
+            <h3 className="font-semibold text-[#2d5016] mb-2">📊 Data Sources</h3>
+            <p className="text-sm text-[#4a3f35] mb-3">
               Our growing guides are compiled from authoritative sources including:
             </p>
-            <ul className="text-sm text-blue-800 space-y-1">
+            <ul className="text-sm text-[#4a3f35] space-y-1">
               <li>• <strong>USDA Plants Database</strong> - Official plant hardiness and native range data</li>
               <li>• <strong>OpenFarm</strong> - Community-contributed growing guides and tips</li>
               <li>• <strong>USDA Hardiness Zones</strong> - Climate-specific planting recommendations</li>

@@ -36,27 +36,28 @@ export default function ToolsPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-orange-600 to-amber-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <Wrench className="mx-auto h-16 w-16 mb-4" />
-              <h1 className="text-4xl font-bold mb-4">Tool & Equipment Marketplace</h1>
-              <p className="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
+              <Wrench className="mx-auto h-16 w-16 mb-4 drop-shadow-md" />
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Tool & Equipment Marketplace</h1>
+              <p className="text-xl text-[#f4e4c1] mb-8 max-w-3xl mx-auto drop-shadow-md font-medium">
                 Rent, buy, and sell quality gardening tools with your community. Save money, reduce waste, and build connections.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Link
                   href="/tools/list"
-                  className="inline-flex items-center gap-2 bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
+                  className="inline-flex items-center gap-2 bg-white text-[#4a7c2c] px-6 py-3 rounded-lg font-semibold hover:bg-[#f4e4c1] transition-all shadow-lg hover:shadow-xl"
                 >
                   <Plus className="h-5 w-5" />
                   List Your Tools
                 </Link>
                 <Link
                   href="/tools/my-rentals"
-                  className="inline-flex items-center gap-2 bg-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-400 transition-colors border-2 border-white/20"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#ffb703] to-[#fb8500] text-white px-6 py-3 rounded-lg font-semibold hover:from-[#fb8500] hover:to-[#fb8500] transition-all border-2 border-white/20 shadow-lg hover:shadow-xl"
                 >
                   <Calendar className="h-5 w-5" />
                   My Rentals
@@ -67,16 +68,16 @@ export default function ToolsPage() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 mt-12 max-w-3xl mx-auto">
               <div className="text-center">
-                <div className="text-3xl font-bold mb-1">{totalTools}</div>
-                <div className="text-orange-100 text-sm">Total Listings</div>
+                <div className="text-3xl font-bold mb-1 drop-shadow-md">{totalTools}</div>
+                <div className="text-[#f4e4c1] text-sm drop-shadow-sm">Total Listings</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold mb-1">{forRent}</div>
-                <div className="text-orange-100 text-sm">Available to Rent</div>
+                <div className="text-3xl font-bold mb-1 drop-shadow-md">{forRent}</div>
+                <div className="text-[#f4e4c1] text-sm drop-shadow-sm">Available to Rent</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold mb-1">{forSale}</div>
-                <div className="text-orange-100 text-sm">For Sale</div>
+                <div className="text-3xl font-bold mb-1 drop-shadow-md">{forSale}</div>
+                <div className="text-[#f4e4c1] text-sm drop-shadow-sm">For Sale</div>
               </div>
             </div>
           </div>
@@ -84,7 +85,7 @@ export default function ToolsPage() {
 
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {/* How It Works */}
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-8 mb-8 border border-orange-200">
+          <div className="bg-gradient-to-br from-[#ffb703]/20 to-[#fb8500]/10 rounded-xl p-8 mb-8 border-2 border-[#ffb703]/30 shadow-md">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">How Tool Sharing Works</h2>
             <div className="grid gap-6 md:grid-cols-3">
               <div className="flex flex-col items-center text-center">
@@ -118,7 +119,7 @@ export default function ToolsPage() {
           </div>
 
           {/* Search & Filters */}
-          <div className="bg-white rounded-xl border p-6 mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 mb-8 shadow-md">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
@@ -138,13 +139,13 @@ export default function ToolsPage() {
 
             {/* Category Pills */}
             <div className="flex flex-wrap gap-2 mt-4">
-              <button className="px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium hover:bg-orange-200 transition-colors">
+              <button className="px-4 py-2 bg-gradient-to-r from-[#ffb703] to-[#fb8500] text-white rounded-full text-sm font-medium shadow-md">
                 All Tools
               </button>
               {categories.map((category) => (
                 <button
                   key={category}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 bg-[#aed581]/20 text-[#4a3f35] rounded-full text-sm font-medium hover:bg-[#aed581]/40 transition-colors border border-[#8bc34a]/30"
                 >
                   {category}
                 </button>
@@ -158,7 +159,7 @@ export default function ToolsPage() {
               <Link
                 key={tool.id}
                 href={`/tools/${tool.id}`}
-                className="bg-white rounded-xl border hover:shadow-lg transition-shadow overflow-hidden group"
+                className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 hover:shadow-lg transition-all overflow-hidden group hover:border-[#4a7c2c]/50"
               >
                 {/* Tool Image */}
                 <div className="relative h-48 overflow-hidden bg-gray-100">
@@ -295,7 +296,7 @@ export default function ToolsPage() {
           </div>
 
           {/* Benefits Section */}
-          <div className="mt-12 bg-white rounded-xl border p-8">
+          <div className="mt-12 bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-8 shadow-md">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Why Share Tools?</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <div className="text-center">

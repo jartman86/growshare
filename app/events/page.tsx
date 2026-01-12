@@ -87,36 +87,37 @@ export default function EventsPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-green-600 to-teal-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="garden-gradient-earthy topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <Calendar className="h-8 w-8" />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Events & Meetups</h1>
-              <p className="text-xl text-green-100 max-w-2xl mx-auto">
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Events & Meetups</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto drop-shadow-md font-medium">
                 Workshops, seed swaps, farmers markets, and community gatherings for growers
               </p>
 
               {/* Stats */}
               <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.upcomingEvents}</p>
-                  <p className="text-sm text-green-100">Upcoming</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.upcomingEvents}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Upcoming</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.freeEvents}</p>
-                  <p className="text-sm text-green-100">Free Events</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.freeEvents}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Free Events</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{featuredEvents.length}</p>
-                  <p className="text-sm text-green-100">Featured</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{featuredEvents.length}</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Featured</p>
                 </div>
-                <div className="bg-white/10 rounded-lg p-4">
-                  <p className="text-2xl font-bold">{stats.totalAttendees}+</p>
-                  <p className="text-sm text-green-100">Attendees</p>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-md">
+                  <p className="text-2xl font-bold drop-shadow-md">{stats.totalAttendees}+</p>
+                  <p className="text-sm text-[#f4e4c1] drop-shadow-sm">Attendees</p>
                 </div>
               </div>
             </div>
@@ -133,7 +134,7 @@ export default function EventsPage() {
               {/* Create Event Button */}
               <Link
                 href="/events/new"
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
               >
                 <Plus className="h-5 w-5" />
                 Create Event
@@ -158,7 +159,7 @@ export default function EventsPage() {
               )}
 
               {/* Search & Filters */}
-          <div className="bg-white rounded-xl border p-6 mb-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 mb-6 shadow-md">
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
@@ -168,7 +169,7 @@ export default function EventsPage() {
                   placeholder="Search events by title, location, or tags..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
                 />
               </div>
             </div>
@@ -179,10 +180,10 @@ export default function EventsPage() {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-sm ${
                     selectedCategory === category
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                      : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
                   }`}
                 >
                   {category}
@@ -262,16 +263,16 @@ export default function EventsPage() {
               </div>
             </>
           ) : (
-            <div className="bg-white rounded-xl border p-12 text-center">
-              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No events found</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-12 text-center shadow-md">
+              <Calendar className="h-12 w-12 text-[#4a7c2c] mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-[#2d5016] mb-2">No events found</h3>
+              <p className="text-[#4a3f35] mb-6">
                 Try adjusting your filters or check back later for new events!
               </p>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
                 >
                   Clear Filters
                 </button>

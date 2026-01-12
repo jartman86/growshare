@@ -28,15 +28,16 @@ export default function ActivityFeedPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="garden-gradient-vibrant topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 mb-4">
-              <TrendingUp className="h-12 w-12" />
-              <h1 className="text-4xl font-bold">Activity Feed</h1>
+              <TrendingUp className="h-12 w-12 drop-shadow-md" />
+              <h1 className="text-4xl font-bold drop-shadow-lg">Activity Feed</h1>
             </div>
-            <p className="text-green-100 text-lg">
+            <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
               See what's happening in your GrowShare community
             </p>
           </div>
@@ -52,22 +53,22 @@ export default function ActivityFeedPage() {
             {/* Main Content */}
             <div className="lg:col-span-3">
               {/* Filter Options */}
-          <div className="bg-white rounded-xl border p-4 mb-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-4 mb-6 shadow-md">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-gray-700">Show:</span>
-              <button className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium">
+              <span className="text-sm font-medium text-[#2d5016]">Show:</span>
+              <button className="px-4 py-2 bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white rounded-lg text-sm font-medium shadow-md">
                 All Activity
               </button>
-              <button className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">
+              <button className="px-4 py-2 text-[#4a3f35] hover:bg-[#aed581]/20 rounded-lg text-sm font-medium transition-colors border border-[#8bc34a]/30">
                 Following Only
               </button>
-              <button className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">
+              <button className="px-4 py-2 text-[#4a3f35] hover:bg-[#aed581]/20 rounded-lg text-sm font-medium transition-colors border border-[#8bc34a]/30">
                 Achievements
               </button>
-              <button className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">
+              <button className="px-4 py-2 text-[#4a3f35] hover:bg-[#aed581]/20 rounded-lg text-sm font-medium transition-colors border border-[#8bc34a]/30">
                 Tools & Sales
               </button>
-              <button className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors">
+              <button className="px-4 py-2 text-[#4a3f35] hover:bg-[#aed581]/20 rounded-lg text-sm font-medium transition-colors border border-[#8bc34a]/30">
                 Forum Posts
               </button>
             </div>
@@ -78,7 +79,7 @@ export default function ActivityFeedPage() {
             {SAMPLE_ACTIVITY_FEED.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-xl border p-6 hover:shadow-md transition-shadow"
+                className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 hover:shadow-lg transition-all hover:border-[#4a7c2c]/50"
               >
                 <div className="flex gap-4">
                   {/* User Avatar */}
@@ -136,23 +137,23 @@ export default function ActivityFeedPage() {
 
           {/* Load More */}
           <div className="mt-8 text-center">
-            <button className="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+            <button className="px-6 py-3 bg-white/90 border-2 border-[#aed581]/30 text-[#2d5016] rounded-lg font-semibold hover:bg-[#aed581]/20 transition-all shadow-md">
               Load More Activity
             </button>
           </div>
 
           {/* Info Box */}
-          <div className="mt-8 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6">
+          <div className="mt-8 bg-gradient-to-br from-[#f4e4c1]/50 to-[#aed581]/30 rounded-xl border-2 border-[#8bc34a]/30 p-6 shadow-md">
             <div className="flex items-start gap-3">
-              <Users className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+              <Users className="h-6 w-6 text-[#4a7c2c] flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-bold text-gray-900 mb-2">Build Your Network</h3>
-                <p className="text-sm text-gray-700 mb-3">
+                <h3 className="font-bold text-[#2d5016] mb-2">Build Your Network</h3>
+                <p className="text-sm text-[#4a3f35] mb-3">
                   Follow other community members to see their activity in your feed. The more people you follow, the more personalized your feed becomes!
                 </p>
                 <Link
                   href="/community"
-                  className="text-sm text-green-600 hover:text-green-700 font-medium"
+                  className="text-sm text-[#4a7c2c] hover:text-[#2d5016] font-medium"
                 >
                   Explore Community Members →
                 </Link>

@@ -116,20 +116,21 @@ export default function NotificationsPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen topo-lines">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
+          <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 mb-4">
-              <Bell className="h-12 w-12" />
-              <h1 className="text-4xl font-bold">Notifications</h1>
+              <Bell className="h-12 w-12 drop-shadow-md" />
+              <h1 className="text-4xl font-bold drop-shadow-lg">Notifications</h1>
             </div>
-            <p className="text-blue-100 text-lg">
+            <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
               Stay updated with what's happening in your community
             </p>
             {unreadCount > 0 && (
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-500 rounded-lg">
-                <span className="font-semibold">{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</span>
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg shadow-md">
+                <span className="font-semibold drop-shadow-sm">{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</span>
               </div>
             )}
           </div>
@@ -137,26 +138,26 @@ export default function NotificationsPage() {
 
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Filter & Actions */}
-          <div className="bg-white rounded-xl border p-4 mb-6 flex items-center justify-between">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-4 mb-6 flex items-center justify-between shadow-md">
             <div className="flex items-center gap-4">
               <Filter className="h-5 w-5 text-gray-600" />
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilterType('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm ${
                     filterType === 'all'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
+                      : 'text-[#4a3f35] hover:bg-[#aed581]/20 border border-[#8bc34a]/30'
                   }`}
                 >
                   All ({notifications.length})
                 </button>
                 <button
                   onClick={() => setFilterType('unread')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm ${
                     filterType === 'unread'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
+                      : 'text-[#4a3f35] hover:bg-[#aed581]/20 border border-[#8bc34a]/30'
                   }`}
                 >
                   Unread ({unreadCount})
@@ -167,7 +168,7 @@ export default function NotificationsPage() {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#4a7c2c] hover:bg-[#aed581]/20 rounded-lg transition-colors"
               >
                 <CheckCheck className="h-4 w-4" />
                 Mark all as read
@@ -181,8 +182,8 @@ export default function NotificationsPage() {
               filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`bg-white rounded-xl border hover:shadow-md transition-shadow ${
-                    !notification.read ? 'ring-2 ring-blue-200' : ''
+                  className={`bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 hover:shadow-lg transition-all ${
+                    !notification.read ? 'ring-2 ring-[#8bc34a]/50 border-[#4a7c2c]/50' : ''
                   }`}
                 >
                   <div className="p-6">
@@ -250,12 +251,12 @@ export default function NotificationsPage() {
                 </div>
               ))
             ) : (
-              <div className="bg-white rounded-xl border p-12 text-center">
-                <Bell className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-12 text-center shadow-md">
+                <Bell className="h-16 w-16 text-[#4a7c2c] mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-[#2d5016] mb-2">
                   {filterType === 'unread' ? 'All caught up!' : 'No notifications yet'}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-[#4a3f35]">
                   {filterType === 'unread'
                     ? 'You have no unread notifications'
                     : "We'll notify you when something happens"}
