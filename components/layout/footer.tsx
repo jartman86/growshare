@@ -30,16 +30,17 @@ const footerNavigation = {
 
 export function Footer() {
   return (
-    <footer className="border-t bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <footer className="relative border-t-2 border-[#8bc34a]/30 bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 topo-contour">
+      <div className="absolute inset-0 garden-texture opacity-10"></div>
+      <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center space-x-2">
-              <Sprout className="h-8 w-8 text-green-600" />
-              <span className="text-xl font-bold text-gray-900">GrowShare</span>
+            <Link href="/" className="flex items-center space-x-2 group">
+              <Sprout className="h-8 w-8 text-[#4a7c2c] transition-transform group-hover:scale-110 group-hover:rotate-12" />
+              <span className="text-xl font-bold bg-gradient-to-r from-[#2d5016] to-[#4a7c2c] bg-clip-text text-transparent">GrowShare</span>
             </Link>
-            <p className="text-sm text-gray-600 max-w-xs">
+            <p className="text-sm text-[#4a3f35] max-w-xs font-medium">
               Transforming land into opportunity. Building thriving agricultural communities through connection, education, and shared growth.
             </p>
             <div className="flex space-x-4">
@@ -51,13 +52,13 @@ export function Footer() {
           <div className="mt-12 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-900">Platform</h3>
+                <h3 className="text-sm font-semibold text-[#2d5016] mb-1">Platform</h3>
                 <ul className="mt-4 space-y-3">
                   {footerNavigation.platform.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm text-gray-600 hover:text-gray-900"
+                        className="text-sm text-[#4a3f35] hover:text-[#4a7c2c] transition-colors"
                       >
                         {item.name}
                       </Link>
@@ -66,13 +67,13 @@ export function Footer() {
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-900">Community</h3>
+                <h3 className="text-sm font-semibold text-[#2d5016] mb-1">Community</h3>
                 <ul className="mt-4 space-y-3">
                   {footerNavigation.community.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm text-gray-600 hover:text-gray-900"
+                        className="text-sm text-[#4a3f35] hover:text-[#4a7c2c] transition-colors"
                       >
                         {item.name}
                       </Link>
@@ -83,13 +84,13 @@ export function Footer() {
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-900">Support</h3>
+                <h3 className="text-sm font-semibold text-[#2d5016] mb-1">Support</h3>
                 <ul className="mt-4 space-y-3">
                   {footerNavigation.support.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm text-gray-600 hover:text-gray-900"
+                        className="text-sm text-[#4a3f35] hover:text-[#4a7c2c] transition-colors"
                       >
                         {item.name}
                       </Link>
@@ -98,13 +99,13 @@ export function Footer() {
                 </ul>
               </div>
               <div className="mt-12 md:mt-0">
-                <h3 className="text-sm font-semibold text-gray-900">Legal</h3>
+                <h3 className="text-sm font-semibold text-[#2d5016] mb-1">Legal</h3>
                 <ul className="mt-4 space-y-3">
                   {footerNavigation.legal.map((item) => (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="text-sm text-gray-600 hover:text-gray-900"
+                        className="text-sm text-[#4a3f35] hover:text-[#4a7c2c] transition-colors"
                       >
                         {item.name}
                       </Link>
@@ -116,8 +117,8 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-gray-200 pt-8">
-          <p className="text-sm text-gray-500 text-center">
+        <div className="mt-12 border-t-2 border-[#8bc34a]/20 pt-8">
+          <p className="text-sm text-[#4a3f35] text-center font-medium">
             &copy; {new Date().getFullYear()} GrowShare. All rights reserved.
           </p>
         </div>

@@ -146,13 +146,13 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-[#8bc34a]/30 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-md">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <Sprout className="h-8 w-8 text-green-600 transition-transform group-hover:scale-110" />
-              <span className="text-xl font-bold text-gray-900">GrowShare</span>
+              <Sprout className="h-8 w-8 text-[#4a7c2c] transition-transform group-hover:scale-110 group-hover:rotate-12" />
+              <span className="text-xl font-bold bg-gradient-to-r from-[#2d5016] to-[#4a7c2c] bg-clip-text text-transparent">GrowShare</span>
             </Link>
 
             {/* Main Navigation - Desktop */}
@@ -169,8 +169,8 @@ export function Header() {
                     className={cn(
                       'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
                       isActive
-                        ? 'bg-green-50 text-green-700 shadow-sm'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
+                        : 'text-[#4a3f35] hover:bg-[#aed581]/20 hover:text-[#2d5016]'
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -211,11 +211,11 @@ export function Header() {
                   {/* Messages Icon */}
                   <Link
                     href="/messages"
-                    className="relative p-2 rounded-lg hover:bg-gray-100 transition-all hover:scale-105"
+                    className="relative p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
                   >
-                    <Mail className="h-5 w-5 text-gray-700" />
+                    <Mail className="h-5 w-5 text-[#4a7c2c]" />
                     {unreadMessagesCount > 0 && (
-                      <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                      <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-gradient-to-br from-[#87ceeb] to-[#457b9d] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse shadow-md">
                         {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                       </span>
                     )}
@@ -225,11 +225,11 @@ export function Header() {
                   <div className="relative">
                     <button
                       onClick={() => setShowNotifications(!showNotifications)}
-                      className="relative p-2 rounded-lg hover:bg-gray-100 transition-all hover:scale-105"
+                      className="relative p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
                     >
-                      <Bell className="h-5 w-5 text-gray-700" />
+                      <Bell className="h-5 w-5 text-[#4a7c2c]" />
                       {unreadCount > 0 && (
-                        <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                        <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-gradient-to-br from-[#ef233c] to-[#d62828] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse shadow-md">
                           {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                       )}
@@ -248,10 +248,10 @@ export function Header() {
                   {username && (
                     <Link
                       href={`/profile/${username}`}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-all hover:scale-105"
+                      className="p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
                       title="View Profile"
                     >
-                      <UserIcon className="h-5 w-5 text-gray-700" />
+                      <UserIcon className="h-5 w-5 text-[#4a7c2c]" />
                     </Link>
                   )}
 
@@ -267,12 +267,12 @@ export function Header() {
               ) : (
                 <>
                   <SignInButton mode="modal">
-                    <button className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                    <button className="rounded-lg px-4 py-2 text-sm font-medium text-[#4a7c2c] hover:bg-[#aed581]/20 hover:text-[#2d5016] transition-colors">
                       Sign In
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-all hover:shadow-md">
+                    <button className="rounded-lg bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] px-4 py-2 text-sm font-medium text-white hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all hover:shadow-lg hover:scale-105">
                       Get Started
                     </button>
                   </SignUpButton>
@@ -285,7 +285,7 @@ export function Header() {
 
       {/* Mobile Bottom Navigation */}
       {isSignedIn && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur border-t-2 border-[#8bc34a]/30 shadow-lg">
           <div className="grid grid-cols-5 gap-1 px-2 py-2">
             {mobileNavItems.map((item) => {
               const Icon = item.icon
@@ -298,8 +298,8 @@ export function Header() {
                   className={cn(
                     'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
                     isActive
-                      ? 'text-green-600 bg-green-50'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
+                      : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
                   )}
                 >
                   <Icon className={cn('h-5 w-5', isActive && 'scale-110')} />
@@ -315,8 +315,8 @@ export function Header() {
                 className={cn(
                   'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
                   pathname.startsWith(`/profile/${username}`)
-                    ? 'text-green-600 bg-green-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
+                    : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
                 )}
               >
                 <UserIcon className={cn('h-5 w-5', pathname.startsWith(`/profile/${username}`) && 'scale-110')} />
