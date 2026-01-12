@@ -34,11 +34,16 @@ model User {
   id                String      @id @default(cuid())
   clerkId           String      @unique
   email             String      @unique
+  username          String?     @unique
   firstName         String
   lastName          String
   phoneNumber       String?
   avatar            String?
+  coverImage        String?
   bio               String?
+  location          String?
+  website           String?
+  socialLinks       Json?
   role              UserRole[]  @default([RENTER])
   status            UserStatus  @default(ACTIVE)
 
@@ -72,9 +77,11 @@ model User {
   produceListings   ProduceListing[]
   orders            Order[]
   activities        UserActivity[]
+  posts             UserPost[]
 
   @@index([clerkId])
   @@index([email])
+  @@index([username])
   @@index([status])
 }
 
@@ -671,6 +678,61 @@ model Order {
   @@index([listingId])
   @@index([buyerId])
   @@index([status])
+}
+
+// ============================================
+// USER CONTENT & SOCIAL
+// ============================================
+
+enum PostType {
+  BLOG
+  TIP
+  RECIPE
+  VLOG
+  UPDATE
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model UserPost {
+  id          String     @id @default(cuid())
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  title       String
+  slug        String     @unique
+  content     String     // Rich text content
+  excerpt     String?    // Short summary
+
+  type        PostType   @default(BLOG)
+  status      PostStatus @default(PUBLISHED)
+
+  // Media
+  coverImage  String?
+  images      String[]   // Array of image URLs
+  videoUrl    String?
+
+  // Engagement
+  views       Int        @default(0)
+  likes       Int        @default(0)
+
+  // SEO & Discovery
+  tags        String[]
+
+  // Timestamps
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([authorId])
+  @@index([slug])
+  @@index([status])
+  @@index([type])
+  @@index([publishedAt])
 }
 
 // ============================================
