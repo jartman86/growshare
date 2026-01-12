@@ -31,9 +31,11 @@ export default function JournalPage() {
   })
 
   // Sort by date (most recent first)
-  const sortedEntries = [...filteredEntries].sort(
-    (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
-  )
+  const sortedEntries = [...filteredEntries].sort((a, b) => {
+    const dateA = new Date(a.updatedAt).getTime()
+    const dateB = new Date(b.updatedAt).getTime()
+    return dateB - dateA
+  })
 
   const handleNewEntry = (entry: any) => {
     setEntries([entry, ...entries])
