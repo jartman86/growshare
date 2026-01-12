@@ -90,11 +90,19 @@ export default async function ProfilePage({
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Avatar */}
                 <div className="flex-shrink-0 -mt-16 md:-mt-0">
-                  <img
-                    src={user.avatar || '/default-avatar.png'}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-32 h-32 rounded-full border-4 border-white shadow-xl"
-                  />
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      className="w-32 h-32 rounded-full border-4 border-white shadow-xl"
+                    />
+                  ) : (
+                    <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                      <span className="text-4xl font-bold text-white">
+                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex-1">
