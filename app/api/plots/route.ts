@@ -88,6 +88,16 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
+    // Convert form values to uppercase enum values
+    const soilTypeEnum = (body.soilType || []).map((type: string) => type.toUpperCase())
+    const waterAccessEnum = (body.waterAccess || []).map((access: string) => {
+      // Handle special cases
+      if (access === 'Stream/Creek') return 'STREAM'
+      if (access === 'Pond/Lake') return 'POND'
+      if (access === 'Rainwater Collection') return 'IRRIGATION'
+      return access.toUpperCase()
+    })
+
     // Create the plot
     const plot = await prisma.plot.create({
       data: {
@@ -103,9 +113,9 @@ export async function POST(request: NextRequest) {
         latitude: body.latitude,
         longitude: body.longitude,
         acreage: body.acreage,
-        soilType: body.soilType || [],
+        soilType: soilTypeEnum,
         soilPH: body.soilPH,
-        waterAccess: body.waterAccess || [],
+        waterAccess: waterAccessEnum,
         usdaZone: body.usdaZone,
         sunExposure: body.sunExposure,
         hasFencing: body.hasFencing || false,
