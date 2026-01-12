@@ -4,13 +4,13 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent } from '@/components/ui/card'
 import { auth } from '@clerk/nextjs/server'
+import { prisma } from '@/lib/prisma'
 import {
   ArrowLeft,
   Calendar,
   Eye,
   Heart,
   Tag,
-  User,
   Edit,
 } from 'lucide-react'
 
@@ -22,27 +22,44 @@ export default async function PostPage({
   const { username, slug } = await params
   const { userId } = await auth()
 
-  // Fetch the post
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/posts/${slug}`,
-    { cache: 'no-store' }
-  )
+  // Fetch the post directly from database
+  const post = await prisma.userPost.findUnique({
+    where: { slug },
+    include: {
+      author: {
+        select: {
+          id: true,
+          clerkId: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          bio: true,
+        },
+      },
+    },
+  })
 
-  if (!response.ok) {
+  if (!post) {
     notFound()
   }
 
-  const post = await response.json()
+  // Increment view count
+  await prisma.userPost.update({
+    where: { slug },
+    data: { views: { increment: 1 } },
+  })
 
   // Check if current user is the author
-  const isAuthor = userId && post.author.id === userId
+  const isAuthor = userId && post.author.clerkId === userId
 
-  const formatDate = (date: string) => {
+  const formatDate = (date: Date | null) => {
+    if (!date) return ''
     return new Intl.DateTimeFormat('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
-    }).format(new Date(date))
+    }).format(date)
   }
 
   return (
