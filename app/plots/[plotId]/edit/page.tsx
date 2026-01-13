@@ -18,8 +18,8 @@ const plotSchema = z.object({
   state: z.string().min(2, 'State is required'),
   zipCode: z.string().min(5, 'Zip code is required'),
   county: z.string().optional(),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
+  latitude: z.number().min(-90).max(90).optional().or(z.nan()),
+  longitude: z.number().min(-180).max(180).optional().or(z.nan()),
   acreage: z.number().min(0.1, 'Acreage must be at least 0.1'),
   soilType: z.array(z.string()).min(1, 'Select at least one soil type'),
   soilPH: z.number().min(0).max(14).optional(),
@@ -333,13 +333,14 @@ export default function EditPlotPage({
 
                 <div>
                   <label className="block text-sm font-medium text-[#4a3f35] mb-1">
-                    Latitude *
+                    Latitude (optional - for map display)
                   </label>
                   <input
                     type="number"
                     step="any"
                     {...register('latitude', { valueAsNumber: true })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
+                    placeholder="e.g., 45.5231"
                   />
                   {errors.latitude && (
                     <p className="text-sm text-red-600 mt-1">{errors.latitude.message}</p>
@@ -348,13 +349,14 @@ export default function EditPlotPage({
 
                 <div>
                   <label className="block text-sm font-medium text-[#4a3f35] mb-1">
-                    Longitude *
+                    Longitude (optional - for map display)
                   </label>
                   <input
                     type="number"
                     step="any"
                     {...register('longitude', { valueAsNumber: true })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
+                    placeholder="e.g., -122.6765"
                   />
                   {errors.longitude && (
                     <p className="text-sm text-red-600 mt-1">{errors.longitude.message}</p>
