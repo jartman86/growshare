@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "reset-user": "tsx scripts/reset-user.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
