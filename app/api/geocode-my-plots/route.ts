@@ -58,23 +58,28 @@ async function geocodePlots() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Find all plots without coordinates
+    // Find all plots for this user
     const plots = await prisma.plot.findMany({
       where: {
         ownerId: currentUser.id,
-        OR: [
-          { latitude: null },
-          { longitude: null },
-        ],
       },
     })
 
-    console.log(`Found ${plots.length} plots without coordinates`)
+    console.log(`Found ${plots.length} plots to geocode`)
 
     let updated = 0
     let failed = 0
+    let skipped = 0
 
     for (const plot of plots) {
+      // Skip if plot already has valid coordinates (not default fallback)
+      if (plot.latitude && plot.longitude &&
+          !(plot.latitude === 39.8283 && plot.longitude === -98.5795)) {
+        console.log(`Plot ${plot.id} already has coordinates, skipping`)
+        skipped++
+        continue
+      }
+
       const coords = await geocodeAddress(plot.address, plot.city, plot.state, plot.zipCode)
 
       if (coords) {
@@ -100,6 +105,7 @@ async function geocodePlots() {
       message: 'Geocoding complete',
       updated,
       failed,
+      skipped,
       total: plots.length,
     })
   } catch (error) {
