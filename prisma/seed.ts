@@ -34,6 +34,7 @@ async function main() {
     data: {
       clerkId: 'user_clerk_1',
       email: 'sarah@example.com',
+      username: 'sarahchen',
       firstName: 'Sarah',
       lastName: 'Chen',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
@@ -48,6 +49,7 @@ async function main() {
     data: {
       clerkId: 'user_clerk_2',
       email: 'michael@example.com',
+      username: 'mrodriguez',
       firstName: 'Michael',
       lastName: 'Rodriguez',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
@@ -62,6 +64,7 @@ async function main() {
     data: {
       clerkId: 'user_clerk_3',
       email: 'emma@example.com',
+      username: 'emmathompson',
       firstName: 'Emma',
       lastName: 'Thompson',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
@@ -168,6 +171,7 @@ async function main() {
     data: {
       clerkId: 'user_clerk_4',
       email: 'harold@example.com',
+      username: 'haroldthompson',
       firstName: 'Harold',
       lastName: 'Thompson',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Harold',
@@ -181,6 +185,7 @@ async function main() {
     data: {
       clerkId: 'user_clerk_5',
       email: 'devon@example.com',
+      username: 'devonmartinez',
       firstName: 'Devon',
       lastName: 'Martinez',
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Devon',
