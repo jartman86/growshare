@@ -18,6 +18,7 @@ import {
   Users,
   Target,
   BookIcon,
+  List,
   CalendarIcon,
   BugIcon,
   FlowerIcon,
@@ -212,6 +213,7 @@ export function Header() {
                   <Link
                     href="/messages"
                     className="relative p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
+                    title="Messages"
                   >
                     <Mail className="h-5 w-5 text-[#4a7c2c]" />
                     {unreadMessagesCount > 0 && (
@@ -219,6 +221,15 @@ export function Header() {
                         {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                       </span>
                     )}
+                  </Link>
+
+                  {/* My Plots Link */}
+                  <Link
+                    href="/my-plots"
+                    className="p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
+                    title="My Plots"
+                  >
+                    <List className="h-5 w-5 text-[#4a7c2c]" />
                   </Link>
 
                   {/* Notification Bell */}
