@@ -2,6 +2,42 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
+// Helper function to geocode an address
+async function geocodeAddress(address: string, city: string, state: string, zipCode: string): Promise<{ latitude: number; longitude: number } | null> {
+  try {
+    const fullAddress = `${address}, ${city}, ${state} ${zipCode}, USA`
+    const encodedAddress = encodeURIComponent(fullAddress)
+
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`,
+      {
+        headers: {
+          'User-Agent': 'GrowShare/1.0',
+        },
+      }
+    )
+
+    if (!response.ok) {
+      console.error('Geocoding API error:', response.statusText)
+      return null
+    }
+
+    const data = await response.json()
+
+    if (data && data.length > 0) {
+      return {
+        latitude: parseFloat(data[0].lat),
+        longitude: parseFloat(data[0].lon),
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.error('Geocoding error:', error)
+    return null
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ plotId: string }> }
@@ -130,6 +166,25 @@ export async function PATCH(
         })
       : undefined
 
+    // Geocode address if coordinates not provided or invalid
+    let latitude = body.latitude
+    let longitude = body.longitude
+
+    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+      console.log('Geocoding address for update:', body.address, body.city, body.state, body.zipCode)
+      const coords = await geocodeAddress(body.address, body.city, body.state, body.zipCode)
+      if (coords) {
+        latitude = coords.latitude
+        longitude = coords.longitude
+        console.log('Geocoded successfully:', latitude, longitude)
+      } else {
+        console.log('Geocoding failed, keeping existing coordinates')
+        // Keep existing coordinates if geocoding fails
+        latitude = plot.latitude
+        longitude = plot.longitude
+      }
+    }
+
     // Update the plot
     const updatedPlot = await prisma.plot.update({
       where: { id: plotId },
@@ -142,8 +197,8 @@ export async function PATCH(
         state: body.state,
         zipCode: body.zipCode,
         county: body.county,
-        latitude: body.latitude,
-        longitude: body.longitude,
+        latitude: latitude,
+        longitude: longitude,
         acreage: body.acreage,
         soilType: soilTypeEnum,
         soilPH: body.soilPH,

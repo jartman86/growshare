@@ -2,6 +2,42 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
+// Helper function to geocode an address
+async function geocodeAddress(address: string, city: string, state: string, zipCode: string): Promise<{ latitude: number; longitude: number } | null> {
+  try {
+    const fullAddress = `${address}, ${city}, ${state} ${zipCode}, USA`
+    const encodedAddress = encodeURIComponent(fullAddress)
+
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`,
+      {
+        headers: {
+          'User-Agent': 'GrowShare/1.0', // Nominatim requires a User-Agent
+        },
+      }
+    )
+
+    if (!response.ok) {
+      console.error('Geocoding API error:', response.statusText)
+      return null
+    }
+
+    const data = await response.json()
+
+    if (data && data.length > 0) {
+      return {
+        latitude: parseFloat(data[0].lat),
+        longitude: parseFloat(data[0].lon),
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.error('Geocoding error:', error)
+    return null
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
@@ -158,6 +194,25 @@ export async function POST(request: NextRequest) {
       return access.toUpperCase()
     })
 
+    // Geocode address if coordinates not provided
+    let latitude = body.latitude
+    let longitude = body.longitude
+
+    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+      console.log('Geocoding address:', body.address, body.city, body.state, body.zipCode)
+      const coords = await geocodeAddress(body.address, body.city, body.state, body.zipCode)
+      if (coords) {
+        latitude = coords.latitude
+        longitude = coords.longitude
+        console.log('Geocoded successfully:', latitude, longitude)
+      } else {
+        console.log('Geocoding failed, using default coordinates')
+        // Use a default coordinate (center of US) if geocoding fails
+        latitude = 39.8283
+        longitude = -98.5795
+      }
+    }
+
     // Create the plot
     const plot = await prisma.plot.create({
       data: {
@@ -170,8 +225,8 @@ export async function POST(request: NextRequest) {
         state: body.state,
         zipCode: body.zipCode,
         county: body.county,
-        latitude: body.latitude,
-        longitude: body.longitude,
+        latitude: latitude,
+        longitude: longitude,
         acreage: body.acreage,
         soilType: soilTypeEnum,
         soilPH: body.soilPH,
