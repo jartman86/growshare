@@ -29,11 +29,28 @@ export async function GET() {
       return NextResponse.json({ error: 'Could not fetch user data' }, { status: 500 })
     }
 
+    // Generate username from Clerk username or email
+    let username = clerkUser.username
+    if (!username) {
+      // Generate from email (part before @)
+      const emailPrefix = clerkUser.emailAddresses[0].emailAddress.split('@')[0]
+      username = emailPrefix.toLowerCase().replace(/[^a-z0-9]/g, '')
+    }
+
+    // Ensure username is unique
+    let finalUsername = username
+    let counter = 1
+    while (await prisma.user.findUnique({ where: { username: finalUsername } })) {
+      finalUsername = `${username}${counter}`
+      counter++
+    }
+
     // Create user in database
     const user = await prisma.user.create({
       data: {
         clerkId: userId,
         email: clerkUser.emailAddresses[0].emailAddress,
+        username: finalUsername,
         firstName: clerkUser.firstName || '',
         lastName: clerkUser.lastName || '',
         avatar: clerkUser.imageUrl,
