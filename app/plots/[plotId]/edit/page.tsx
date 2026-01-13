@@ -53,9 +53,9 @@ type PlotFormData = z.infer<typeof plotSchema>
 export default function EditPlotPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ plotId: string }>
 }) {
-  const { id } = use(params)
+  const { plotId } = use(params)
   const router = useRouter()
   const { isSignedIn } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -83,11 +83,11 @@ export default function EditPlotPage({
     }
 
     fetchPlot()
-  }, [isSignedIn, id])
+  }, [isSignedIn, plotId])
 
   const fetchPlot = async () => {
     try {
-      const response = await fetch(`/api/plots/${id}`)
+      const response = await fetch(`/api/plots/${plotId}`)
       if (!response.ok) {
         alert('Failed to load plot')
         router.push('/my-plots')
@@ -173,7 +173,7 @@ export default function EditPlotPage({
   const onSubmit = async (data: PlotFormData) => {
     setIsSubmitting(true)
     try {
-      const response = await fetch(`/api/plots/${id}`, {
+      const response = await fetch(`/api/plots/${plotId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
