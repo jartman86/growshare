@@ -115,6 +115,21 @@ export async function PATCH(
       )
     }
 
+    // Convert form values to uppercase enum values
+    const soilTypeEnum = body.soilType
+      ? body.soilType.map((type: string) => type.toUpperCase())
+      : undefined
+
+    const waterAccessEnum = body.waterAccess
+      ? body.waterAccess.map((access: string) => {
+          // Handle special cases
+          if (access === 'Stream/Creek') return 'STREAM'
+          if (access === 'Pond/Lake') return 'POND'
+          if (access === 'Rainwater Collection') return 'IRRIGATION'
+          return access.toUpperCase()
+        })
+      : undefined
+
     // Update the plot
     const updatedPlot = await prisma.plot.update({
       where: { id: plotId },
@@ -130,9 +145,9 @@ export async function PATCH(
         latitude: body.latitude,
         longitude: body.longitude,
         acreage: body.acreage,
-        soilType: body.soilType,
+        soilType: soilTypeEnum,
         soilPH: body.soilPH,
-        waterAccess: body.waterAccess,
+        waterAccess: waterAccessEnum,
         usdaZone: body.usdaZone,
         sunExposure: body.sunExposure,
         hasFencing: body.hasFencing,
