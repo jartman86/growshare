@@ -9,11 +9,24 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get('state')
     const minAcreage = searchParams.get('minAcreage')
     const maxAcreage = searchParams.get('maxAcreage')
+    const minPrice = searchParams.get('minPrice')
     const maxPrice = searchParams.get('maxPrice')
-    const status = searchParams.get('status') || 'ACTIVE'
+    const status = searchParams.get('status')
+    const soilTypes = searchParams.get('soilTypes')
+    const waterAccess = searchParams.get('waterAccess')
+    const hasIrrigation = searchParams.get('hasIrrigation')
+    const hasFencing = searchParams.get('hasFencing')
+    const hasGreenhouse = searchParams.get('hasGreenhouse')
+    const hasElectricity = searchParams.get('hasElectricity')
 
-    const where: any = {
-      status: status as any,
+    const where: any = {}
+
+    // Status filter - support multiple statuses or default to ACTIVE and RENTED
+    if (status) {
+      const statuses = status.split(',')
+      where.status = { in: statuses }
+    } else {
+      where.status = { in: ['ACTIVE', 'RENTED'] }
     }
 
     if (city) {
@@ -24,17 +37,35 @@ export async function GET(request: NextRequest) {
       where.state = { contains: state, mode: 'insensitive' }
     }
 
-    if (minAcreage) {
-      where.acreage = { ...where.acreage, gte: parseFloat(minAcreage) }
+    if (minAcreage || maxAcreage) {
+      where.acreage = {}
+      if (minAcreage) where.acreage.gte = parseFloat(minAcreage)
+      if (maxAcreage) where.acreage.lte = parseFloat(maxAcreage)
     }
 
-    if (maxAcreage) {
-      where.acreage = { ...where.acreage, lte: parseFloat(maxAcreage) }
+    if (minPrice || maxPrice) {
+      where.pricePerMonth = {}
+      if (minPrice) where.pricePerMonth.gte = parseFloat(minPrice)
+      if (maxPrice) where.pricePerMonth.lte = parseFloat(maxPrice)
     }
 
-    if (maxPrice) {
-      where.pricePerMonth = { lte: parseFloat(maxPrice) }
+    // Soil types filter
+    if (soilTypes) {
+      const types = soilTypes.split(',')
+      where.soilType = { hasSome: types }
     }
+
+    // Water access filter
+    if (waterAccess) {
+      const access = waterAccess.split(',')
+      where.waterAccess = { hasSome: access }
+    }
+
+    // Feature filters
+    if (hasIrrigation === 'true') where.hasIrrigation = true
+    if (hasFencing === 'true') where.hasFencing = true
+    if (hasGreenhouse === 'true') where.hasGreenhouse = true
+    if (hasElectricity === 'true') where.hasElectricity = true
 
     const plots = await prisma.plot.findMany({
       where,
@@ -60,7 +91,36 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(plots)
+    // Transform to PlotMarker format with calculated average ratings
+    const plotMarkers = plots.map(plot => {
+      const ratings = plot.reviews.map(r => r.rating)
+      const averageRating = ratings.length > 0
+        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+        : undefined
+
+      return {
+        id: plot.id,
+        title: plot.title,
+        latitude: plot.latitude,
+        longitude: plot.longitude,
+        acreage: plot.acreage,
+        pricePerMonth: plot.pricePerMonth,
+        status: plot.status,
+        images: plot.images,
+        city: plot.city,
+        state: plot.state,
+        soilType: plot.soilType,
+        waterAccess: plot.waterAccess,
+        hasIrrigation: plot.hasIrrigation,
+        hasFencing: plot.hasFencing,
+        hasGreenhouse: plot.hasGreenhouse,
+        averageRating,
+        ownerName: `${plot.owner.firstName} ${plot.owner.lastName}`,
+        ownerAvatar: plot.owner.avatar || undefined,
+      }
+    })
+
+    return NextResponse.json(plotMarkers)
   } catch (error) {
     console.error('Error fetching plots:', error)
     return NextResponse.json(

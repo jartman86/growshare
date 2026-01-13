@@ -1,13 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Header } from '@/components/layout/header'
 import { Map } from '@/components/map/map'
 import { PlotCard } from '@/components/map/plot-card'
 import { FilterSidebar } from '@/components/map/filter-sidebar'
-import { SAMPLE_PLOTS } from '@/lib/sample-data'
 import { MapFilters, PlotMarker } from '@/lib/types'
-import { Search, LayoutGrid, Map as MapIcon } from 'lucide-react'
+import { Search, LayoutGrid, Map as MapIcon, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type ViewMode = 'map' | 'grid'
@@ -17,57 +16,55 @@ export default function ExplorePage() {
   const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('map')
   const [searchQuery, setSearchQuery] = useState('')
+  const [plots, setPlots] = useState<PlotMarker[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Filter plots based on criteria
+  // Fetch plots from API
+  useEffect(() => {
+    const fetchPlots = async () => {
+      setIsLoading(true)
+      try {
+        const params = new URLSearchParams()
+
+        if (filters.minPrice) params.append('minPrice', filters.minPrice.toString())
+        if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString())
+        if (filters.minAcreage) params.append('minAcreage', filters.minAcreage.toString())
+        if (filters.maxAcreage) params.append('maxAcreage', filters.maxAcreage.toString())
+        if (filters.soilTypes?.length) params.append('soilTypes', filters.soilTypes.join(','))
+        if (filters.waterAccess?.length) params.append('waterAccess', filters.waterAccess.join(','))
+        if (filters.hasIrrigation) params.append('hasIrrigation', 'true')
+        if (filters.hasFencing) params.append('hasFencing', 'true')
+        if (filters.hasGreenhouse) params.append('hasGreenhouse', 'true')
+        if (filters.hasElectricity) params.append('hasElectricity', 'true')
+        if (filters.status?.length) params.append('status', filters.status.join(','))
+
+        const response = await fetch(`/api/plots?${params.toString()}`)
+        if (!response.ok) throw new Error('Failed to fetch plots')
+
+        const data = await response.json()
+        setPlots(data)
+      } catch (error) {
+        console.error('Error fetching plots:', error)
+        setPlots([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchPlots()
+  }, [filters])
+
+  // Filter plots based on search query (client-side)
   const filteredPlots = useMemo(() => {
-    return SAMPLE_PLOTS.filter(plot => {
-      // Search query
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase()
-        const matchesSearch =
-          plot.title.toLowerCase().includes(query) ||
-          plot.city.toLowerCase().includes(query) ||
-          plot.state.toLowerCase().includes(query)
-        if (!matchesSearch) return false
-      }
+    if (!searchQuery) return plots
 
-      // Price range
-      if (filters.minPrice && plot.pricePerMonth < filters.minPrice) return false
-      if (filters.maxPrice && plot.pricePerMonth > filters.maxPrice) return false
-
-      // Acreage range
-      if (filters.minAcreage && plot.acreage < filters.minAcreage) return false
-      if (filters.maxAcreage && plot.acreage > filters.maxAcreage) return false
-
-      // Features
-      if (filters.hasIrrigation && !plot.hasIrrigation) return false
-      if (filters.hasFencing && !plot.hasFencing) return false
-      if (filters.hasGreenhouse && !plot.hasGreenhouse) return false
-
-      // Soil types
-      if (filters.soilTypes && filters.soilTypes.length > 0) {
-        const hasMatchingSoil = plot.soilType.some(soil =>
-          filters.soilTypes?.includes(soil)
-        )
-        if (!hasMatchingSoil) return false
-      }
-
-      // Water access
-      if (filters.waterAccess && filters.waterAccess.length > 0) {
-        const hasMatchingWater = plot.waterAccess.some(water =>
-          filters.waterAccess?.includes(water)
-        )
-        if (!hasMatchingWater) return false
-      }
-
-      // Status
-      if (filters.status && filters.status.length > 0) {
-        if (!filters.status.includes(plot.status)) return false
-      }
-
-      return true
-    })
-  }, [filters, searchQuery])
+    const query = searchQuery.toLowerCase()
+    return plots.filter(plot =>
+      plot.title.toLowerCase().includes(query) ||
+      plot.city.toLowerCase().includes(query) ||
+      plot.state.toLowerCase().includes(query)
+    )
+  }, [plots, searchQuery])
 
   const handlePlotClick = (plot: PlotMarker) => {
     setSelectedPlotId(plot.id)
@@ -148,25 +145,34 @@ export default function ExplorePage() {
                 </h2>
 
                 <div className="space-y-4">
-                  {filteredPlots.map(plot => (
-                    <PlotCard
-                      key={plot.id}
-                      plot={plot}
-                      onClick={() => handlePlotClick(plot)}
-                      isSelected={selectedPlotId === plot.id}
-                    />
-                  ))}
-
-                  {filteredPlots.length === 0 && (
+                  {isLoading ? (
                     <div className="text-center py-12">
-                      <div className="text-4xl mb-4">🔍</div>
-                      <h3 className="text-lg font-semibold text-[#2d5016] mb-2">
-                        No plots found
-                      </h3>
-                      <p className="text-[#4a3f35]">
-                        Try adjusting your filters or search query
-                      </p>
+                      <Loader2 className="h-8 w-8 text-[#4a7c2c] animate-spin mx-auto mb-4" />
+                      <p className="text-[#4a3f35]">Loading plots...</p>
                     </div>
+                  ) : (
+                    <>
+                      {filteredPlots.map(plot => (
+                        <PlotCard
+                          key={plot.id}
+                          plot={plot}
+                          onClick={() => handlePlotClick(plot)}
+                          isSelected={selectedPlotId === plot.id}
+                        />
+                      ))}
+
+                      {filteredPlots.length === 0 && (
+                        <div className="text-center py-12">
+                          <div className="text-4xl mb-4">🔍</div>
+                          <h3 className="text-lg font-semibold text-[#2d5016] mb-2">
+                            No plots found
+                          </h3>
+                          <p className="text-[#4a3f35]">
+                            Try adjusting your filters or search query
+                          </p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -180,27 +186,36 @@ export default function ExplorePage() {
                 {filteredPlots.length} {filteredPlots.length === 1 ? 'Plot' : 'Plots'} Available
               </h2>
 
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredPlots.map(plot => (
-                  <PlotCard
-                    key={plot.id}
-                    plot={plot}
-                    showLink={true}
-                    isSelected={selectedPlotId === plot.id}
-                  />
-                ))}
-              </div>
-
-              {filteredPlots.length === 0 && (
-                <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-2xl font-semibold text-[#2d5016] mb-2">
-                    No plots found
-                  </h3>
-                  <p className="text-lg text-[#4a3f35]">
-                    Try adjusting your filters or search query
-                  </p>
+              {isLoading ? (
+                <div className="text-center py-24 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
+                  <Loader2 className="h-12 w-12 text-[#4a7c2c] animate-spin mx-auto mb-4" />
+                  <p className="text-xl text-[#4a3f35]">Loading plots...</p>
                 </div>
+              ) : (
+                <>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredPlots.map(plot => (
+                      <PlotCard
+                        key={plot.id}
+                        plot={plot}
+                        showLink={true}
+                        isSelected={selectedPlotId === plot.id}
+                      />
+                    ))}
+                  </div>
+
+                  {filteredPlots.length === 0 && (
+                    <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
+                      <div className="text-6xl mb-4">🔍</div>
+                      <h3 className="text-2xl font-semibold text-[#2d5016] mb-2">
+                        No plots found
+                      </h3>
+                      <p className="text-lg text-[#4a3f35]">
+                        Try adjusting your filters or search query
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
