@@ -26,20 +26,6 @@ export async function GET() {
       orderBy: {
         createdAt: 'desc',
       },
-      include: {
-        bookings: {
-          where: {
-            status: {
-              in: ['CONFIRMED', 'ACTIVE'],
-            },
-          },
-        },
-        reviews: {
-          select: {
-            rating: true,
-          },
-        },
-      },
     })
 
     return NextResponse.json(plots)
