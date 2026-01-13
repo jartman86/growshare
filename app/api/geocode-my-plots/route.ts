@@ -35,7 +35,15 @@ async function geocodeAddress(address: string, city: string, state: string, zipC
   }
 }
 
+export async function GET() {
+  return geocodePlots()
+}
+
 export async function POST() {
+  return geocodePlots()
+}
+
+async function geocodePlots() {
   try {
     const { userId } = await auth()
     if (!userId) {
