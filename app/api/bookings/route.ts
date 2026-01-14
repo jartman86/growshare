@@ -231,25 +231,31 @@ export async function GET(request: NextRequest) {
               },
             },
           },
-          reviews: {
-            where: {
-              authorId: currentUser.id,
-            },
-            select: {
-              id: true,
-            },
-          },
         },
         orderBy: {
           createdAt: 'desc',
         },
       })
 
+      // Get all reviews by this user for their booked plots
+      const plotIds = rawBookings.map(booking => booking.plot.id)
+      const userReviews = await prisma.review.findMany({
+        where: {
+          authorId: currentUser.id,
+          plotId: { in: plotIds },
+        },
+        select: {
+          plotId: true,
+        },
+      })
+
+      // Create a Set of reviewed plot IDs for fast lookup
+      const reviewedPlotIds = new Set(userReviews.map(review => review.plotId))
+
       // Add hasReviewed flag
       bookings = rawBookings.map(booking => ({
         ...booking,
-        hasReviewed: booking.reviews.length > 0,
-        reviews: undefined, // Remove reviews array from response
+        hasReviewed: reviewedPlotIds.has(booking.plot.id),
       }))
     }
 

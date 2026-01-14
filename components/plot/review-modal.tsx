@@ -7,7 +7,6 @@ import { X, Loader2 } from 'lucide-react'
 interface ReviewModalProps {
   plotId: string
   plotTitle: string
-  bookingId: string
   onClose: () => void
   onSuccess: () => void
 }
@@ -15,7 +14,6 @@ interface ReviewModalProps {
 export function ReviewModal({
   plotId,
   plotTitle,
-  bookingId,
   onClose,
   onSuccess,
 }: ReviewModalProps) {
@@ -48,7 +46,6 @@ export function ReviewModal({
         },
         body: JSON.stringify({
           plotId,
-          bookingId,
           rating,
           comment: comment.trim(),
         }),

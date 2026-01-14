@@ -5,7 +5,7 @@ import { StarRating } from '@/components/reviews/star-rating'
 interface Review {
   id: string
   rating: number
-  comment: string
+  content: string
   createdAt: Date
   author: {
     id: string
@@ -60,9 +60,9 @@ export function PlotReviewCard({ review }: PlotReviewCardProps) {
             </span>
           </div>
 
-          {/* Review Comment */}
+          {/* Review Content */}
           <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {review.comment}
+            {review.content}
           </p>
         </div>
       </div>

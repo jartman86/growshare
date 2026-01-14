@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { plotId, bookingId, rating, comment } = body
+    const { plotId, rating, comment } = body
 
     // Validate required fields
     if (!plotId || !rating) {
@@ -88,11 +88,11 @@ export async function POST(request: NextRequest) {
     // Create review
     const review = await prisma.review.create({
       data: {
+        type: 'PLOT',
         plotId,
         authorId: currentUser.id,
-        bookingId: bookingId || completedBooking.id,
         rating,
-        comment: comment || null,
+        content: comment || '',
       },
       include: {
         author: {

@@ -332,7 +332,6 @@ export default function MyBookingsPage() {
         <ReviewModal
           plotId={reviewingBooking.plot.id}
           plotTitle={reviewingBooking.plot.title}
-          bookingId={reviewingBooking.id}
           onClose={() => setReviewingBooking(null)}
           onSuccess={() => {
             fetchBookings()

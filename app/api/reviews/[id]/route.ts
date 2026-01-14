@@ -105,7 +105,7 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         ...(rating && { rating }),
-        ...(comment !== undefined && { comment }),
+        ...(comment !== undefined && { content: comment }),
       },
       include: {
         author: {
