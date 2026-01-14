@@ -19,15 +19,67 @@ import { Footer } from '@/components/layout/footer'
 import { ImageGallery } from '@/components/plot/image-gallery'
 import { BookingCard } from '@/components/plot/booking-card'
 import { formatCurrency } from '@/lib/utils'
+import { prisma } from '@/lib/prisma'
 
 async function getPlot(plotId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   try {
-    const res = await fetch(`${baseUrl}/api/plots/${plotId}`, {
-      cache: 'no-store',
+    const plot = await prisma.plot.findUnique({
+      where: { id: plotId },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            bio: true,
+            isVerified: true,
+            createdAt: true,
+          },
+        },
+        amenities: true,
+        soilTests: {
+          orderBy: { testDate: 'desc' },
+          take: 1,
+        },
+        reviews: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatar: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        bookings: {
+          where: { status: 'ACTIVE' },
+          include: {
+            renter: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+      },
     })
-    if (!res.ok) return null
-    return res.json()
+
+    if (plot) {
+      // Increment view count asynchronously
+      prisma.plot.update({
+        where: { id: plotId },
+        data: { viewCount: { increment: 1 } },
+      }).catch(err => console.error('Failed to increment view count:', err))
+    }
+
+    return plot
   } catch (error) {
     console.error('Error fetching plot:', error)
     return null
