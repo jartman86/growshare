@@ -208,7 +208,7 @@ export async function GET(request: NextRequest) {
       })
     } else {
       // Get bookings made by user (as renter)
-      bookings = await prisma.booking.findMany({
+      const rawBookings = await prisma.booking.findMany({
         where: {
           renterId: currentUser.id,
         },
@@ -231,11 +231,26 @@ export async function GET(request: NextRequest) {
               },
             },
           },
+          reviews: {
+            where: {
+              authorId: currentUser.id,
+            },
+            select: {
+              id: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',
         },
       })
+
+      // Add hasReviewed flag
+      bookings = rawBookings.map(booking => ({
+        ...booking,
+        hasReviewed: booking.reviews.length > 0,
+        reviews: undefined, // Remove reviews array from response
+      }))
     }
 
     return NextResponse.json(bookings)

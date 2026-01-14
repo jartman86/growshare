@@ -18,6 +18,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ImageGallery } from '@/components/plot/image-gallery'
 import { BookingCard } from '@/components/plot/booking-card'
+import { PlotReviewCard } from '@/components/plot/plot-review-card'
 import { formatCurrency } from '@/lib/utils'
 import { prisma } from '@/lib/prisma'
 
@@ -320,11 +321,19 @@ export default async function PlotDetailPage({
                     <>⭐ No reviews yet</>
                   )}
                 </h2>
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <p className="text-gray-600">
-                    {reviewCount > 0 ? 'Reviews coming soon!' : 'Be the first to review this plot!'}
-                  </p>
-                </div>
+                {reviewCount > 0 ? (
+                  <div className="space-y-4">
+                    {plot.reviews.map((review) => (
+                      <PlotReviewCard key={review.id} review={review} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <p className="text-gray-600">
+                      Be the first to review this plot!
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

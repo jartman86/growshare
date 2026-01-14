@@ -15,6 +15,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { ReviewModal } from '@/components/plot/review-modal'
 
 interface Booking {
   id: string
@@ -23,6 +24,7 @@ interface Booking {
   status: string
   totalAmount: number
   createdAt: string
+  hasReviewed?: boolean
   plot: {
     id: string
     title: string
@@ -45,6 +47,7 @@ export default function MyBookingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+  const [reviewingBooking, setReviewingBooking] = useState<Booking | null>(null)
 
   useEffect(() => {
     fetchBookings()
@@ -292,6 +295,15 @@ export default function MyBookingsPage() {
                         View Plot
                       </button>
 
+                      {booking.status === 'COMPLETED' && !booking.hasReviewed && (
+                        <button
+                          onClick={() => setReviewingBooking(booking)}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+                        >
+                          Leave a Review
+                        </button>
+                      )}
+
                       {(booking.status === 'PENDING' ||
                         booking.status === 'APPROVED') && (
                         <button
@@ -314,6 +326,19 @@ export default function MyBookingsPage() {
       </main>
 
       <Footer />
+
+      {/* Review Modal */}
+      {reviewingBooking && (
+        <ReviewModal
+          plotId={reviewingBooking.plot.id}
+          plotTitle={reviewingBooking.plot.title}
+          bookingId={reviewingBooking.id}
+          onClose={() => setReviewingBooking(null)}
+          onSuccess={() => {
+            fetchBookings()
+          }}
+        />
+      )}
     </>
   )
 }
