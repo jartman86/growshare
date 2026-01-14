@@ -1,48 +1,226 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
-import {
-  SAMPLE_CONVERSATIONS,
-  getConversationMessages,
-  markConversationAsRead,
-} from '@/lib/messages-data'
 import { ConversationList } from '@/components/messages/conversation-list'
 import { ChatInterface } from '@/components/messages/chat-interface'
 import { NewMessageModal } from '@/components/messages/new-message-modal'
-import { Plus, MessageSquare } from 'lucide-react'
+import { Plus, MessageSquare, Loader2 } from 'lucide-react'
+
+interface User {
+  id: string
+  firstName: string
+  lastName: string
+  avatar: string | null
+}
+
+interface Message {
+  id: string
+  senderId: string
+  receiverId: string
+  content: string
+  subject: string | null
+  isRead: boolean
+  createdAt: string
+  sender: User
+  receiver: User
+}
+
+interface Conversation {
+  userId: string
+  user: User
+  lastMessage: Message
+  unreadCount: number
+  messages: Message[]
+}
 
 export default function MessagesPage() {
-  const [conversations] = useState(SAMPLE_CONVERSATIONS)
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
-    conversations.length > 0 ? conversations[0].id : null
-  )
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const selectedUserId = searchParams.get('userId')
+
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSending, setIsSending] = useState(false)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string>('')
 
-  const currentUserId = 'user-1' // Current logged-in user (Sarah Chen)
+  useEffect(() => {
+    fetchConversations()
+  }, [])
 
-  const selectedConversation = conversations.find(
-    (c) => c.id === selectedConversationId
-  )
-  const selectedMessages = selectedConversationId
-    ? getConversationMessages(selectedConversationId)
-    : []
+  useEffect(() => {
+    if (selectedUserId && conversations.length > 0) {
+      const conversation = conversations.find(c => c.userId === selectedUserId)
+      if (conversation) {
+        handleSelectConversation(conversation.userId)
+      }
+    }
+  }, [selectedUserId, conversations])
 
-  const handleSelectConversation = (conversationId: string) => {
-    setSelectedConversationId(conversationId)
-    markConversationAsRead(conversationId)
+  const fetchConversations = async () => {
+    try {
+      const response = await fetch('/api/messages')
+      if (!response.ok) throw new Error('Failed to fetch conversations')
+      const data = await response.json()
+      setConversations(data)
+
+      // Get current user ID from first message
+      if (data.length > 0) {
+        const firstConv = data[0]
+        const uid = firstConv.lastMessage.senderId === firstConv.userId
+          ? firstConv.lastMessage.receiverId
+          : firstConv.lastMessage.senderId
+        setCurrentUserId(uid)
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleSendMessage = (content: string) => {
-    // TODO: Send message to backend
-    console.log('Sending message:', content)
-    // In a real app, this would add the message to the conversation
+  const handleSelectConversation = async (conversationId: string) => {
+    const conversation = conversations.find(c => c.userId === conversationId)
+    if (!conversation) return
+
+    setSelectedConversation(conversation)
+    router.push(`/messages?userId=${conversationId}`, { scroll: false })
+
+    try {
+      const response = await fetch(`/api/messages?userId=${conversationId}`)
+      if (!response.ok) throw new Error('Failed to fetch messages')
+      const data = await response.json()
+      setMessages(data)
+
+      // Update conversation to mark as read
+      setConversations(prev =>
+        prev.map(c =>
+          c.userId === conversationId
+            ? { ...c, unreadCount: 0 }
+            : c
+        )
+      )
+    } catch (error) {
+      console.error('Error fetching messages:', error)
+    }
   }
 
-  const handleSendNewMessage = (userId: string, message: string) => {
-    // TODO: Create new conversation and send message
-    console.log('New message to user:', userId, message)
-    setShowNewMessageModal(false)
+  const handleSendMessage = async (content: string) => {
+    if (!selectedConversation) return
+
+    setIsSending(true)
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiverId: selectedConversation.userId,
+          content,
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to send message')
+
+      const sentMessage = await response.json()
+      setMessages(prev => [...prev, sentMessage])
+
+      // Update conversation last message
+      setConversations(prev =>
+        prev.map(c =>
+          c.userId === selectedConversation.userId
+            ? { ...c, lastMessage: sentMessage }
+            : c
+        )
+      )
+    } catch (error) {
+      console.error('Error sending message:', error)
+      alert('Failed to send message')
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const handleSendNewMessage = async (receiverId: string, message: string) => {
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiverId,
+          content: message,
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to send message')
+
+      setShowNewMessageModal(false)
+      await fetchConversations()
+
+      // Select the new conversation
+      router.push(`/messages?userId=${receiverId}`)
+    } catch (error) {
+      console.error('Error sending new message:', error)
+      alert('Failed to send message')
+    }
+  }
+
+  // Convert API conversation format to component format
+  const formattedConversations = conversations.map(c => ({
+    id: c.userId,
+    participants: [
+      {
+        id: c.user.id,
+        name: `${c.user.firstName} ${c.user.lastName}`,
+        avatar: c.user.avatar,
+      }
+    ],
+    lastMessage: {
+      id: c.lastMessage.id,
+      senderId: c.lastMessage.senderId,
+      content: c.lastMessage.content,
+      timestamp: new Date(c.lastMessage.createdAt),
+    },
+    unreadCount: c.unreadCount,
+  }))
+
+  const selectedConvFormatted = selectedConversation ? {
+    id: selectedConversation.userId,
+    participants: [
+      {
+        id: selectedConversation.user.id,
+        name: `${selectedConversation.user.firstName} ${selectedConversation.user.lastName}`,
+        avatar: selectedConversation.user.avatar,
+      }
+    ],
+    lastMessage: {
+      id: selectedConversation.lastMessage.id,
+      senderId: selectedConversation.lastMessage.senderId,
+      content: selectedConversation.lastMessage.content,
+      timestamp: new Date(selectedConversation.lastMessage.createdAt),
+    },
+    unreadCount: selectedConversation.unreadCount,
+  } : null
+
+  const formattedMessages = messages.map(m => ({
+    id: m.id,
+    senderId: m.senderId,
+    content: m.content,
+    timestamp: new Date(m.createdAt),
+  }))
+
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </main>
+      </>
+    )
   }
 
   return (
@@ -77,8 +255,8 @@ export default function MessagesPage() {
               {/* Conversations Sidebar */}
               <div className="col-span-12 md:col-span-4 lg:col-span-3 h-full border-r-2 border-[#8bc34a]/30 bg-gradient-to-b from-white to-[#aed581]/10">
                 <ConversationList
-                  conversations={conversations}
-                  selectedConversationId={selectedConversationId ?? undefined}
+                  conversations={formattedConversations}
+                  selectedConversationId={selectedConversation?.userId}
                   onSelectConversation={handleSelectConversation}
                   currentUserId={currentUserId}
                 />
@@ -86,12 +264,13 @@ export default function MessagesPage() {
 
               {/* Chat Area */}
               <div className="col-span-12 md:col-span-8 lg:col-span-9 h-full relative">
-                {selectedConversation ? (
+                {selectedConvFormatted ? (
                   <ChatInterface
-                    conversation={selectedConversation}
-                    messages={selectedMessages}
+                    conversation={selectedConvFormatted}
+                    messages={formattedMessages}
                     currentUserId={currentUserId}
                     onSendMessage={handleSendMessage}
+                    isSending={isSending}
                   />
                 ) : (
                   <div className="h-full flex items-center justify-center bg-white/80 backdrop-blur-sm">

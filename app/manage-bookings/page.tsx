@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Loader2,
   User,
+  MessageSquare,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 
@@ -338,7 +339,7 @@ export default function ManageBookingsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex gap-3">
+                    <div className="mt-4 flex gap-3 flex-wrap">
                       {booking.status === 'PENDING' && (
                         <>
                           <button
@@ -384,6 +385,14 @@ export default function ManageBookingsPage() {
                         className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                       >
                         View Plot
+                      </button>
+
+                      <button
+                        onClick={() => router.push(`/messages?userId=${booking.renter.id}`)}
+                        className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors flex items-center gap-2"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        Contact Renter
                       </button>
                     </div>
                   </div>

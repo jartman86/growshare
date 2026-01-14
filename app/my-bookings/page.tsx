@@ -13,6 +13,7 @@ import {
   XCircle,
   AlertCircle,
   Loader2,
+  MessageSquare,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { ReviewModal } from '@/components/plot/review-modal'
@@ -287,12 +288,20 @@ export default function MyBookingsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex gap-3">
+                    <div className="mt-4 flex gap-3 flex-wrap">
                       <button
                         onClick={() => router.push(`/explore/${booking.plot.id}`)}
                         className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                       >
                         View Plot
+                      </button>
+
+                      <button
+                        onClick={() => router.push(`/messages?userId=${booking.plot.owner.id}`)}
+                        className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors flex items-center gap-2"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        Contact Owner
                       </button>
 
                       {booking.status === 'COMPLETED' && !booking.hasReviewed && (
