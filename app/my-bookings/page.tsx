@@ -22,7 +22,6 @@ interface Booking {
   endDate: string
   status: string
   totalAmount: number
-  message: string | null
   createdAt: string
   plot: {
     id: string
@@ -284,15 +283,6 @@ export default function MyBookingsPage() {
                         </div>
                       </div>
                     </div>
-
-                    {booking.message && (
-                      <div className="mt-4">
-                        <p className="text-sm text-gray-600 mb-1">Your Message</p>
-                        <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
-                          {booking.message}
-                        </p>
-                      </div>
-                    )}
 
                     <div className="mt-4 flex gap-3">
                       <button

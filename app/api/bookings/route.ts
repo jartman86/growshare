@@ -104,7 +104,6 @@ export async function POST(request: NextRequest) {
         monthlyRate: plot.pricePerMonth,
         totalAmount,
         securityDeposit: plot.securityDeposit || null,
-        message: message || null,
       },
       include: {
         plot: {
