@@ -18,8 +18,21 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ImageGallery } from '@/components/plot/image-gallery'
 import { BookingCard } from '@/components/plot/booking-card'
-import { SAMPLE_PLOTS } from '@/lib/sample-data'
 import { formatCurrency } from '@/lib/utils'
+
+async function getPlot(plotId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  try {
+    const res = await fetch(`${baseUrl}/api/plots/${plotId}`, {
+      cache: 'no-store',
+    })
+    if (!res.ok) return null
+    return res.json()
+  } catch (error) {
+    console.error('Error fetching plot:', error)
+    return null
+  }
+}
 
 export default async function PlotDetailPage({
   params,
@@ -28,12 +41,14 @@ export default async function PlotDetailPage({
 }) {
   const { plotId } = await params
 
-  // Find the plot in sample data
-  const plot = SAMPLE_PLOTS.find((p) => p.id === plotId)
+  const plot = await getPlot(plotId)
 
   if (!plot) {
     notFound()
   }
+
+  const ownerName = `${plot.owner.firstName} ${plot.owner.lastName}`
+  const reviewCount = plot.reviews?.length || 0
 
   return (
     <>
@@ -126,11 +141,11 @@ export default async function PlotDetailPage({
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">About this plot</h2>
                 <p className="text-gray-700 leading-relaxed">
-                  This {plot.acreage}-acre plot offers excellent growing conditions with {plot.soilType.join(', ').toLowerCase()} soil.
-                  Located in {plot.city}, {plot.state}, the plot provides {plot.waterAccess.map(w => w.toLowerCase().replace('_', ' ')).join(', ')} water access.
-                  {plot.hasIrrigation && ' The property includes a complete irrigation system for optimal water management.'}
-                  {plot.hasFencing && ' Fully fenced perimeter provides security and helps manage your growing space.'}
-                  {plot.hasGreenhouse && ' The greenhouse extends your growing season and protects sensitive crops.'}
+                  {plot.description || `This ${plot.acreage}-acre plot offers excellent growing conditions with ${plot.soilType?.join(', ').toLowerCase()} soil.
+                  Located in ${plot.city}, ${plot.state}, the plot provides ${plot.waterAccess?.map((w: string) => w.toLowerCase().replace('_', ' ')).join(', ')} water access.
+                  ${plot.hasIrrigation ? ' The property includes a complete irrigation system for optimal water management.' : ''}
+                  ${plot.hasFencing ? ' Fully fenced perimeter provides security and helps manage your growing space.' : ''}
+                  ${plot.hasGreenhouse ? ' The greenhouse extends your growing season and protects sensitive crops.' : ''}`}
                 </p>
               </div>
 
@@ -198,15 +213,24 @@ export default async function PlotDetailPage({
               <div className="pb-8 border-b">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Meet your host</h2>
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-                    {plot.ownerName.charAt(0)}
-                  </div>
+                  {plot.owner.avatar ? (
+                    <img
+                      src={plot.owner.avatar}
+                      alt={ownerName}
+                      className="w-16 h-16 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                      {plot.owner.firstName.charAt(0)}
+                    </div>
+                  )}
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">{plot.ownerName}</h3>
-                    <p className="text-gray-600 mb-4">Landowner since 2020</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-1">{ownerName}</h3>
+                    <p className="text-gray-600 mb-4">
+                      Landowner since {new Date(plot.owner.createdAt).getFullYear()}
+                    </p>
                     <p className="text-gray-700">
-                      Passionate about sustainable agriculture and helping new farmers get started.
-                      I believe everyone should have access to quality farmland.
+                      {plot.owner.bio || 'Passionate about sustainable agriculture and helping new farmers get started. I believe everyone should have access to quality farmland.'}
                     </p>
                     <div className="mt-4 flex gap-4 text-sm">
                       <div>
@@ -238,10 +262,16 @@ export default async function PlotDetailPage({
               {/* Reviews */}
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  ⭐ {plot.averageRating?.toFixed(1)} · No reviews yet
+                  {reviewCount > 0 ? (
+                    <>⭐ {plot.averageRating?.toFixed(1)} · {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</>
+                  ) : (
+                    <>⭐ No reviews yet</>
+                  )}
                 </h2>
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <p className="text-gray-600">Be the first to review this plot!</p>
+                  <p className="text-gray-600">
+                    {reviewCount > 0 ? 'Reviews coming soon!' : 'Be the first to review this plot!'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -249,47 +279,19 @@ export default async function PlotDetailPage({
             {/* Right Column - Booking Card */}
             <div>
               <BookingCard
+                plotId={plot.id}
                 pricePerMonth={plot.pricePerMonth}
+                pricePerSeason={plot.pricePerSeason}
+                pricePerYear={plot.pricePerYear}
                 averageRating={plot.averageRating}
-                reviewCount={0}
+                reviewCount={reviewCount}
                 plotTitle={plot.title}
+                instantBook={plot.instantBook}
               />
             </div>
           </div>
         </div>
 
-        {/* Similar Plots */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mt-16 border-t">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Similar plots nearby</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {SAMPLE_PLOTS.filter((p) => p.id !== plotId)
-              .slice(0, 3)
-              .map((similarPlot) => (
-                <Link
-                  key={similarPlot.id}
-                  href={`/explore/${similarPlot.id}`}
-                  className="group"
-                >
-                  <div className="rounded-lg overflow-hidden mb-3">
-                    <img
-                      src={similarPlot.images[0]}
-                      alt={similarPlot.title}
-                      className="w-full aspect-video object-cover group-hover:scale-105 transition-transform"
-                    />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
-                    {similarPlot.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {similarPlot.city}, {similarPlot.state}
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900 mt-2">
-                    {formatCurrency(similarPlot.pricePerMonth)}/month
-                  </p>
-                </Link>
-              ))}
-          </div>
-        </div>
       </main>
 
       <Footer />

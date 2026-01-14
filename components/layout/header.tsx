@@ -100,6 +100,21 @@ const communityDropdownItems = [
   },
 ]
 
+const bookingsDropdownItems = [
+  {
+    label: 'My Bookings',
+    href: '/my-bookings',
+    icon: <CalendarIcon className="h-4 w-4" />,
+    description: 'Your plot bookings',
+  },
+  {
+    label: 'Manage Bookings',
+    href: '/manage-bookings',
+    icon: <CalendarDays className="h-4 w-4" />,
+    description: 'Review requests',
+  },
+]
+
 // Bottom mobile navigation - only most essential items (Profile is dynamic, added in component)
 const mobileNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
@@ -144,6 +159,10 @@ export function Header() {
     pathname.startsWith('/community') ||
     pathname.startsWith('/groups') ||
     pathname.startsWith('/events')
+
+  const isBookingsActive =
+    pathname.startsWith('/my-bookings') ||
+    pathname.startsWith('/manage-bookings')
 
   return (
     <>
@@ -203,6 +222,16 @@ export function Header() {
                 items={communityDropdownItems}
                 isActive={isCommunityActive}
               />
+
+              {/* Bookings Dropdown */}
+              {isSignedIn && (
+                <NavDropdown
+                  trigger="Bookings"
+                  icon={<CalendarIcon className="h-4 w-4" />}
+                  items={bookingsDropdownItems}
+                  isActive={isBookingsActive}
+                />
+              )}
             </div>
 
             {/* User Menu */}
