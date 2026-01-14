@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { notifyNewMessage } from '@/lib/notifications'
 
 // Send a new message
 export async function POST(request: NextRequest) {
@@ -88,6 +89,16 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    // Send notification to receiver
+    try {
+      await notifyNewMessage(
+        receiverId,
+        `${currentUser.firstName} ${currentUser.lastName}`
+      )
+    } catch (error) {
+      console.error('Failed to send notification:', error)
+    }
 
     return NextResponse.json(message, { status: 201 })
   } catch (error) {

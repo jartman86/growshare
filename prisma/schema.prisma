@@ -75,6 +75,7 @@ model User {
   produceListings   ProduceListing[]
   orders            Order[]
   activities        UserActivity[]
+  notifications     Notification[]
   posts             UserPost[]
   postComments      PostComment[]
 
@@ -529,6 +530,43 @@ model Message {
   @@index([senderId])
   @@index([receiverId])
   @@index([bookingId])
+  @@index([createdAt])
+}
+
+// ============================================
+// NOTIFICATION SYSTEM
+// ============================================
+
+enum NotificationType {
+  BOOKING_REQUEST
+  BOOKING_APPROVED
+  BOOKING_REJECTED
+  BOOKING_CANCELLED
+  NEW_MESSAGE
+  NEW_REVIEW
+  PAYMENT_RECEIVED
+  PLOT_VIEWED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      NotificationType
+  title     String
+  content   String
+  link      String?
+
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+
+  metadata  Json?
+
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
   @@index([createdAt])
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { notifyBookingRequest } from '@/lib/notifications'
 
 // Create a new booking request
 export async function POST(request: NextRequest) {
@@ -142,6 +143,21 @@ export async function POST(request: NextRequest) {
         points: 25,
       },
     })
+
+    // Send notification to plot owner (unless instant book)
+    if (!plot.instantBook) {
+      try {
+        await notifyBookingRequest(
+          plot.ownerId,
+          plot.title,
+          `${currentUser.firstName} ${currentUser.lastName}`,
+          booking.id
+        )
+      } catch (error) {
+        console.error('Failed to send booking notification:', error)
+        // Don't fail the booking if notification fails
+      }
+    }
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error) {

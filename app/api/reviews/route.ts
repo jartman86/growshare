@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { notifyNewReview } from '@/lib/notifications'
 
 // Create a new review
 export async function POST(request: NextRequest) {
@@ -142,6 +143,21 @@ export async function POST(request: NextRequest) {
         points: 10,
       },
     })
+
+    // Send notification to plot owner
+    if (plot.ownerId !== currentUser.id) {
+      try {
+        await notifyNewReview(
+          plot.ownerId,
+          plot.title,
+          `${currentUser.firstName} ${currentUser.lastName}`,
+          rating,
+          plotId
+        )
+      } catch (error) {
+        console.error('Failed to send notification:', error)
+      }
+    }
 
     return NextResponse.json(review, { status: 201 })
   } catch (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { notifyBookingApproved, notifyBookingRejected, notifyBookingCancelled } from '@/lib/notifications'
 
 // Update booking status (approve, reject, cancel)
 export async function PATCH(
@@ -156,6 +157,13 @@ export async function PATCH(
           points: 0,
         },
       })
+
+      // Send notification to renter
+      try {
+        await notifyBookingApproved(booking.renterId, booking.plot.title, bookingId)
+      } catch (error) {
+        console.error('Failed to send notification:', error)
+      }
     } else if (status === 'REJECTED') {
       // Create activity for renter
       await prisma.userActivity.create({
@@ -167,6 +175,13 @@ export async function PATCH(
           points: 0,
         },
       })
+
+      // Send notification to renter
+      try {
+        await notifyBookingRejected(booking.renterId, booking.plot.title, bookingId)
+      } catch (error) {
+        console.error('Failed to send notification:', error)
+      }
     } else if (status === 'CANCELLED') {
       // Create activity for the user who cancelled
       await prisma.userActivity.create({
@@ -190,6 +205,16 @@ export async function PATCH(
           points: 0,
         },
       })
+
+      // Send notification to the other party
+      try {
+        const cancelledBy = isOwner
+          ? `${booking.plot.owner.firstName} ${booking.plot.owner.lastName}`
+          : `${booking.renter.firstName} ${booking.renter.lastName}`
+        await notifyBookingCancelled(otherUserId, booking.plot.title, bookingId, cancelledBy)
+      } catch (error) {
+        console.error('Failed to send notification:', error)
+      }
     }
 
     return NextResponse.json(updatedBooking)
