@@ -28,7 +28,6 @@ import {
 import { cn } from '@/lib/utils'
 import { NavDropdown } from '@/components/ui/dropdown-menu'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
-import { SAMPLE_NOTIFICATIONS, getUnreadCount } from '@/lib/notifications-data'
 import { SAMPLE_CONVERSATIONS, getUnreadConversationsCount } from '@/lib/messages-data'
 
 const standaloneNavItems = [
@@ -126,9 +125,7 @@ const mobileNavItems = [
 export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
-  const [showNotifications, setShowNotifications] = useState(false)
   const [username, setUsername] = useState<string | null>(null)
-  const unreadCount = getUnreadCount(SAMPLE_NOTIFICATIONS)
   const unreadMessagesCount = getUnreadConversationsCount(SAMPLE_CONVERSATIONS)
 
   // Fetch user's username for profile link
@@ -262,27 +259,7 @@ export function Header() {
                   </Link>
 
                   {/* Notification Bell */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowNotifications(!showNotifications)}
-                      className="relative p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
-                    >
-                      <Bell className="h-5 w-5 text-[#4a7c2c]" />
-                      {unreadCount > 0 && (
-                        <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-gradient-to-br from-[#ef233c] to-[#d62828] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse shadow-md">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      )}
-                    </button>
-
-                    {/* Notification Dropdown */}
-                    {showNotifications && (
-                      <NotificationDropdown
-                        notifications={SAMPLE_NOTIFICATIONS}
-                        onClose={() => setShowNotifications(false)}
-                      />
-                    )}
-                  </div>
+                  <NotificationDropdown />
 
                   {/* Profile Link */}
                   {username && (
