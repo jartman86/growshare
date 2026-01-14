@@ -21,7 +21,7 @@ interface Booking {
   startDate: string
   endDate: string
   status: string
-  totalPrice: number
+  totalAmount: number
   message: string | null
   createdAt: string
   plot: {
@@ -258,7 +258,7 @@ export default function MyBookingsPage() {
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-gray-400" />
                           <span className="text-sm font-medium text-gray-900">
-                            {formatCurrency(booking.totalPrice)}
+                            {formatCurrency(booking.totalAmount)}
                           </span>
                         </div>
                       </div>

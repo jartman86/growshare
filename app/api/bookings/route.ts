@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     const durationMonths = Math.ceil(durationMs / (1000 * 60 * 60 * 24 * 30))
 
     // Calculate total price
-    const totalPrice = plot.pricePerMonth * durationMonths
+    const totalAmount = plot.pricePerMonth * durationMonths
 
     // Create booking
     const booking = await prisma.booking.create({
@@ -101,7 +101,9 @@ export async function POST(request: NextRequest) {
         startDate: start,
         endDate: end,
         status: plot.instantBook ? 'APPROVED' : 'PENDING',
-        totalPrice,
+        monthlyRate: plot.pricePerMonth,
+        totalAmount,
+        securityDeposit: plot.securityDeposit || null,
         message: message || null,
       },
       include: {
