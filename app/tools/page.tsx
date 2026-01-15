@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_TOOLS, type ToolCategory } from '@/lib/tools-data'
@@ -38,9 +39,15 @@ export default function ToolsPage() {
 
       <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
-          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="text-white relative overflow-hidden h-[400px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=1920&q=80"
+            alt="Garden hand tools"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 h-full flex items-center">
             <div className="text-center">
               <Wrench className="mx-auto h-16 w-16 mb-4 drop-shadow-md" />
               <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">Tool & Equipment Marketplace</h1>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CourseCard } from '@/components/knowledge/course-card'
@@ -46,10 +47,17 @@ export default function KnowledgeHubPage() {
 
       <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="garden-gradient-vibrant topo-dense text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="flex items-center gap-3 mb-4">
+        <div className="text-white relative overflow-hidden h-[400px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1920&q=80"
+            alt="Learning and education in agriculture"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 h-full flex items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
               <BookOpen className="h-12 w-12 drop-shadow-md" />
               <h1 className="text-5xl font-bold drop-shadow-lg">Knowledge Hub</h1>
             </div>
@@ -75,6 +83,7 @@ export default function KnowledgeHubPage() {
                 <div className="text-[#f4e4c1] text-sm drop-shadow-sm">Free Courses</div>
               </div>
             </div>
+          </div>
           </div>
         </div>
 
