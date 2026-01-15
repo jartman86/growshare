@@ -1,6 +1,17 @@
--- Add Notification System
+-- Add Notification System and Activity Types
 -- Migration: add_notifications
 -- Date: 2024-01-14
+
+-- Add missing ActivityType values
+DO $$ BEGIN
+    ALTER TYPE "ActivityType" ADD VALUE IF NOT EXISTS 'BOOKING_CREATED';
+    ALTER TYPE "ActivityType" ADD VALUE IF NOT EXISTS 'BOOKING_APPROVED';
+    ALTER TYPE "ActivityType" ADD VALUE IF NOT EXISTS 'BOOKING_REJECTED';
+    ALTER TYPE "ActivityType" ADD VALUE IF NOT EXISTS 'BOOKING_CANCELLED';
+    ALTER TYPE "ActivityType" ADD VALUE IF NOT EXISTS 'REVIEW_CREATED';
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- Create NotificationType enum
 DO $$ BEGIN

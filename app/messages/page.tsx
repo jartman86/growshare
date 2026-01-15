@@ -44,7 +44,6 @@ export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isSending, setIsSending] = useState(false)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string>('')
 
@@ -112,7 +111,6 @@ export default function MessagesPage() {
   const handleSendMessage = async (content: string) => {
     if (!selectedConversation) return
 
-    setIsSending(true)
     try {
       const response = await fetch('/api/messages', {
         method: 'POST',
@@ -139,8 +137,6 @@ export default function MessagesPage() {
     } catch (error) {
       console.error('Error sending message:', error)
       alert('Failed to send message')
-    } finally {
-      setIsSending(false)
     }
   }
 
@@ -171,11 +167,12 @@ export default function MessagesPage() {
   // Convert API conversation format to component format
   const formattedConversations = conversations.map(c => ({
     id: c.userId,
+    participantIds: [c.user.id, currentUserId],
     participants: [
       {
         id: c.user.id,
         name: `${c.user.firstName} ${c.user.lastName}`,
-        avatar: c.user.avatar,
+        avatar: c.user.avatar || '',
       }
     ],
     lastMessage: {
@@ -185,15 +182,18 @@ export default function MessagesPage() {
       timestamp: new Date(c.lastMessage.createdAt),
     },
     unreadCount: c.unreadCount,
+    createdAt: new Date(c.lastMessage.createdAt),
+    updatedAt: new Date(c.lastMessage.createdAt),
   }))
 
   const selectedConvFormatted = selectedConversation ? {
     id: selectedConversation.userId,
+    participantIds: [selectedConversation.user.id, currentUserId],
     participants: [
       {
         id: selectedConversation.user.id,
         name: `${selectedConversation.user.firstName} ${selectedConversation.user.lastName}`,
-        avatar: selectedConversation.user.avatar,
+        avatar: selectedConversation.user.avatar || '',
       }
     ],
     lastMessage: {
@@ -203,13 +203,21 @@ export default function MessagesPage() {
       timestamp: new Date(selectedConversation.lastMessage.createdAt),
     },
     unreadCount: selectedConversation.unreadCount,
+    createdAt: new Date(selectedConversation.lastMessage.createdAt),
+    updatedAt: new Date(selectedConversation.lastMessage.createdAt),
   } : null
 
   const formattedMessages = messages.map(m => ({
     id: m.id,
+    conversationId: selectedConversation?.userId || '',
     senderId: m.senderId,
+    senderName: m.senderId === currentUserId
+      ? 'You'
+      : `${m.sender.firstName} ${m.sender.lastName}`,
+    senderAvatar: m.sender.avatar || '',
     content: m.content,
     timestamp: new Date(m.createdAt),
+    read: m.isRead,
   }))
 
   if (isLoading) {
@@ -270,7 +278,6 @@ export default function MessagesPage() {
                     messages={formattedMessages}
                     currentUserId={currentUserId}
                     onSendMessage={handleSendMessage}
-                    isSending={isSending}
                   />
                 ) : (
                   <div className="h-full flex items-center justify-center bg-white/80 backdrop-blur-sm">
