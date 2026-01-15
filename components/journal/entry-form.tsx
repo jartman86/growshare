@@ -9,6 +9,8 @@ interface Plot {
   id: string
   title: string
   acreage: number
+  city?: string
+  state?: string
 }
 
 interface EntryFormProps {
