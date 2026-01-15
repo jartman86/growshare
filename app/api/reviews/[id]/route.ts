@@ -5,11 +5,12 @@ import { prisma } from '@/lib/prisma'
 // Get a specific review
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const review = await prisma.review.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         author: {
           select: {
@@ -56,9 +57,10 @@ export async function GET(
 // Update a review
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -77,7 +79,7 @@ export async function PATCH(
 
     // Get existing review
     const existingReview = await prisma.review.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingReview) {
@@ -102,7 +104,7 @@ export async function PATCH(
 
     // Update review
     const updatedReview = await prisma.review.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(rating && { rating }),
         ...(comment !== undefined && { content: comment }),
@@ -132,7 +134,7 @@ export async function PATCH(
         select: { rating: true },
       })
 
-      const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+      const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
 
       await prisma.plot.update({
         where: { id: existingReview.plotId },
@@ -153,9 +155,10 @@ export async function PATCH(
 // Delete a review
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -171,7 +174,7 @@ export async function DELETE(
 
     // Get existing review
     const existingReview = await prisma.review.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!existingReview) {
@@ -188,7 +191,7 @@ export async function DELETE(
 
     // Delete review
     await prisma.review.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     // Recalculate average rating
@@ -198,7 +201,7 @@ export async function DELETE(
     })
 
     const averageRating = remainingReviews.length > 0
-      ? remainingReviews.reduce((sum, r) => sum + r.rating, 0) / remainingReviews.length
+      ? remainingReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / remainingReviews.length
       : null
 
     await prisma.plot.update({

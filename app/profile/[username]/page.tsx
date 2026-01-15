@@ -116,7 +116,7 @@ export default async function ProfilePage({
                       </h1>
                       <p className="text-[#4a3f35]">@{user.username}</p>
                       <div className="flex items-center gap-2 mt-2">
-                        {user.role.map((role) => (
+                        {user.role.map((role: any) => (
                           <span
                             key={role}
                             className="px-2 py-1 bg-[#aed581]/30 text-[#2d5016] rounded text-xs font-medium"
@@ -231,7 +231,7 @@ export default async function ProfilePage({
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      {user.posts.map((post) => (
+                      {user.posts.map((post: any) => (
                         <Link
                           key={post.id}
                           href={`/profile/${username}/posts/${post.slug}`}
@@ -289,7 +289,7 @@ export default async function ProfilePage({
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      {user.ownedPlots.map((plot) => (
+                      {user.ownedPlots.map((plot: any) => (
                         <Link
                           key={plot.id}
                           href={`/explore/${plot.id}`}
@@ -327,7 +327,7 @@ export default async function ProfilePage({
                   </CardHeader>
                   <CardContent>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      {user.produceListings.map((listing) => (
+                      {user.produceListings.map((listing: any) => (
                         <Link
                           key={listing.id}
                           href={`/marketplace/${listing.id}`}
@@ -368,7 +368,7 @@ export default async function ProfilePage({
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-3 gap-3">
-                      {user.userBadges.map((userBadge) => (
+                      {user.userBadges.map((userBadge: any) => (
                         <div
                           key={userBadge.id}
                           className="flex flex-col items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"

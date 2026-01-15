@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       select: { rating: true },
     })
 
-    const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+    const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
 
     // Update plot with new average rating
     await prisma.plot.update({

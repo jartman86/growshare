@@ -239,7 +239,7 @@ export async function GET(request: NextRequest) {
     // Group messages into conversations
     const conversationsMap = new Map<string, any>()
 
-    allMessages.forEach((message) => {
+    allMessages.forEach((message: any) => {
       // Determine the other user in the conversation
       const otherUser = message.senderId === currentUser.id
         ? message.receiver

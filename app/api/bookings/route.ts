@@ -254,7 +254,7 @@ export async function GET(request: NextRequest) {
       })
 
       // Get all reviews by this user for their booked plots
-      const plotIds = rawBookings.map(booking => booking.plot.id)
+      const plotIds = rawBookings.map((booking: any) => booking.plot.id)
       const userReviews = await prisma.review.findMany({
         where: {
           authorId: currentUser.id,
@@ -266,10 +266,10 @@ export async function GET(request: NextRequest) {
       })
 
       // Create a Set of reviewed plot IDs for fast lookup
-      const reviewedPlotIds = new Set(userReviews.map(review => review.plotId))
+      const reviewedPlotIds = new Set(userReviews.map((review: any) => review.plotId))
 
       // Add hasReviewed flag
-      bookings = rawBookings.map(booking => ({
+      bookings = rawBookings.map((booking: any) => ({
         ...booking,
         hasReviewed: reviewedPlotIds.has(booking.plot.id),
       }))

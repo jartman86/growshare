@@ -71,7 +71,7 @@ export default async function UserPostsPage({
           {/* Posts Grid */}
           {posts.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post) => (
+              {posts.map((post: any) => (
                 <Link
                   key={post.id}
                   href={`/profile/${username}/posts/${post.slug}`}

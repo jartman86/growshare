@@ -77,7 +77,7 @@ async function getPlot(plotId: string) {
       prisma.plot.update({
         where: { id: plotId },
         data: { viewCount: { increment: 1 } },
-      }).catch(err => console.error('Failed to increment view count:', err))
+      }).catch((err: any) => console.error('Failed to increment view count:', err))
     }
 
     return plot
@@ -323,7 +323,7 @@ export default async function PlotDetailPage({
                 </h2>
                 {reviewCount > 0 ? (
                   <div className="space-y-4">
-                    {plot.reviews.map((review) => (
+                    {plot.reviews.map((review: any) => (
                       <PlotReviewCard key={review.id} review={review} />
                     ))}
                   </div>

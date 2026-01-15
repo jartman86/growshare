@@ -128,10 +128,10 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform to PlotMarker format with calculated average ratings
-    const plotMarkers = plots.map(plot => {
-      const ratings = plot.reviews.map(r => r.rating)
+    const plotMarkers = plots.map((plot: any) => {
+      const ratings = plot.reviews.map((r: any) => r.rating)
       const averageRating = ratings.length > 0
-        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+        ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
         : undefined
 
       return {
