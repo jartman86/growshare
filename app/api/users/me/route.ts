@@ -51,3 +51,49 @@ export async function GET() {
     )
   }
 }
+
+export async function PATCH(request: Request) {
+  try {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { username, location, bio, role } = body
+
+    // Check if username is already taken by another user
+    if (username) {
+      const existingUser = await prisma.user.findUnique({
+        where: { username: username.toLowerCase() },
+      })
+
+      if (existingUser && existingUser.clerkId !== userId) {
+        return NextResponse.json(
+          { error: 'Username is already taken' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Update user profile
+    const user = await prisma.user.update({
+      where: { clerkId: userId },
+      data: {
+        ...(username && { username: username.toLowerCase() }),
+        ...(location && { location }),
+        ...(bio !== undefined && { bio }),
+        ...(role && { role }),
+      },
+    })
+
+    return NextResponse.json(user)
+  } catch (error) {
+    console.error('Error updating user profile:', error)
+    return NextResponse.json(
+      { error: 'Failed to update user profile' },
+      { status: 500 }
+    )
+  }
+}
