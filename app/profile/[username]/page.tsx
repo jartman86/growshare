@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { FollowButton } from '@/components/profile/follow-button'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import {
@@ -18,6 +19,8 @@ import {
   Wrench,
   ShoppingBag,
   MapPinIcon,
+  Users,
+  PlusCircle,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -51,6 +54,8 @@ export default async function ProfilePage({
         orderBy: { earnedAt: 'desc' },
         take: 6,
       },
+      followers: true,
+      following: true,
     },
   })
 
@@ -125,24 +130,48 @@ export default async function ProfilePage({
                           </span>
                         ))}
                       </div>
+                      {/* Follower counts */}
+                      <div className="flex items-center gap-4 mt-3 text-sm">
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4 text-[#4a7c2c]" />
+                          <span className="font-semibold text-[#2d5016]">{user.followers.length}</span>
+                          <span className="text-[#4a3f35]">followers</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="font-semibold text-[#2d5016]">{user.following.length}</span>
+                          <span className="text-[#4a3f35]">following</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       {isOwnProfile ? (
-                        <Link
-                          href="/profile/edit"
-                          className="flex items-center gap-2 px-4 py-2 bg-[#aed581]/20 hover:bg-[#aed581]/40 text-[#2d5016] rounded-lg font-medium transition-all shadow-sm"
-                        >
-                          <Edit className="h-4 w-4" />
-                          Edit Profile
-                        </Link>
+                        <>
+                          <Link
+                            href="/posts/new"
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] hover:from-[#4a7c2c] hover:to-[#2d5016] text-white rounded-lg font-medium transition-all shadow-md"
+                          >
+                            <PlusCircle className="h-4 w-4" />
+                            Create Post
+                          </Link>
+                          <Link
+                            href="/profile/edit"
+                            className="flex items-center gap-2 px-4 py-2 bg-[#aed581]/20 hover:bg-[#aed581]/40 text-[#2d5016] rounded-lg font-medium transition-all shadow-sm"
+                          >
+                            <Edit className="h-4 w-4" />
+                            Edit Profile
+                          </Link>
+                        </>
                       ) : (
-                        <Link
-                          href={`/messages?user=${user.id}`}
-                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] hover:from-[#4a7c2c] hover:to-[#2d5016] text-white rounded-lg font-medium transition-all shadow-md"
-                        >
-                          <Mail className="h-4 w-4" />
-                          Message
-                        </Link>
+                        <>
+                          <FollowButton userId={user.id} />
+                          <Link
+                            href={`/messages?user=${user.id}`}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#aed581]/20 hover:bg-[#aed581]/40 text-[#2d5016] rounded-lg font-medium transition-all shadow-sm"
+                          >
+                            <Mail className="h-4 w-4" />
+                            Message
+                          </Link>
+                        </>
                       )}
                     </div>
                   </div>
@@ -418,6 +447,18 @@ export default async function ProfilePage({
                       <dt className="text-gray-600">Plots</dt>
                       <dd className="font-semibold text-gray-900">
                         {user.ownedPlots.length}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between border-t pt-3 mt-3">
+                      <dt className="text-gray-600">Followers</dt>
+                      <dd className="font-semibold text-gray-900">
+                        {user.followers.length}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-gray-600">Following</dt>
+                      <dd className="font-semibold text-gray-900">
+                        {user.following.length}
                       </dd>
                     </div>
                   </dl>
