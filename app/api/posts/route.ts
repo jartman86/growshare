@@ -116,7 +116,28 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(post)
+    // Award points for creating content
+    if (status === 'PUBLISHED') {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          totalPoints: { increment: 50 },
+        },
+      })
+
+      // Create activity
+      await prisma.userActivity.create({
+        data: {
+          userId: user.id,
+          type: 'POST_CREATED',
+          title: 'Content Published',
+          description: `Published a new ${type.toLowerCase()}: ${title}`,
+          points: 50,
+        },
+      })
+    }
+
+    return NextResponse.json({ success: true, post })
   } catch (error) {
     console.error('Error creating post:', error)
     return NextResponse.json(
