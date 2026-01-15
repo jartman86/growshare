@@ -130,6 +130,25 @@
 
 ---
 
+### 8. **Messages Page Infinite Loop** (FIXED)
+**Problem:**
+- Messages page had infinite loop causing hundreds of API calls per second
+- useEffect dependency on `conversations` array
+- handleSelectConversation updated conversations (mark as read)
+- This triggered useEffect again, creating infinite loop
+- Terminal flooded with Prisma queries, app unusable
+
+**Solution:**
+- Removed `conversations` from useEffect dependency array
+- Only trigger on `selectedUserId` changes
+- Added guard to prevent re-selecting already-selected conversation
+- Added eslint-disable comment for intentional dependency omission
+
+**Files Changed:**
+- `app/messages/page.tsx`
+
+---
+
 ## ⚠️ Known Issues (Not Yet Fixed)
 
 ### 1. **Prisma Client Not Generated**
