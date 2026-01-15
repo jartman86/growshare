@@ -1,10 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CROP_TYPES, GROWTH_STAGES } from '@/lib/journal-data'
-import { SAMPLE_PLOTS } from '@/lib/sample-data'
 import { Camera, X, Calendar, Sprout } from 'lucide-react'
+
+interface Plot {
+  id: string
+  title: string
+  acreage: number
+}
 
 interface EntryFormProps {
   mode?: 'create' | 'edit'
@@ -14,6 +19,8 @@ interface EntryFormProps {
 export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [plots, setPlots] = useState<Plot[]>([])
+  const [isLoadingPlots, setIsLoadingPlots] = useState(true)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -37,6 +44,27 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Fetch user's plots on mount
+  useEffect(() => {
+    const fetchPlots = async () => {
+      try {
+        const response = await fetch('/api/my-plots')
+        if (response.ok) {
+          const data = await response.json()
+          setPlots(data)
+        } else {
+          console.error('Failed to fetch plots')
+        }
+      } catch (error) {
+        console.error('Error fetching plots:', error)
+      } finally {
+        setIsLoadingPlots(false)
+      }
+    }
+
+    fetchPlots()
+  }, [])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -83,7 +111,7 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
     router.push('/dashboard/journal')
   }
 
-  const selectedPlot = SAMPLE_PLOTS.find((p) => p.id === formData.plotId)
+  const selectedPlot = plots.find((p) => p.id === formData.plotId)
   const availableGrowthStages = GROWTH_STAGES[formData.status as keyof typeof GROWTH_STAGES] || []
 
   return (
@@ -100,9 +128,12 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
           className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent ${
             errors.plotId ? 'border-red-500' : 'border-gray-300'
           }`}
+          disabled={isLoadingPlots}
         >
-          <option value="">Choose a plot...</option>
-          {SAMPLE_PLOTS.map((plot) => (
+          <option value="">
+            {isLoadingPlots ? 'Loading plots...' : plots.length === 0 ? 'No plots available' : 'Choose a plot...'}
+          </option>
+          {plots.map((plot) => (
             <option key={plot.id} value={plot.id}>
               {plot.title} ({plot.acreage} acres)
             </option>

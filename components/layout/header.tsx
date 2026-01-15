@@ -28,7 +28,6 @@ import {
 import { cn } from '@/lib/utils'
 import { NavDropdown } from '@/components/ui/dropdown-menu'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
-import { SAMPLE_CONVERSATIONS, getUnreadConversationsCount } from '@/lib/messages-data'
 
 const standaloneNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
@@ -126,11 +125,12 @@ export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
   const [username, setUsername] = useState<string | null>(null)
-  const unreadMessagesCount = getUnreadConversationsCount(SAMPLE_CONVERSATIONS)
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
 
-  // Fetch user's username for profile link
+  // Fetch user's username and unread message count
   useEffect(() => {
     if (isSignedIn) {
+      // Fetch username
       fetch('/api/profile')
         .then((res) => res.json())
         .then((data) => {
@@ -139,6 +139,16 @@ export function Header() {
           }
         })
         .catch((err) => console.error('Failed to fetch username:', err))
+
+      // Fetch unread message count
+      fetch('/api/messages/unread-count')
+        .then((res) => res.json())
+        .then((data) => {
+          if (typeof data.count === 'number') {
+            setUnreadMessagesCount(data.count)
+          }
+        })
+        .catch((err) => console.error('Failed to fetch unread count:', err))
     }
   }, [isSignedIn])
 
