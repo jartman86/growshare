@@ -78,6 +78,8 @@ model User {
   notifications     Notification[]
   posts             UserPost[]
   postComments      PostComment[]
+  following         Follow[]         @relation("UserFollowing")
+  followers         Follow[]         @relation("UserFollowers")
 
   @@index([clerkId])
   @@index([email])
@@ -738,6 +740,21 @@ enum PostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // User who is following
+  followingId String   // User being followed
+
+  follower    User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model UserPost {
