@@ -54,11 +54,12 @@ export default function MessagesPage() {
   useEffect(() => {
     if (selectedUserId && conversations.length > 0) {
       const conversation = conversations.find(c => c.userId === selectedUserId)
-      if (conversation) {
+      if (conversation && selectedConversation?.userId !== selectedUserId) {
         handleSelectConversation(conversation.userId)
       }
     }
-  }, [selectedUserId, conversations])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUserId])
 
   const fetchConversations = async () => {
     try {
