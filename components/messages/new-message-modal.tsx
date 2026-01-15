@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Search, Send } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { X, Search, Send, Loader2 } from 'lucide-react'
 
 interface User {
   id: string
-  name: string
-  avatar: string
-  location?: string
+  firstName: string
+  lastName: string
+  avatar: string | null
+  location?: string | null
 }
 
 interface NewMessageModalProps {
@@ -16,49 +17,38 @@ interface NewMessageModalProps {
   onSend: (userId: string, message: string) => void
 }
 
-// Sample users for demonstration
-const SAMPLE_USERS: User[] = [
-  {
-    id: 'user-2',
-    name: 'Michael Rodriguez',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
-    location: 'Portland, OR',
-  },
-  {
-    id: 'user-3',
-    name: 'Robert Martinez',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
-    location: 'Seattle, WA',
-  },
-  {
-    id: 'user-4',
-    name: 'Jennifer Kim',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jennifer',
-    location: 'Portland, OR',
-  },
-  {
-    id: 'user-5',
-    name: 'Lisa Thompson',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
-    location: 'Eugene, OR',
-  },
-  {
-    id: 'user-6',
-    name: 'David Park',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David',
-    location: 'Portland, OR',
-  },
-]
-
 export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [message, setMessage] = useState('')
+  const [users, setUsers] = useState<User[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchUsers()
+    }
+  }, [isOpen])
+
+  const fetchUsers = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/users')
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data)
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (!isOpen) return null
 
-  const filteredUsers = SAMPLE_USERS.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = users.filter((user) =>
+    `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const handleSend = () => {
@@ -76,6 +66,10 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
     setMessage('')
     setSearchQuery('')
     onClose()
+  }
+
+  const getUserAvatar = (user: User) => {
+    return user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.firstName}`
   }
 
   return (
@@ -116,7 +110,11 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
 
               {/* User List */}
               <div className="space-y-2">
-                {filteredUsers.length > 0 ? (
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  </div>
+                ) : filteredUsers.length > 0 ? (
                   filteredUsers.map((user) => (
                     <button
                       key={user.id}
@@ -124,12 +122,14 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
                       className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors text-left"
                     >
                       <img
-                        src={user.avatar}
-                        alt={user.name}
+                        src={getUserAvatar(user)}
+                        alt={`${user.firstName} ${user.lastName}`}
                         className="w-12 h-12 rounded-full border-2 border-gray-200"
                       />
                       <div className="flex-1">
-                        <p className="font-semibold text-gray-900">{user.name}</p>
+                        <p className="font-semibold text-gray-900">
+                          {user.firstName} {user.lastName}
+                        </p>
                         {user.location && (
                           <p className="text-sm text-gray-600">{user.location}</p>
                         )}
@@ -137,7 +137,9 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
                     </button>
                   ))
                 ) : (
-                  <p className="text-center text-gray-500 py-8">No users found</p>
+                  <p className="text-center text-gray-500 py-8">
+                    {users.length === 0 ? 'No users available' : 'No users found'}
+                  </p>
                 )}
               </div>
             </>
@@ -146,12 +148,14 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
               {/* Selected User */}
               <div className="mb-4 flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
                 <img
-                  src={selectedUser.avatar}
-                  alt={selectedUser.name}
+                  src={getUserAvatar(selectedUser)}
+                  alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
                   className="w-10 h-10 rounded-full border-2 border-green-300"
                 />
                 <div className="flex-1">
-                  <p className="font-semibold text-gray-900">{selectedUser.name}</p>
+                  <p className="font-semibold text-gray-900">
+                    {selectedUser.firstName} {selectedUser.lastName}
+                  </p>
                   {selectedUser.location && (
                     <p className="text-sm text-gray-600">{selectedUser.location}</p>
                   )}
