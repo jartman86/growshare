@@ -26,6 +26,7 @@ export function NavDropdown({ trigger, icon, items, isActive }: NavDropdownProps
     <DropdownMenuPrimitive.Root open={open} onOpenChange={setOpen}>
       <DropdownMenuPrimitive.Trigger asChild>
         <button
+          suppressHydrationWarning
           className={`
             flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all
             ${
@@ -48,6 +49,7 @@ export function NavDropdown({ trigger, icon, items, isActive }: NavDropdownProps
 
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
+          suppressHydrationWarning
           align="start"
           sideOffset={8}
           className="
