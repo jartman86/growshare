@@ -14,8 +14,8 @@ export default function HomePage() {
         {/* Background Image */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50 z-10"></div>
         <Image
-          src="/images/aerial-farm.jpg"
-          alt="Aerial view of agricultural plots"
+          src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1920&q=80"
+          alt="Agricultural field"
           fill
           className="object-cover"
           priority
@@ -164,8 +164,8 @@ export default function HomePage() {
         {/* Background with overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/70 z-10"></div>
         <Image
-          src="/images/raised-beds.jpg"
-          alt="Raised bed gardens with growing vegetables"
+          src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1920&q=80"
+          alt="Raised bed gardens"
           fill
           className="object-cover"
         />

@@ -73,8 +73,8 @@ export default function MarketplacePage() {
         <div className="text-white relative overflow-hidden h-[400px]">
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
           <Image
-            src="/images/chickens-two.jpg"
-            alt="Farm fresh produce marketplace"
+            src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1920&q=80"
+            alt="Farm fresh produce"
             fill
             className="object-cover"
           />

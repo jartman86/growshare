@@ -99,8 +99,8 @@ export default function CommunityPage() {
         <div className="text-white relative overflow-hidden h-[400px]">
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
           <Image
-            src="/images/chicken-farm.jpg"
-            alt="Community farm with chickens"
+            src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1920&q=80"
+            alt="Community farm"
             fill
             className="object-cover"
           />
