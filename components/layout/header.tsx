@@ -196,8 +196,8 @@ export function Header() {
                     className={cn(
                       'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
                       isActive
-                        ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
-                        : 'text-[#4a3f35] hover:bg-[#aed581]/20 hover:text-[#2d5016]'
+                        ? 'bg-[#5a7f3a] text-white shadow-sm'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -248,12 +248,12 @@ export function Header() {
                   {/* Messages Icon */}
                   <Link
                     href="/messages"
-                    className="relative p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
+                    className="relative p-2 rounded-lg hover:bg-gray-100 transition-all"
                     title="Messages"
                   >
-                    <Mail className="h-5 w-5 text-[#4a7c2c]" />
+                    <Mail className="h-5 w-5 text-gray-700" />
                     {unreadMessagesCount > 0 && (
-                      <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-gradient-to-br from-[#87ceeb] to-[#457b9d] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse shadow-md">
+                      <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-[#5a7f3a] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
                         {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                       </span>
                     )}
@@ -262,10 +262,10 @@ export function Header() {
                   {/* My Plots Link */}
                   <Link
                     href="/my-plots"
-                    className="p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-all"
                     title="My Plots"
                   >
-                    <List className="h-5 w-5 text-[#4a7c2c]" />
+                    <List className="h-5 w-5 text-gray-700" />
                   </Link>
 
                   {/* Notification Bell */}
@@ -275,10 +275,10 @@ export function Header() {
                   {username && (
                     <Link
                       href={`/profile/${username}`}
-                      className="p-2 rounded-lg hover:bg-[#aed581]/30 transition-all hover:scale-105"
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-all"
                       title="View Profile"
                     >
-                      <UserIcon className="h-5 w-5 text-[#4a7c2c]" />
+                      <UserIcon className="h-5 w-5 text-gray-700" />
                     </Link>
                   )}
 
@@ -286,7 +286,7 @@ export function Header() {
                     afterSignOutUrl="/"
                     appearance={{
                       elements: {
-                        avatarBox: 'h-9 w-9 ring-2 ring-green-100 hover:ring-green-200 transition-all',
+                        avatarBox: 'h-9 w-9 ring-2 ring-gray-200 hover:ring-gray-300 transition-all',
                       },
                     }}
                   />
@@ -294,12 +294,12 @@ export function Header() {
               ) : (
                 <>
                   <SignInButton mode="modal">
-                    <button className="rounded-lg px-4 py-2 text-sm font-medium text-[#4a7c2c] hover:bg-[#aed581]/20 hover:text-[#2d5016] transition-colors">
+                    <button className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                       Sign In
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="rounded-lg bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] px-4 py-2 text-sm font-medium text-white hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all hover:shadow-lg hover:scale-105">
+                    <button className="rounded-md bg-[#5a7f3a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#4a6f2a] transition-all shadow-sm hover:shadow">
                       Get Started
                     </button>
                   </SignUpButton>
