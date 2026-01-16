@@ -139,54 +139,59 @@ export async function POST(request: NextRequest) {
     // Calculate total price (durationMonths already calculated above)
     const totalAmount = plot.pricePerMonth * durationMonths
 
-    // Create booking
-    const booking = await prisma.booking.create({
-      data: {
-        plotId,
-        renterId: currentUser.id,
-        startDate: start,
-        endDate: end,
-        status: plot.instantBook ? 'APPROVED' : 'PENDING',
-        monthlyRate: plot.pricePerMonth,
-        totalAmount,
-        securityDeposit: plot.securityDeposit || null,
-      },
-      include: {
-        plot: {
-          select: {
-            id: true,
-            title: true,
-            city: true,
-            state: true,
-            pricePerMonth: true,
+    // Use transaction to ensure all database operations succeed or fail together
+    const booking = await prisma.$transaction(async (tx) => {
+      // Create booking
+      const newBooking = await tx.booking.create({
+        data: {
+          plotId,
+          renterId: currentUser.id,
+          startDate: start,
+          endDate: end,
+          status: plot.instantBook ? 'APPROVED' : 'PENDING',
+          monthlyRate: plot.pricePerMonth,
+          totalAmount,
+          securityDeposit: plot.securityDeposit || null,
+        },
+        include: {
+          plot: {
+            select: {
+              id: true,
+              title: true,
+              city: true,
+              state: true,
+              pricePerMonth: true,
+            },
+          },
+          renter: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
           },
         },
-        renter: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
+      })
+
+      // Award points for booking
+      await tx.user.update({
+        where: { id: currentUser.id },
+        data: { totalPoints: { increment: 25 } },
+      })
+
+      // Create activity
+      await tx.userActivity.create({
+        data: {
+          userId: currentUser.id,
+          type: 'BOOKING_CREATED',
+          title: plot.instantBook ? 'Booking confirmed' : 'Booking requested',
+          description: `${plot.title} in ${plot.city}, ${plot.state}`,
+          points: 25,
         },
-      },
-    })
+      })
 
-    // Award points for booking
-    await prisma.user.update({
-      where: { id: currentUser.id },
-      data: { totalPoints: { increment: 25 } },
-    })
-
-    // Create activity
-    await prisma.userActivity.create({
-      data: {
-        userId: currentUser.id,
-        type: 'BOOKING_CREATED',
-        title: plot.instantBook ? 'Booking confirmed' : 'Booking requested',
-        description: `${plot.title} in ${plot.city}, ${plot.state}`,
-        points: 25,
-      },
+      return newBooking
     })
 
     // Send notification to plot owner (unless instant book)

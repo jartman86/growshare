@@ -71,80 +71,83 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already reviewed this plot
-    const existingReview = await prisma.review.findFirst({
-      where: {
-        plotId,
-        authorId: currentUser.id,
-      },
-    })
+    // Use transaction to ensure all operations succeed or fail together
+    // Also prevents race condition by relying on database constraints
+    let review
+    try {
+      review = await prisma.$transaction(async (tx) => {
+        // Create review (database constraint will prevent duplicates)
+        const newReview = await tx.review.create({
+          data: {
+            type: 'PLOT',
+            plotId,
+            authorId: currentUser.id,
+            rating,
+            content: comment || '',
+          },
+          include: {
+            author: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatar: true,
+              },
+            },
+            plot: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        })
 
-    if (existingReview) {
-      return NextResponse.json(
-        { error: 'You have already reviewed this plot' },
-        { status: 400 }
-      )
+        // Calculate new average rating for the plot
+        const allReviews = await tx.review.findMany({
+          where: { plotId },
+          select: { rating: true },
+        })
+
+        const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
+
+        // Update plot with new average rating
+        await tx.plot.update({
+          where: { id: plotId },
+          data: { averageRating },
+        })
+
+        // Award points for leaving a review
+        await tx.user.update({
+          where: { id: currentUser.id },
+          data: { totalPoints: { increment: 10 } },
+        })
+
+        // Create activity
+        await tx.userActivity.create({
+          data: {
+            userId: currentUser.id,
+            type: 'REVIEW_CREATED',
+            title: 'Review submitted',
+            description: `Reviewed ${plot.title}`,
+            points: 10,
+          },
+        })
+
+        return newReview
+      })
+    } catch (txError: any) {
+      // Check if error is due to unique constraint violation
+      if (txError.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'You have already reviewed this plot' },
+          { status: 400 }
+        )
+      }
+      throw txError // Re-throw if it's a different error
     }
 
-    // Create review
-    const review = await prisma.review.create({
-      data: {
-        type: 'PLOT',
-        plotId,
-        authorId: currentUser.id,
-        rating,
-        content: comment || '',
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
-        },
-        plot: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-      },
-    })
-
-    // Calculate new average rating for the plot
-    const allReviews = await prisma.review.findMany({
-      where: { plotId },
-      select: { rating: true },
-    })
-
-    const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
-
-    // Update plot with new average rating
-    await prisma.plot.update({
-      where: { id: plotId },
-      data: { averageRating },
-    })
-
-    // Award points for leaving a review
-    await prisma.user.update({
-      where: { id: currentUser.id },
-      data: { totalPoints: { increment: 10 } },
-    })
-
-    // Create activity
-    await prisma.userActivity.create({
-      data: {
-        userId: currentUser.id,
-        type: 'REVIEW_CREATED',
-        title: 'Review submitted',
-        description: `Reviewed ${plot.title}`,
-        points: 10,
-      },
-    })
-
-    // Send notification to plot owner
+    // Send notification to plot owner (outside transaction - allowed to fail)
     if (plot.ownerId !== currentUser.id) {
       try {
         await notifyNewReview(
