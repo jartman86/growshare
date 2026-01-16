@@ -19,13 +19,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const body = await request.json()
+    // Parse request body with error handling
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+
     const { receiverId, content, subject, bookingId } = body
 
     // Validate required fields
     if (!receiverId || !content) {
       return NextResponse.json(
         { error: 'Receiver ID and content are required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate content is not empty or just whitespace
+    if (typeof content !== 'string' || content.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Message content cannot be empty' },
+        { status: 400 }
+      )
+    }
+
+    // Validate content length (reasonable max of 10,000 characters)
+    if (content.length > 10000) {
+      return NextResponse.json(
+        { error: 'Message content cannot exceed 10,000 characters' },
         { status: 400 }
       )
     }
@@ -50,45 +76,67 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create message
-    const message = await prisma.message.create({
-      data: {
-        senderId: currentUser.id,
-        receiverId,
-        content,
-        subject: subject || null,
-        bookingId: bookingId || null,
-      },
-      include: {
-        sender: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
+    // Create message with error handling
+    let message
+    try {
+      message = await prisma.message.create({
+        data: {
+          senderId: currentUser.id,
+          receiverId,
+          content,
+          subject: subject || null,
+          bookingId: bookingId || null,
         },
-        receiver: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
+        include: {
+          sender: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            },
           },
-        },
-        booking: {
-          select: {
-            id: true,
-            plot: {
-              select: {
-                id: true,
-                title: true,
+          receiver: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            },
+          },
+          booking: {
+            select: {
+              id: true,
+              plot: {
+                select: {
+                  id: true,
+                  title: true,
+                },
               },
             },
           },
         },
-      },
-    })
+      })
+    } catch (createError: any) {
+      console.error('Message creation error:', createError)
+
+      // Handle specific Prisma errors
+      if (createError.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Invalid receiver, sender, or booking reference' },
+          { status: 400 }
+        )
+      }
+      if (createError.code === 'P2025') {
+        return NextResponse.json(
+          { error: 'User or booking not found' },
+          { status: 404 }
+        )
+      }
+
+      // Re-throw for generic error handler
+      throw createError
+    }
 
     // Send notification to receiver
     try {

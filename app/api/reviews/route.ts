@@ -19,19 +19,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const body = await request.json()
+    // Parse request body with error handling
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+
     const { plotId, rating, comment } = body
 
     // Validate required fields
-    if (!plotId || !rating) {
+    if (!plotId || rating === undefined || rating === null) {
       return NextResponse.json(
         { error: 'Plot ID and rating are required' },
         { status: 400 }
       )
     }
 
+    // Validate rating is a valid number
+    const numericRating = Number(rating)
+    if (isNaN(numericRating)) {
+      return NextResponse.json(
+        { error: 'Rating must be a valid number' },
+        { status: 400 }
+      )
+    }
+
     // Validate rating range
-    if (rating < 1 || rating > 5) {
+    if (numericRating < 1 || numericRating > 5) {
       return NextResponse.json(
         { error: 'Rating must be between 1 and 5' },
         { status: 400 }
@@ -82,7 +101,7 @@ export async function POST(request: NextRequest) {
             type: 'PLOT',
             plotId,
             authorId: currentUser.id,
-            rating,
+            rating: numericRating,
             content: comment || '',
           },
           include: {
@@ -137,14 +156,30 @@ export async function POST(request: NextRequest) {
         return newReview
       })
     } catch (txError: any) {
-      // Check if error is due to unique constraint violation
+      console.error('Review transaction error:', txError)
+
+      // Handle specific Prisma errors
       if (txError.code === 'P2002') {
         return NextResponse.json(
           { error: 'You have already reviewed this plot' },
           { status: 400 }
         )
       }
-      throw txError // Re-throw if it's a different error
+      if (txError.code === 'P2025') {
+        return NextResponse.json(
+          { error: 'Plot, user, or related data not found' },
+          { status: 404 }
+        )
+      }
+      if (txError.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Invalid plot or user reference' },
+          { status: 400 }
+        )
+      }
+
+      // Re-throw for generic error handler
+      throw txError
     }
 
     // Send notification to plot owner (outside transaction - allowed to fail)
@@ -154,7 +189,7 @@ export async function POST(request: NextRequest) {
           plot.ownerId,
           plot.title,
           `${currentUser.firstName} ${currentUser.lastName}`,
-          rating,
+          numericRating,
           plotId
         )
       } catch (error) {

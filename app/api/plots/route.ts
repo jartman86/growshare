@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
 // Helper function to geocode an address
-async function geocodeAddress(address: string, city: string, state: string, zipCode: string): Promise<{ latitude: number; longitude: number } | null> {
+async function geocodeAddress(address: string, city: string, state: string, zipCode: string): Promise<{ latitude: number; longitude: number; error?: string } | null> {
   try {
     const fullAddress = `${address}, ${city}, ${state} ${zipCode}, USA`
     const encodedAddress = encodeURIComponent(fullAddress)
@@ -18,23 +18,41 @@ async function geocodeAddress(address: string, city: string, state: string, zipC
     )
 
     if (!response.ok) {
-      console.error('Geocoding API error:', response.statusText)
-      return null
+      const errorMsg = `Geocoding service error: ${response.status} ${response.statusText}`
+      console.error(errorMsg)
+      return { latitude: 0, longitude: 0, error: errorMsg }
     }
 
-    const data = await response.json()
+    let data
+    try {
+      data = await response.json()
+    } catch (jsonError) {
+      const errorMsg = 'Failed to parse geocoding response'
+      console.error(errorMsg, jsonError)
+      return { latitude: 0, longitude: 0, error: errorMsg }
+    }
 
     if (data && data.length > 0) {
+      const lat = parseFloat(data[0].lat)
+      const lon = parseFloat(data[0].lon)
+
+      if (isNaN(lat) || isNaN(lon)) {
+        const errorMsg = 'Invalid coordinates returned from geocoding service'
+        console.error(errorMsg)
+        return { latitude: 0, longitude: 0, error: errorMsg }
+      }
+
       return {
-        latitude: parseFloat(data[0].lat),
-        longitude: parseFloat(data[0].lon),
+        latitude: lat,
+        longitude: lon,
       }
     }
 
-    return null
+    return { latitude: 0, longitude: 0, error: 'Address not found by geocoding service' }
   } catch (error) {
-    console.error('Geocoding error:', error)
-    return null
+    const errorMsg = `Geocoding error: ${error instanceof Error ? error.message : 'Unknown error'}`
+    console.error(errorMsg, error)
+    return { latitude: 0, longitude: 0, error: errorMsg }
   }
 }
 
@@ -75,14 +93,50 @@ export async function GET(request: NextRequest) {
 
     if (minAcreage || maxAcreage) {
       where.acreage = {}
-      if (minAcreage) where.acreage.gte = parseFloat(minAcreage)
-      if (maxAcreage) where.acreage.lte = parseFloat(maxAcreage)
+      if (minAcreage) {
+        const parsedMin = parseFloat(minAcreage)
+        if (isNaN(parsedMin)) {
+          return NextResponse.json(
+            { error: 'Invalid minimum acreage value' },
+            { status: 400 }
+          )
+        }
+        where.acreage.gte = parsedMin
+      }
+      if (maxAcreage) {
+        const parsedMax = parseFloat(maxAcreage)
+        if (isNaN(parsedMax)) {
+          return NextResponse.json(
+            { error: 'Invalid maximum acreage value' },
+            { status: 400 }
+          )
+        }
+        where.acreage.lte = parsedMax
+      }
     }
 
     if (minPrice || maxPrice) {
       where.pricePerMonth = {}
-      if (minPrice) where.pricePerMonth.gte = parseFloat(minPrice)
-      if (maxPrice) where.pricePerMonth.lte = parseFloat(maxPrice)
+      if (minPrice) {
+        const parsedMin = parseFloat(minPrice)
+        if (isNaN(parsedMin)) {
+          return NextResponse.json(
+            { error: 'Invalid minimum price value' },
+            { status: 400 }
+          )
+        }
+        where.pricePerMonth.gte = parsedMin
+      }
+      if (maxPrice) {
+        const parsedMax = parseFloat(maxPrice)
+        if (isNaN(parsedMax)) {
+          return NextResponse.json(
+            { error: 'Invalid maximum price value' },
+            { status: 400 }
+          )
+        }
+        where.pricePerMonth.lte = parsedMax
+      }
     }
 
     // Soil types filter
@@ -182,7 +236,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const body = await request.json()
+    // Parse request body with error handling
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
 
     // Validate required fields
     if (!body.title || body.title.trim().length === 0) {
@@ -280,69 +343,105 @@ export async function POST(request: NextRequest) {
     if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
       console.log('Geocoding address:', body.address, body.city, body.state, body.zipCode)
       const coords = await geocodeAddress(body.address, body.city, body.state, body.zipCode)
-      if (coords) {
+      if (coords && coords.error) {
+        // Geocoding failed - return error to user
+        return NextResponse.json(
+          {
+            error: 'Unable to determine plot location',
+            details: coords.error,
+            suggestion: 'Please verify the address or provide coordinates manually'
+          },
+          { status: 400 }
+        )
+      } else if (coords) {
         latitude = coords.latitude
         longitude = coords.longitude
         console.log('Geocoded successfully:', latitude, longitude)
       } else {
-        console.log('Geocoding failed, using default coordinates')
-        // Use a default coordinate (center of US) if geocoding fails
-        latitude = 39.8283
-        longitude = -98.5795
+        // Fallback for null response
+        return NextResponse.json(
+          {
+            error: 'Unable to determine plot location',
+            suggestion: 'Please provide valid latitude and longitude coordinates'
+          },
+          { status: 400 }
+        )
       }
     }
 
-    // Create the plot
-    const plot = await prisma.plot.create({
-      data: {
-        ownerId: currentUser.id,
-        title: body.title,
-        description: body.description,
-        status: 'DRAFT',
-        address: body.address,
-        city: body.city,
-        state: body.state,
-        zipCode: body.zipCode,
-        county: body.county,
-        latitude: latitude,
-        longitude: longitude,
-        acreage: body.acreage,
-        soilType: soilTypeEnum,
-        soilPH: body.soilPH,
-        waterAccess: waterAccessEnum,
-        usdaZone: body.usdaZone,
-        sunExposure: body.sunExposure,
-        hasFencing: body.hasFencing || false,
-        hasGreenhouse: body.hasGreenhouse || false,
-        hasToolStorage: body.hasToolStorage || false,
-        hasElectricity: body.hasElectricity || false,
-        hasRoadAccess: body.hasRoadAccess || false,
-        hasIrrigation: body.hasIrrigation || false,
-        isADAAccessible: body.isADAAccessible || false,
-        allowsLivestock: body.allowsLivestock || false,
-        allowsStructures: body.allowsStructures || false,
-        restrictions: body.restrictions,
-        pricePerMonth: body.pricePerMonth,
-        pricePerSeason: body.pricePerSeason,
-        pricePerYear: body.pricePerYear,
-        securityDeposit: body.securityDeposit,
-        instantBook: body.instantBook || false,
-        minimumLease: body.minimumLease || 3,
-        images: body.images || [],
-        droneFootageUrl: body.droneFootageUrl,
-        virtualTourUrl: body.virtualTourUrl,
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
+    // Create the plot with error handling
+    let plot
+    try {
+      plot = await prisma.plot.create({
+        data: {
+          ownerId: currentUser.id,
+          title: body.title,
+          description: body.description,
+          status: 'DRAFT',
+          address: body.address,
+          city: body.city,
+          state: body.state,
+          zipCode: body.zipCode,
+          county: body.county,
+          latitude: latitude,
+          longitude: longitude,
+          acreage: body.acreage,
+          soilType: soilTypeEnum,
+          soilPH: body.soilPH,
+          waterAccess: waterAccessEnum,
+          usdaZone: body.usdaZone,
+          sunExposure: body.sunExposure,
+          hasFencing: body.hasFencing || false,
+          hasGreenhouse: body.hasGreenhouse || false,
+          hasToolStorage: body.hasToolStorage || false,
+          hasElectricity: body.hasElectricity || false,
+          hasRoadAccess: body.hasRoadAccess || false,
+          hasIrrigation: body.hasIrrigation || false,
+          isADAAccessible: body.isADAAccessible || false,
+          allowsLivestock: body.allowsLivestock || false,
+          allowsStructures: body.allowsStructures || false,
+          restrictions: body.restrictions,
+          pricePerMonth: body.pricePerMonth,
+          pricePerSeason: body.pricePerSeason,
+          pricePerYear: body.pricePerYear,
+          securityDeposit: body.securityDeposit,
+          instantBook: body.instantBook || false,
+          minimumLease: body.minimumLease || 3,
+          images: body.images || [],
+          droneFootageUrl: body.droneFootageUrl,
+          virtualTourUrl: body.virtualTourUrl,
+        },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            },
           },
         },
-      },
-    })
+      })
+    } catch (createError: any) {
+      console.error('Plot creation error:', createError)
+
+      // Handle specific Prisma errors
+      if (createError.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'A plot with these details already exists' },
+          { status: 400 }
+        )
+      }
+      if (createError.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Invalid owner reference' },
+          { status: 400 }
+        )
+      }
+
+      // Re-throw for generic error handler
+      throw createError
+    }
 
     // Award badge for first plot listing
     const plotsCount = await prisma.plot.count({

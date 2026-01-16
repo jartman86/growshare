@@ -19,7 +19,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const body = await request.json()
+    // Parse request body with error handling
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+
     const { plotId, startDate, endDate, message } = body
 
     // Validate required fields
@@ -140,59 +150,87 @@ export async function POST(request: NextRequest) {
     const totalAmount = plot.pricePerMonth * durationMonths
 
     // Use transaction to ensure all database operations succeed or fail together
-    const booking = await prisma.$transaction(async (tx) => {
-      // Create booking
-      const newBooking = await tx.booking.create({
-        data: {
-          plotId,
-          renterId: currentUser.id,
-          startDate: start,
-          endDate: end,
-          status: plot.instantBook ? 'APPROVED' : 'PENDING',
-          monthlyRate: plot.pricePerMonth,
-          totalAmount,
-          securityDeposit: plot.securityDeposit || null,
-        },
-        include: {
-          plot: {
-            select: {
-              id: true,
-              title: true,
-              city: true,
-              state: true,
-              pricePerMonth: true,
+    let booking
+    try {
+      booking = await prisma.$transaction(async (tx) => {
+        // Create booking
+        const newBooking = await tx.booking.create({
+          data: {
+            plotId,
+            renterId: currentUser.id,
+            startDate: start,
+            endDate: end,
+            status: plot.instantBook ? 'APPROVED' : 'PENDING',
+            monthlyRate: plot.pricePerMonth,
+            totalAmount,
+            securityDeposit: plot.securityDeposit || null,
+          },
+          include: {
+            plot: {
+              select: {
+                id: true,
+                title: true,
+                city: true,
+                state: true,
+                pricePerMonth: true,
+              },
+            },
+            renter: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
             },
           },
-          renter: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-            },
+        })
+
+        // Award points for booking
+        await tx.user.update({
+          where: { id: currentUser.id },
+          data: { totalPoints: { increment: 25 } },
+        })
+
+        // Create activity
+        await tx.userActivity.create({
+          data: {
+            userId: currentUser.id,
+            type: 'BOOKING_CREATED',
+            title: plot.instantBook ? 'Booking confirmed' : 'Booking requested',
+            description: `${plot.title} in ${plot.city}, ${plot.state}`,
+            points: 25,
           },
-        },
-      })
+        })
 
-      // Award points for booking
-      await tx.user.update({
-        where: { id: currentUser.id },
-        data: { totalPoints: { increment: 25 } },
+        return newBooking
       })
+    } catch (txError: any) {
+      console.error('Booking transaction error:', txError)
 
-      // Create activity
-      await tx.userActivity.create({
-        data: {
-          userId: currentUser.id,
-          type: 'BOOKING_CREATED',
-          title: plot.instantBook ? 'Booking confirmed' : 'Booking requested',
-          description: `${plot.title} in ${plot.city}, ${plot.state}`,
-          points: 25,
-        },
-      })
+      // Handle specific Prisma errors
+      if (txError.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'A booking with these details already exists' },
+          { status: 400 }
+        )
+      }
+      if (txError.code === 'P2025') {
+        return NextResponse.json(
+          { error: 'Plot or user not found during booking creation' },
+          { status: 404 }
+        )
+      }
+      if (txError.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Invalid plot or user reference' },
+          { status: 400 }
+        )
+      }
 
-      return newBooking
-    })
+      // Re-throw for generic error handler
+      throw txError
+    }
 
     // Send notification to plot owner (unless instant book)
     if (!plot.instantBook) {

@@ -24,7 +24,18 @@ export async function PATCH(
     }
 
     const bookingId = id
-    const body = await request.json()
+
+    // Parse request body with error handling
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+
     const { status } = body
 
     // Validate status
@@ -103,31 +114,53 @@ export async function PATCH(
       }
     }
 
-    // Update booking status
-    const updatedBooking = await prisma.booking.update({
-      where: { id: bookingId },
-      data: { status },
-      include: {
-        plot: {
-          select: {
-            id: true,
-            title: true,
-            city: true,
-            state: true,
-            images: true,
+    // Update booking status with error handling
+    let updatedBooking
+    try {
+      updatedBooking = await prisma.booking.update({
+        where: { id: bookingId },
+        data: { status },
+        include: {
+          plot: {
+            select: {
+              id: true,
+              title: true,
+              city: true,
+              state: true,
+              images: true,
+            },
+          },
+          renter: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              avatar: true,
+            },
           },
         },
-        renter: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            avatar: true,
-          },
-        },
-      },
-    })
+      })
+    } catch (updateError: any) {
+      console.error('Booking update error:', updateError)
+
+      // Handle specific Prisma errors
+      if (updateError.code === 'P2025') {
+        return NextResponse.json(
+          { error: 'Booking not found or could not be updated' },
+          { status: 404 }
+        )
+      }
+      if (updateError.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Invalid booking reference' },
+          { status: 400 }
+        )
+      }
+
+      // Re-throw for generic error handler
+      throw updateError
+    }
 
     // Award points and create activities based on status change
     if (status === 'APPROVED') {
