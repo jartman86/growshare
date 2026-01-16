@@ -182,8 +182,8 @@ export function Header() {
               <Image
                 src="/growshare-logo.png"
                 alt="GrowShare"
-                width={150}
-                height={40}
+                width={200}
+                height={60}
                 className="transition-transform group-hover:scale-105"
                 priority
               />
