@@ -116,8 +116,8 @@ export default async function PostPage({
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] flex items-center justify-center">
                       <span className="text-sm font-bold text-white">
-                        {post.author.firstName.charAt(0)}
-                        {post.author.lastName.charAt(0)}
+                        {post.author.firstName?.charAt(0) || post.author.username?.charAt(0)?.toUpperCase() || '?'}
+                        {post.author.lastName?.charAt(0) || ''}
                       </span>
                     </div>
                   )}
@@ -219,8 +219,8 @@ export default async function PostPage({
                   ) : (
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                       <span className="text-xl font-bold text-white">
-                        {post.author.firstName.charAt(0)}
-                        {post.author.lastName.charAt(0)}
+                        {post.author.firstName?.charAt(0) || post.author.username?.charAt(0)?.toUpperCase() || '?'}
+                        {post.author.lastName?.charAt(0) || ''}
                       </span>
                     </div>
                   )}

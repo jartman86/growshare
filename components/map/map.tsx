@@ -110,16 +110,28 @@ export function Map({ plots, onPlotClick, selectedPlotId, center = [-82.5515, 35
         }
       })
 
+      // Create popup content safely to prevent XSS
+      const popupContainer = document.createElement('div')
+      popupContainer.style.padding = '8px'
+
+      const titleEl = document.createElement('h3')
+      titleEl.style.fontWeight = 'bold'
+      titleEl.style.marginBottom = '4px'
+      titleEl.textContent = plot.title // Safe - uses textContent instead of innerHTML
+
+      const detailsEl = document.createElement('p')
+      detailsEl.style.color = '#666'
+      detailsEl.style.fontSize = '14px'
+      detailsEl.textContent = `${plot.acreage} acres • $${plot.pricePerMonth}/mo`
+
+      popupContainer.appendChild(titleEl)
+      popupContainer.appendChild(detailsEl)
+
       const marker = new mapboxgl.Marker(el)
         .setLngLat([plot.longitude, plot.latitude])
         .setPopup(
           new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`
-              <div style="padding: 8px;">
-                <h3 style="font-weight: bold; margin-bottom: 4px;">${plot.title}</h3>
-                <p style="color: #666; font-size: 14px;">${plot.acreage} acres • $${plot.pricePerMonth}/mo</p>
-              </div>
-            `)
+            .setDOMContent(popupContainer)
         )
         .addTo(map.current!)
 

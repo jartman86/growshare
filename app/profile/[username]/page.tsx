@@ -107,7 +107,7 @@ export default async function ProfilePage({
                   ) : (
                     <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] flex items-center justify-center">
                       <span className="text-4xl font-bold text-white">
-                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                        {user.firstName?.charAt(0) || user.username?.charAt(0)?.toUpperCase() || '?'}{user.lastName?.charAt(0) || ''}
                       </span>
                     </div>
                   )}

@@ -184,6 +184,85 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
+    // Validate required fields
+    if (!body.title || body.title.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Plot title is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.description || body.description.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Plot description is required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate price fields
+    if (body.pricePerMonth !== undefined && body.pricePerMonth !== null) {
+      const price = parseFloat(body.pricePerMonth)
+      if (isNaN(price) || price < 0) {
+        return NextResponse.json(
+          { error: 'Price per month must be a positive number' },
+          { status: 400 }
+        )
+      }
+      if (price > 1000000) {
+        return NextResponse.json(
+          { error: 'Price per month cannot exceed $1,000,000' },
+          { status: 400 }
+        )
+      }
+    }
+
+    if (body.pricePerSeason !== undefined && body.pricePerSeason !== null) {
+      const price = parseFloat(body.pricePerSeason)
+      if (isNaN(price) || price < 0) {
+        return NextResponse.json(
+          { error: 'Price per season must be a positive number' },
+          { status: 400 }
+        )
+      }
+    }
+
+    if (body.pricePerYear !== undefined && body.pricePerYear !== null) {
+      const price = parseFloat(body.pricePerYear)
+      if (isNaN(price) || price < 0) {
+        return NextResponse.json(
+          { error: 'Price per year must be a positive number' },
+          { status: 400 }
+        )
+      }
+    }
+
+    if (body.securityDeposit !== undefined && body.securityDeposit !== null) {
+      const deposit = parseFloat(body.securityDeposit)
+      if (isNaN(deposit) || deposit < 0) {
+        return NextResponse.json(
+          { error: 'Security deposit must be a positive number' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Validate acreage
+    if (body.acreage !== undefined && body.acreage !== null) {
+      const acreage = parseFloat(body.acreage)
+      if (isNaN(acreage) || acreage <= 0) {
+        return NextResponse.json(
+          { error: 'Acreage must be a positive number' },
+          { status: 400 }
+        )
+      }
+      if (acreage > 10000) {
+        return NextResponse.json(
+          { error: 'Acreage cannot exceed 10,000 acres' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Convert form values to uppercase enum values
     const soilTypeEnum = (body.soilType || []).map((type: string) => type.toUpperCase())
     const waterAccessEnum = (body.waterAccess || []).map((access: string) => {

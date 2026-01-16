@@ -44,46 +44,41 @@ export async function POST(
       )
     }
 
-    // Check if already following
-    const existingFollow = await prisma.follow.findUnique({
-      where: {
-        followerId_followingId: {
+    // Create follow relationship
+    // Let database unique constraint handle duplicate detection (prevents race condition)
+    try {
+      const follow = await prisma.follow.create({
+        data: {
           followerId: currentUser.id,
           followingId: targetUserId,
         },
-      },
-    })
+      })
 
-    if (existingFollow) {
-      return NextResponse.json(
-        { error: 'Already following this user' },
-        { status: 400 }
-      )
+      // Create activity for the followed user
+      await prisma.userActivity.create({
+        data: {
+          userId: targetUserId,
+          type: 'NEW_FOLLOWER',
+          title: 'New Follower',
+          description: `${currentUser.firstName} ${currentUser.lastName} started following you`,
+          points: 5,
+        },
+      })
+
+      return NextResponse.json({
+        success: true,
+        follow,
+      })
+    } catch (createError: any) {
+      // Check if error is due to unique constraint violation
+      if (createError.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'Already following this user' },
+          { status: 400 }
+        )
+      }
+      throw createError // Re-throw if it's a different error
     }
-
-    // Create follow relationship
-    const follow = await prisma.follow.create({
-      data: {
-        followerId: currentUser.id,
-        followingId: targetUserId,
-      },
-    })
-
-    // Create activity for the followed user
-    await prisma.userActivity.create({
-      data: {
-        userId: targetUserId,
-        type: 'NEW_FOLLOWER',
-        title: 'New Follower',
-        description: `${currentUser.firstName} ${currentUser.lastName} started following you`,
-        points: 5,
-      },
-    })
-
-    return NextResponse.json({
-      success: true,
-      follow,
-    })
   } catch (error) {
     console.error('Error following user:', error)
     return NextResponse.json(

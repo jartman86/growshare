@@ -47,10 +47,59 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check for overlapping bookings
+    // Parse and validate dates
     const start = new Date(startDate)
     const end = new Date(endDate)
+    const now = new Date()
 
+    // Validate dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid date format' },
+        { status: 400 }
+      )
+    }
+
+    // Start date cannot be in the past (allow same day)
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    if (start < today) {
+      return NextResponse.json(
+        { error: 'Start date cannot be in the past' },
+        { status: 400 }
+      )
+    }
+
+    // End date must be after start date
+    if (end <= start) {
+      return NextResponse.json(
+        { error: 'End date must be after start date' },
+        { status: 400 }
+      )
+    }
+
+    // Dates must be within reasonable bounds (max 10 years in future)
+    const maxFutureDate = new Date()
+    maxFutureDate.setFullYear(maxFutureDate.getFullYear() + 10)
+    if (start > maxFutureDate || end > maxFutureDate) {
+      return NextResponse.json(
+        { error: 'Booking dates cannot be more than 10 years in the future' },
+        { status: 400 }
+      )
+    }
+
+    // Calculate duration in months
+    const durationMs = end.getTime() - start.getTime()
+    const durationMonths = Math.ceil(durationMs / (1000 * 60 * 60 * 24 * 30))
+
+    // Validate against plot's minimum lease requirement
+    if (plot.minimumLease && durationMonths < plot.minimumLease) {
+      return NextResponse.json(
+        { error: `This plot requires a minimum lease of ${plot.minimumLease} months` },
+        { status: 400 }
+      )
+    }
+
+    // Check for overlapping bookings
     const overlappingBookings = await prisma.booking.findMany({
       where: {
         plotId,
@@ -87,11 +136,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate duration in months
-    const durationMs = end.getTime() - start.getTime()
-    const durationMonths = Math.ceil(durationMs / (1000 * 60 * 60 * 24 * 30))
-
-    // Calculate total price
+    // Calculate total price (durationMonths already calculated above)
     const totalAmount = plot.pricePerMonth * durationMonths
 
     // Create booking
