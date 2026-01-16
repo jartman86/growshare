@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'
 import {
@@ -178,8 +179,14 @@ export function Header() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <Sprout className="h-8 w-8 text-[#4a7c2c] transition-transform group-hover:scale-110 group-hover:rotate-12" />
-              <span className="text-xl font-bold bg-gradient-to-r from-[#2d5016] to-[#4a7c2c] bg-clip-text text-transparent">GrowShare</span>
+              <Image
+                src="/growshare-logo.png"
+                alt="GrowShare"
+                width={150}
+                height={40}
+                className="transition-transform group-hover:scale-105"
+                priority
+              />
             </Link>
 
             {/* Main Navigation - Desktop */}
