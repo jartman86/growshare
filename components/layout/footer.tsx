@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Sprout } from 'lucide-react'
 
 const footerNavigation = {
   platform: [
@@ -35,9 +34,13 @@ export function Footer() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <Sprout className="h-8 w-8 text-[#4a7c2c] transition-transform group-hover:scale-110 group-hover:rotate-12" />
-              <span className="text-xl font-bold bg-gradient-to-r from-[#2d5016] to-[#4a7c2c] bg-clip-text text-transparent">GrowShare</span>
+            <Link href="/" className="flex items-center group">
+              <img
+                src="/growshare-logo.png"
+                alt="GrowShare"
+                style={{ width: '125px', height: 'auto', maxWidth: 'none' }}
+                className="transition-transform group-hover:scale-105"
+              />
             </Link>
             <p className="text-sm text-[#4a3f35] max-w-xs font-medium">
               Transforming land into opportunity. Building thriving agricultural communities through connection, education, and shared growth.
