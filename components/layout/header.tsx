@@ -179,14 +179,11 @@ export function Header() {
           <div className="flex items-center justify-between py-4">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <Image
+              <img
                 src="/growshare-logo.png"
                 alt="GrowShare"
-                width={1600}
-                height={896}
-                style={{ width: '500px', height: 'auto' }}
+                style={{ width: '500px', height: 'auto', maxWidth: 'none' }}
                 className="transition-transform group-hover:scale-105"
-                priority
               />
             </Link>
 
