@@ -52,12 +52,34 @@ export default function ToolDetailPage() {
   const weekCost = tool.weeklyRate || calculateRentalCost(tool, 7)
   const monthCost = calculateRentalCost(tool, 30)
 
-  const handleSubmitReview = (reviewData: any) => {
-    // TODO: Submit review to backend
-    console.log('Review submitted:', reviewData)
-    setShowReviewForm(false)
-    // Show success message
-    alert('Review submitted successfully!')
+  const handleSubmitReview = async (reviewData: any) => {
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          toolId: tool.id,
+          rating: reviewData.rating,
+          title: reviewData.title,
+          comment: reviewData.content,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to submit review')
+      }
+
+      setShowReviewForm(false)
+      alert('Review submitted successfully! The page will reload to show your review.')
+      // Reload to show the new review
+      window.location.reload()
+    } catch (error: any) {
+      console.error('Error submitting review:', error)
+      alert(error.message || 'Failed to submit review. Please try again.')
+    }
   }
 
   return (

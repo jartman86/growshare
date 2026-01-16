@@ -20,12 +20,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { plotId, rating, comment } = body
+    const { plotId, toolId, rating, comment, title } = body
 
     // Validate required fields
-    if (!plotId || !rating) {
+    if ((!plotId && !toolId) || !rating) {
       return NextResponse.json(
-        { error: 'Plot ID and rating are required' },
+        { error: 'Target ID (plotId or toolId) and rating are required' },
+        { status: 400 }
+      )
+    }
+
+    // Can't have both plotId and toolId
+    if (plotId && toolId) {
+      return NextResponse.json(
+        { error: 'Cannot review both plot and tool in same review' },
         { status: 400 }
       )
     }
@@ -38,38 +46,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if plot exists
-    const plot = await prisma.plot.findUnique({
-      where: { id: plotId },
-    })
+    // Handle plot reviews
+    let plot = null
+    if (plotId) {
+      // Check if plot exists
+      plot = await prisma.plot.findUnique({
+        where: { id: plotId },
+      })
 
-    if (!plot) {
-      return NextResponse.json({ error: 'Plot not found' }, { status: 404 })
+      if (!plot) {
+        return NextResponse.json({ error: 'Plot not found' }, { status: 404 })
+      }
+
+      // Can't review your own plot
+      if (plot.ownerId === currentUser.id) {
+        return NextResponse.json(
+          { error: 'You cannot review your own plot' },
+          { status: 400 }
+        )
+      }
+
+      // Verify user has a completed booking for this plot
+      const completedBooking = await prisma.booking.findFirst({
+        where: {
+          plotId,
+          renterId: currentUser.id,
+          status: 'COMPLETED',
+        },
+      })
+
+      if (!completedBooking) {
+        return NextResponse.json(
+          { error: 'You must complete a booking before reviewing this plot' },
+          { status: 403 }
+        )
+      }
     }
 
-    // Can't review your own plot
-    if (plot.ownerId === currentUser.id) {
-      return NextResponse.json(
-        { error: 'You cannot review your own plot' },
-        { status: 400 }
-      )
-    }
-
-    // Verify user has a completed booking for this plot
-    const completedBooking = await prisma.booking.findFirst({
-      where: {
-        plotId,
-        renterId: currentUser.id,
-        status: 'COMPLETED',
-      },
-    })
-
-    if (!completedBooking) {
-      return NextResponse.json(
-        { error: 'You must complete a booking before reviewing this plot' },
-        { status: 403 }
-      )
-    }
+    // For tool reviews, we don't need to verify ownership since tools
+    // are currently stored as sample data without ownership tracking
 
     // Use transaction to ensure all operations succeed or fail together
     // Also prevents race condition by relying on database constraints
@@ -77,14 +92,22 @@ export async function POST(request: NextRequest) {
     try {
       review = await prisma.$transaction(async (tx) => {
         // Create review (database constraint will prevent duplicates)
+        const reviewData: any = {
+          type: plotId ? 'PLOT' : 'TOOL',
+          authorId: currentUser.id,
+          rating,
+          title: title || null,
+          content: comment || '',
+        }
+
+        if (plotId) {
+          reviewData.plotId = plotId
+        } else if (toolId) {
+          reviewData.toolId = toolId
+        }
+
         const newReview = await tx.review.create({
-          data: {
-            type: 'PLOT',
-            plotId,
-            authorId: currentUser.id,
-            rating,
-            content: comment || '',
-          },
+          data: reviewData,
           include: {
             author: {
               select: {
@@ -94,28 +117,30 @@ export async function POST(request: NextRequest) {
                 avatar: true,
               },
             },
-            plot: {
+            plot: plotId ? {
               select: {
                 id: true,
                 title: true,
               },
-            },
+            } : undefined,
           },
         })
 
-        // Calculate new average rating for the plot
-        const allReviews = await tx.review.findMany({
-          where: { plotId },
-          select: { rating: true },
-        })
+        // Calculate new average rating for plots
+        if (plotId) {
+          const allReviews = await tx.review.findMany({
+            where: { plotId },
+            select: { rating: true },
+          })
 
-        const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
+          const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
 
-        // Update plot with new average rating
-        await tx.plot.update({
-          where: { id: plotId },
-          data: { averageRating },
-        })
+          // Update plot with new average rating
+          await tx.plot.update({
+            where: { id: plotId },
+            data: { averageRating },
+          })
+        }
 
         // Award points for leaving a review
         await tx.user.update({
@@ -124,12 +149,13 @@ export async function POST(request: NextRequest) {
         })
 
         // Create activity
+        const targetName = plotId ? plot?.title : `Tool #${toolId}`
         await tx.userActivity.create({
           data: {
             userId: currentUser.id,
             type: 'REVIEW_CREATED',
             title: 'Review submitted',
-            description: `Reviewed ${plot.title}`,
+            description: `Reviewed ${targetName}`,
             points: 10,
           },
         })
@@ -140,7 +166,7 @@ export async function POST(request: NextRequest) {
       // Check if error is due to unique constraint violation
       if (txError.code === 'P2002') {
         return NextResponse.json(
-          { error: 'You have already reviewed this plot' },
+          { error: 'You have already reviewed this ' + (plotId ? 'plot' : 'tool') },
           { status: 400 }
         )
       }
@@ -148,7 +174,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send notification to plot owner (outside transaction - allowed to fail)
-    if (plot.ownerId !== currentUser.id) {
+    if (plot && plot.ownerId !== currentUser.id) {
       try {
         await notifyNewReview(
           plot.ownerId,
@@ -172,11 +198,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Get reviews for a plot or user
+// Get reviews for a plot, tool, or user
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const plotId = searchParams.get('plotId')
+    const toolId = searchParams.get('toolId')
     const authorId = searchParams.get('authorId')
     const limit = searchParams.get('limit')
 
@@ -184,6 +211,10 @@ export async function GET(request: NextRequest) {
 
     if (plotId) {
       where.plotId = plotId
+    }
+
+    if (toolId) {
+      where.toolId = toolId
     }
 
     if (authorId) {

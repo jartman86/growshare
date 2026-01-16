@@ -586,6 +586,7 @@ model Notification {
 enum ReviewType {
   PLOT
   USER
+  TOOL
 }
 
 model Review {
@@ -603,6 +604,9 @@ model Review {
   subjectId   String?
   subject     User?      @relation("ReviewSubject", fields: [subjectId], references: [id], onDelete: Cascade)
 
+  // For Tool Reviews (no FK since tools are not in DB yet)
+  toolId      String?
+
   rating      Int        // 1-5
   title       String?
   content     String
@@ -619,6 +623,7 @@ model Review {
   @@index([authorId])
   @@index([plotId])
   @@index([subjectId])
+  @@index([toolId])
   @@index([type])
 }
 
