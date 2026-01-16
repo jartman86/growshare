@@ -178,13 +178,13 @@ export function Header() {
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-24 items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group py-2">
+            <Link href="/" className="flex items-center space-x-2 group">
               <Image
                 src="/growshare-logo.png"
                 alt="GrowShare"
                 width={320}
                 height={96}
-                className="transition-transform group-hover:scale-105 h-auto w-auto"
+                className="transition-transform group-hover:scale-105 h-20"
                 priority
               />
             </Link>
