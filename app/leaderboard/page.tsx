@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_USERS, getLevelFromPoints } from '@/lib/profile-data'
@@ -45,10 +46,16 @@ export default function LeaderboardPage() {
 
       <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
-          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-            <div className="text-center">
+        <div className="text-white relative overflow-hidden h-[400px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1595854341625-f33ee0e331e8?w=1920&q=80"
+            alt="Community garden success and achievement"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 h-full flex items-center">
+            <div className="text-center w-full">
               <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <Trophy className="h-8 w-8" />
               </div>

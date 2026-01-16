@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ChallengeCard } from '@/components/challenges/challenge-card'
@@ -63,10 +64,16 @@ export default function ChallengesPage() {
 
       <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="garden-gradient-sunrise topo-dense text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
-          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-            <div className="text-center">
+        <div className="text-white relative overflow-hidden h-[450px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1920&q=80"
+            alt="Agricultural challenge and teamwork"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 h-full flex items-center">
+            <div className="text-center w-full">
               <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-full mb-4 backdrop-blur-sm">
                 <Trophy className="h-8 w-8" />
               </div>

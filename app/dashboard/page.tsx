@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { LevelProgress } from '@/components/dashboard/level-progress'
@@ -85,14 +86,23 @@ export default async function DashboardPage() {
 
       <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="garden-gradient-vibrant topo-dense text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
-              Welcome back, {user.firstName}! 👋
-            </h1>
-            <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
-              You're growing stronger every day. Let's see your progress!
-            </p>
+        <div className="text-white relative overflow-hidden h-[300px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=1920&q=80"
+            alt="Thriving garden landscape"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
+                Welcome back, {user.firstName}! 👋
+              </h1>
+              <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
+                You're growing stronger every day. Let's see your progress!
+              </p>
+            </div>
           </div>
         </div>
 
