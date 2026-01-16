@@ -176,13 +176,13 @@ export function Header() {
     <>
       <header className="sticky top-0 z-50 w-full border-b-2 border-[#8bc34a]/30 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-md">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center justify-between py-2">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
               <img
                 src="/growshare-logo.png"
                 alt="GrowShare"
-                style={{ width: '500px', height: 'auto', maxWidth: 'none' }}
+                style={{ width: '250px', height: 'auto', maxWidth: 'none' }}
                 className="transition-transform group-hover:scale-105"
               />
             </Link>
