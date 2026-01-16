@@ -182,7 +182,7 @@ export function Header() {
               <img
                 src="/growshare-logo.png"
                 alt="GrowShare"
-                style={{ width: '250px', height: 'auto', maxWidth: 'none' }}
+                style={{ width: '125px', height: 'auto', maxWidth: 'none' }}
                 className="transition-transform group-hover:scale-105"
               />
             </Link>
