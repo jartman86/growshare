@@ -184,7 +184,8 @@ export function Header() {
                 alt="GrowShare"
                 width={1600}
                 height={896}
-                className="transition-transform group-hover:scale-105 w-96 h-auto"
+                style={{ width: '500px', height: 'auto' }}
+                className="transition-transform group-hover:scale-105"
                 priority
               />
             </Link>
