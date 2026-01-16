@@ -348,6 +348,8 @@ enum ActivityType {
   BADGE_EARNED
   PRODUCE_SOLD
   MILESTONE_REACHED
+  POST_CREATED
+  NEW_FOLLOWER
 }
 
 model UserActivity {
