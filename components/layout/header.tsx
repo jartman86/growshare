@@ -176,15 +176,15 @@ export function Header() {
     <>
       <header className="sticky top-0 z-50 w-full border-b-2 border-[#8bc34a]/30 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-md">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+          <div className="flex h-20 items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group">
+            <Link href="/" className="flex items-center space-x-2 group py-2">
               <Image
                 src="/growshare-logo.png"
                 alt="GrowShare"
-                width={280}
-                height={84}
-                className="transition-transform group-hover:scale-105 h-auto"
+                width={320}
+                height={96}
+                className="transition-transform group-hover:scale-105 h-auto w-auto"
                 priority
               />
             </Link>
