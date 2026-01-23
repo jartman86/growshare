@@ -1,19 +1,77 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { ProductCard } from '@/components/marketplace/product-card'
-import { SAMPLE_PRODUCTS, ProductCategory } from '@/lib/marketplace-data'
-import { Search, ShoppingBag, Sprout, Award, Package, X } from 'lucide-react'
+import { Search, ShoppingBag, Sprout, Award, Package, X, Plus, Loader2 } from 'lucide-react'
+import { useAuth } from '@clerk/nextjs'
+
+interface ProduceListing {
+  id: string
+  productName: string
+  variety: string | null
+  description: string
+  category: string
+  quantity: number
+  unit: string
+  pricePerUnit: number
+  status: string
+  availableDate: string
+  expiresDate: string | null
+  deliveryMethods: string[]
+  pickupLocation: string | null
+  deliveryRadius: number | null
+  images: string[]
+  isOrganic: boolean
+  isCertified: boolean
+  certifications: string[]
+  createdAt: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    avatar: string | null
+    isVerified: boolean
+  }
+  _count: {
+    orders: number
+  }
+}
+
+type ProductCategory = 'Vegetables' | 'Fruits' | 'Herbs' | 'Flowers' | 'Seeds' | 'Seedlings' | 'Value-Added' | 'Other'
 
 export default function MarketplacePage() {
+  const { isSignedIn } = useAuth()
+  const [listings, setListings] = useState<ProduceListing[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | 'All'>('All')
   const [showOnlyOrganic, setShowOnlyOrganic] = useState(false)
   const [showOnlyCertified, setShowOnlyCertified] = useState(false)
   const [deliveryFilter, setDeliveryFilter] = useState<string>('all')
+
+  useEffect(() => {
+    fetchListings()
+  }, [])
+
+  const fetchListings = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/marketplace/listings')
+      if (!response.ok) {
+        throw new Error('Failed to fetch listings')
+      }
+      const data = await response.json()
+      setListings(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load listings')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const categories: Array<ProductCategory | 'All'> = [
     'All',
@@ -27,24 +85,26 @@ export default function MarketplacePage() {
     'Other',
   ]
 
-  const filteredProducts = SAMPLE_PRODUCTS.filter((product) => {
-    const matchesSearch =
-      searchQuery === '' ||
-      product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredProducts = useMemo(() => {
+    return listings.filter((listing) => {
+      const matchesSearch =
+        searchQuery === '' ||
+        listing.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        listing.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (listing.variety && listing.variety.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory
+      const matchesCategory = selectedCategory === 'All' || listing.category.toLowerCase() === selectedCategory.toLowerCase()
 
-    const matchesOrganic = !showOnlyOrganic || product.organic
+      const matchesOrganic = !showOnlyOrganic || listing.isOrganic
 
-    const matchesCertified = !showOnlyCertified || product.certifiedOrganic
+      const matchesCertified = !showOnlyCertified || listing.isCertified
 
-    const matchesDelivery =
-      deliveryFilter === 'all' || product.deliveryMethods.includes(deliveryFilter as any)
+      const matchesDelivery =
+        deliveryFilter === 'all' || listing.deliveryMethods.includes(deliveryFilter.toUpperCase())
 
-    return matchesSearch && matchesCategory && matchesOrganic && matchesCertified && matchesDelivery
-  })
+      return matchesSearch && matchesCategory && matchesOrganic && matchesCertified && matchesDelivery
+    })
+  }, [listings, searchQuery, selectedCategory, showOnlyOrganic, showOnlyCertified, deliveryFilter])
 
   const hasActiveFilters =
     selectedCategory !== 'All' || showOnlyOrganic || showOnlyCertified || deliveryFilter !== 'all'
@@ -57,12 +117,12 @@ export default function MarketplacePage() {
     setSearchQuery('')
   }
 
-  const stats = {
-    totalProducts: SAMPLE_PRODUCTS.length,
-    organicProducts: SAMPLE_PRODUCTS.filter((p) => p.organic).length,
-    certifiedProducts: SAMPLE_PRODUCTS.filter((p) => p.certifiedOrganic).length,
-    sellers: new Set(SAMPLE_PRODUCTS.map((p) => p.sellerId)).size,
-  }
+  const stats = useMemo(() => ({
+    totalProducts: listings.length,
+    organicProducts: listings.filter((p) => p.isOrganic).length,
+    certifiedProducts: listings.filter((p) => p.isCertified).length,
+    sellers: new Set(listings.map((p) => p.user.id)).size,
+  }), [listings])
 
   return (
     <>
@@ -202,10 +262,12 @@ export default function MarketplacePage() {
 
         {/* Products Grid */}
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          {/* Results Count */}
-          <div className="mb-6">
+          {/* Header with Results Count and Add Button */}
+          <div className="mb-6 flex items-center justify-between">
             <p className="text-[#4a3f35] font-medium">
-              {filteredProducts.length === SAMPLE_PRODUCTS.length ? (
+              {loading ? (
+                'Loading products...'
+              ) : filteredProducts.length === listings.length ? (
                 <>Showing all {filteredProducts.length} products</>
               ) : (
                 <>
@@ -213,31 +275,137 @@ export default function MarketplacePage() {
                 </>
               )}
             </p>
+            {isSignedIn && (
+              <Link
+                href="/dashboard/sell/new"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-md hover:shadow-lg"
+              >
+                <Plus className="h-4 w-4" />
+                Sell Produce
+              </Link>
+            )}
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-[#4a7c2c]" />
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-16 bg-red-50 rounded-2xl border-2 border-red-200">
+              <p className="text-red-600 mb-4">{error}</p>
+              <button
+                onClick={fetchListings}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+
           {/* Products */}
-          {filteredProducts.length > 0 ? (
+          {!loading && !error && filteredProducts.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {filteredProducts.map((listing) => (
+                <Link
+                  key={listing.id}
+                  href={`/marketplace/${listing.id}`}
+                  className="group bg-white rounded-xl border-2 border-[#aed581]/30 overflow-hidden shadow-md hover:shadow-xl transition-all hover:border-[#4a7c2c]/50"
+                >
+                  <div className="aspect-square relative bg-gray-100">
+                    {listing.images.length > 0 ? (
+                      <Image
+                        src={listing.images[0]}
+                        alt={listing.productName}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-[#aed581]/20">
+                        <Sprout className="h-12 w-12 text-[#4a7c2c]" />
+                      </div>
+                    )}
+                    {listing.isOrganic && (
+                      <span className="absolute top-2 left-2 px-2 py-1 bg-[#4a7c2c] text-white text-xs rounded-full">
+                        Organic
+                      </span>
+                    )}
+                    {listing.isCertified && (
+                      <span className="absolute top-2 right-2 px-2 py-1 bg-[#ffb703] text-white text-xs rounded-full">
+                        Certified
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-[#2d5016] group-hover:text-[#4a7c2c] transition-colors">
+                      {listing.productName}
+                      {listing.variety && <span className="text-[#4a3f35] font-normal"> - {listing.variety}</span>}
+                    </h3>
+                    <p className="text-sm text-[#4a3f35] mt-1 line-clamp-2">{listing.description}</p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-lg font-bold text-[#4a7c2c]">
+                        ${listing.pricePerUnit.toFixed(2)}/{listing.unit}
+                      </span>
+                      <span className="text-sm text-[#4a3f35]">
+                        {listing.quantity} {listing.unit} available
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2 text-sm text-[#4a3f35]">
+                      {listing.user.avatar ? (
+                        <Image
+                          src={listing.user.avatar}
+                          alt={listing.user.firstName}
+                          width={20}
+                          height={20}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <div className="w-5 h-5 bg-[#aed581] rounded-full" />
+                      )}
+                      <span>{listing.user.firstName} {listing.user.lastName}</span>
+                      {listing.user.isVerified && (
+                        <Award className="h-4 w-4 text-[#4a7c2c]" />
+                      )}
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
-          ) : (
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && filteredProducts.length === 0 && (
             <div className="text-center py-16 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
               <div className="inline-flex items-center justify-center p-4 bg-[#aed581]/20 rounded-full mb-4">
                 <ShoppingBag className="h-8 w-8 text-[#4a7c2c]" />
               </div>
-              <h3 className="text-lg font-semibold text-[#2d5016] mb-2">No products found</h3>
+              <h3 className="text-lg font-semibold text-[#2d5016] mb-2">
+                {listings.length === 0 ? 'No products listed yet' : 'No products found'}
+              </h3>
               <p className="text-[#4a3f35] mb-6">
-                Try adjusting your filters or search query to find what you're looking for.
+                {listings.length === 0
+                  ? 'Be the first to list your fresh produce!'
+                  : 'Try adjusting your filters or search query to find what you\'re looking for.'}
               </p>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl mr-4"
                 >
                   Clear Filters
                 </button>
+              )}
+              {isSignedIn && listings.length === 0 && (
+                <Link
+                  href="/dashboard/sell/new"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
+                >
+                  <Plus className="h-5 w-5" />
+                  List Your Produce
+                </Link>
               )}
             </div>
           )}
