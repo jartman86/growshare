@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Plus } from 'lucide-react'
+import { X } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/image-upload'
+import { WeatherWidget } from '@/components/journal/weather-widget'
+import type { WeatherData } from '@/lib/weather'
 
 interface NewEntryFormProps {
   onClose: () => void
@@ -22,32 +25,14 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
     plantCount: '',
     areaUsed: '',
     images: [] as string[],
+    weatherData: null as WeatherData | null,
   })
-
-  const [newImage, setNewImage] = useState('')
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleAddImage = () => {
-    if (newImage.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, newImage.trim()],
-      }))
-      setNewImage('')
-    }
-  }
-
-  const handleRemoveImage = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,6 +52,10 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
         plantCount: formData.plantCount ? parseInt(formData.plantCount) : null,
         areaUsed: formData.areaUsed ? parseFloat(formData.areaUsed) : null,
         images: formData.images,
+        weatherData: formData.weatherData,
+        weatherLocation: formData.weatherData?.location
+          ? `${formData.weatherData.location.name}, ${formData.weatherData.location.country}`
+          : null,
       }
 
       const response = await fetch('/api/journals', {
@@ -285,46 +274,28 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
             />
           </div>
 
+          {/* Weather */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900">Weather Conditions</h3>
+            <p className="text-sm text-gray-600">
+              Capture current weather conditions to track growing conditions over time.
+            </p>
+            <WeatherWidget
+              weatherData={formData.weatherData}
+              onCapture={(data) => setFormData((prev) => ({ ...prev, weatherData: data }))}
+              onClear={() => setFormData((prev) => ({ ...prev, weatherData: null }))}
+            />
+          </div>
+
           {/* Images */}
           <div className="space-y-4">
             <h3 className="font-semibold text-gray-900">Images</h3>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={newImage}
-                onChange={(e) => setNewImage(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="Image URL (e.g., https://...)"
-              />
-              <button
-                type="button"
-                onClick={handleAddImage}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Add
-              </button>
-            </div>
-            {formData.images.length > 0 && (
-              <div className="grid grid-cols-3 gap-3">
-                {formData.images.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={image}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(index)}
-                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <ImageUpload
+              value={formData.images}
+              onChange={(images) => setFormData((prev) => ({ ...prev, images }))}
+              maxImages={10}
+              folder="growshare/journals"
+            />
           </div>
 
           {/* Actions */}

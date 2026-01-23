@@ -342,9 +342,9 @@ export default async function PlotDetailPage({
               <BookingCard
                 plotId={plot.id}
                 pricePerMonth={plot.pricePerMonth}
-                pricePerSeason={plot.pricePerSeason}
-                pricePerYear={plot.pricePerYear}
-                averageRating={plot.averageRating}
+                pricePerSeason={plot.pricePerSeason ?? undefined}
+                pricePerYear={plot.pricePerYear ?? undefined}
+                averageRating={plot.averageRating ?? undefined}
                 reviewCount={reviewCount}
                 plotTitle={plot.title}
                 instantBook={plot.instantBook}

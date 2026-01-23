@@ -14,6 +14,7 @@ export interface ListingFormData {
   title: string
   description: string
   acreage: string
+  images: string[]
 
   // Location
   address: string
@@ -55,6 +56,7 @@ export function ListingForm() {
     title: '',
     description: '',
     acreage: '',
+    images: [],
     address: '',
     city: '',
     state: '',
@@ -125,7 +127,7 @@ export function ListingForm() {
         securityDeposit: parseFloat(formData.securityDeposit) || 0,
         minimumLease: parseInt(formData.minimumRental) || 3,
         instantBook: false,
-        images: [],
+        images: formData.images,
       }
 
       const response = await fetch('/api/plots', {

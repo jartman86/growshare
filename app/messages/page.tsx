@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { ConversationList } from '@/components/messages/conversation-list'
@@ -36,6 +36,21 @@ interface Conversation {
 }
 
 export default function MessagesPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Header />
+        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </main>
+      </>
+    }>
+      <MessagesPageContent />
+    </Suspense>
+  )
+}
+
+function MessagesPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const selectedUserId = searchParams.get('userId')

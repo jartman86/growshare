@@ -211,13 +211,6 @@ export async function GET(request: NextRequest) {
             images: true,
           },
         },
-        booking: {
-          select: {
-            id: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
       },
       orderBy: {
         createdAt: 'desc',

@@ -1,0 +1,212 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
+import { prisma } from '@/lib/prisma'
+
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const category = searchParams.get('category')
+    const status = searchParams.get('status')
+    const minPrice = searchParams.get('minPrice')
+    const maxPrice = searchParams.get('maxPrice')
+    const isOrganic = searchParams.get('isOrganic')
+    const deliveryMethod = searchParams.get('deliveryMethod')
+    const search = searchParams.get('search')
+    const userId = searchParams.get('userId')
+
+    const where: any = {}
+
+    // Default to available listings unless status is specified
+    if (status) {
+      where.status = status
+    } else {
+      where.status = 'AVAILABLE'
+    }
+
+    if (category) {
+      where.category = { equals: category, mode: 'insensitive' }
+    }
+
+    if (userId) {
+      where.userId = userId
+    }
+
+    if (minPrice || maxPrice) {
+      where.pricePerUnit = {}
+      if (minPrice) where.pricePerUnit.gte = parseFloat(minPrice)
+      if (maxPrice) where.pricePerUnit.lte = parseFloat(maxPrice)
+    }
+
+    if (isOrganic === 'true') {
+      where.isOrganic = true
+    }
+
+    if (deliveryMethod) {
+      where.deliveryMethods = { has: deliveryMethod }
+    }
+
+    if (search) {
+      where.OR = [
+        { productName: { contains: search, mode: 'insensitive' } },
+        { variety: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    const listings = await prisma.produceListing.findMany({
+      where,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+            isVerified: true,
+          },
+        },
+        _count: {
+          select: { orders: true },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+
+    return NextResponse.json(listings)
+  } catch (error) {
+    console.error('Error fetching marketplace listings:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch listings' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const currentUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    })
+
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    const body = await request.json()
+
+    // Validate required fields
+    if (!body.productName || body.productName.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Product name is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.description || body.description.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Description is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.quantity || body.quantity <= 0) {
+      return NextResponse.json(
+        { error: 'Quantity must be greater than 0' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.pricePerUnit || body.pricePerUnit <= 0) {
+      return NextResponse.json(
+        { error: 'Price per unit must be greater than 0' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.category) {
+      return NextResponse.json(
+        { error: 'Category is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.availableDate) {
+      return NextResponse.json(
+        { error: 'Available date is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!body.deliveryMethods || body.deliveryMethods.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one delivery method is required' },
+        { status: 400 }
+      )
+    }
+
+    const listing = await prisma.produceListing.create({
+      data: {
+        userId: currentUser.id,
+        productName: body.productName,
+        variety: body.variety || null,
+        description: body.description,
+        category: body.category,
+        quantity: body.quantity,
+        unit: body.unit || 'lb',
+        pricePerUnit: body.pricePerUnit,
+        status: 'AVAILABLE',
+        availableDate: new Date(body.availableDate),
+        expiresDate: body.expiresDate ? new Date(body.expiresDate) : null,
+        deliveryMethods: body.deliveryMethods,
+        pickupLocation: body.pickupLocation || null,
+        deliveryRadius: body.deliveryRadius || null,
+        images: body.images || [],
+        isOrganic: body.isOrganic || false,
+        isCertified: body.isCertified || false,
+        certifications: body.certifications || [],
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
+    })
+
+    // Create activity
+    await prisma.userActivity.create({
+      data: {
+        userId: currentUser.id,
+        type: 'PRODUCE_SOLD',
+        title: 'Listed produce for sale',
+        description: listing.productName,
+        points: 10,
+      },
+    })
+
+    // Add points
+    await prisma.user.update({
+      where: { id: currentUser.id },
+      data: { totalPoints: { increment: 10 } },
+    })
+
+    return NextResponse.json(listing, { status: 201 })
+  } catch (error) {
+    console.error('Error creating marketplace listing:', error)
+    return NextResponse.json(
+      { error: 'Failed to create listing' },
+      { status: 500 }
+    )
+  }
+}

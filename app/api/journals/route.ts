@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
         images: body.images || [],
         plantCount: body.plantCount,
         areaUsed: body.areaUsed,
+        weatherData: body.weatherData || null,
+        weatherLocation: body.weatherLocation || null,
       },
       include: {
         harvests: true,
