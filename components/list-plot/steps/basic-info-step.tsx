@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ListingFormData } from '../listing-form'
 import { FileText, MapIcon } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 interface BasicInfoStepProps {
   formData: ListingFormData
@@ -134,6 +135,22 @@ export function BasicInfoStep({ formData, updateFormData, onNext }: BasicInfoSte
         <p className="mt-1 text-xs text-gray-500">
           Total available acreage for farming (can be a fraction)
         </p>
+      </div>
+
+      {/* Images */}
+      <div>
+        <label className="block text-sm font-medium text-gray-900 mb-2">
+          Plot Photos
+        </label>
+        <p className="text-sm text-gray-600 mb-3">
+          Add photos to showcase your land. The first image will be your primary listing photo.
+        </p>
+        <ImageUpload
+          value={formData.images}
+          onChange={(images) => updateFormData({ images })}
+          maxImages={10}
+          folder="growshare/plots"
+        />
       </div>
 
       {/* Tips */}

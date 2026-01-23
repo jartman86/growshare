@@ -30,13 +30,6 @@ export async function GET(
             images: true,
           },
         },
-        booking: {
-          select: {
-            id: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
       },
     })
 
@@ -128,13 +121,13 @@ export async function PATCH(
     })
 
     // Recalculate average rating if rating changed
-    if (rating) {
+    if (rating && existingReview.plotId) {
       const allReviews = await prisma.review.findMany({
         where: { plotId: existingReview.plotId },
         select: { rating: true },
       })
 
-      const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
+      const averageRating = allReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / allReviews.length
 
       await prisma.plot.update({
         where: { id: existingReview.plotId },
@@ -195,19 +188,21 @@ export async function DELETE(
     })
 
     // Recalculate average rating
-    const remainingReviews = await prisma.review.findMany({
-      where: { plotId: existingReview.plotId },
-      select: { rating: true },
-    })
+    if (existingReview.plotId) {
+      const remainingReviews = await prisma.review.findMany({
+        where: { plotId: existingReview.plotId },
+        select: { rating: true },
+      })
 
-    const averageRating = remainingReviews.length > 0
-      ? remainingReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / remainingReviews.length
-      : null
+      const averageRating = remainingReviews.length > 0
+        ? remainingReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / remainingReviews.length
+        : null
 
-    await prisma.plot.update({
-      where: { id: existingReview.plotId },
-      data: { averageRating },
-    })
+      await prisma.plot.update({
+        where: { id: existingReview.plotId },
+        data: { averageRating },
+      })
+    }
 
     // Deduct points for deleting review
     await prisma.user.update({

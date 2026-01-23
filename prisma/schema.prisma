@@ -57,6 +57,11 @@ model User {
   preferredLanguage String      @default("en")
   timezone          String      @default("America/New_York")
 
+  // Stripe Integration
+  stripeCustomerId         String?  @unique
+  stripeConnectId          String?  @unique
+  stripeOnboardingComplete Boolean  @default(false)
+
   // Timestamps
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -80,6 +85,12 @@ model User {
   postComments      PostComment[]
   following         Follow[]         @relation("UserFollowing")
   followers         Follow[]         @relation("UserFollowers")
+  ownedTools        Tool[]           @relation("ToolOwner")
+  toolRentals       ToolRental[]     @relation("ToolRenter")
+  forumTopics       ForumTopic[]
+  forumReplies      ForumReply[]
+  forumVotes        ForumVote[]
+  emailPreferences  EmailPreferences?
 
   @@index([clerkId])
   @@index([email])
@@ -276,11 +287,51 @@ model Booking {
 
   // Relations
   messages        Message[]
+  paymentIntent   PaymentIntent?
 
   @@index([plotId])
   @@index([renterId])
   @@index([status])
   @@index([startDate, endDate])
+}
+
+// ============================================
+// PAYMENT SYSTEM
+// ============================================
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+model PaymentIntent {
+  id                    String        @id @default(cuid())
+  stripePaymentIntentId String        @unique
+  amount                Int           // Amount in cents
+  currency              String        @default("usd")
+  status                PaymentStatus @default(PENDING)
+
+  // Related entities (one or the other)
+  bookingId             String?       @unique
+  booking               Booking?      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  orderId               String?       @unique
+  order                 Order?        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  metadata              Json?
+  failureMessage        String?
+
+  // Timestamps
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  completedAt           DateTime?
+
+  @@index([stripePaymentIntentId])
+  @@index([status])
 }
 
 // ============================================
@@ -403,6 +454,10 @@ model CropJournal {
   // Tracking
   plantCount      Int?
   areaUsed        Float?     // square feet
+
+  // Weather Data
+  weatherData     Json?
+  weatherLocation String?
 
   // Timestamps
   createdAt       DateTime   @default(now())
@@ -721,6 +776,9 @@ model Order {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
+  // Relations
+  paymentIntent   PaymentIntent?
+
   @@index([listingId])
   @@index([buyerId])
   @@index([status])
@@ -814,6 +872,226 @@ model PostComment {
   @@index([postId])
   @@index([authorId])
   @@index([createdAt])
+}
+
+// ============================================
+// EMAIL NOTIFICATIONS
+// ============================================
+
+model EmailPreferences {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notification preferences
+  bookingRequests   Boolean @default(true)
+  bookingUpdates    Boolean @default(true)
+  newMessages       Boolean @default(true)
+  newReviews        Boolean @default(true)
+  marketplaceOrders Boolean @default(true)
+  forumReplies      Boolean @default(true)
+  weeklyDigest      Boolean @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ============================================
+// COMMUNITY FORUMS
+// ============================================
+
+enum ForumCategory {
+  GENERAL_DISCUSSION
+  GROWING_TIPS
+  PEST_DISEASE
+  EQUIPMENT_TOOLS
+  RECIPES_COOKING
+  MARKETPLACE_HELP
+  INTRODUCTIONS
+  EVENTS_MEETUPS
+}
+
+model ForumTopic {
+  id          String        @id @default(cuid())
+  authorId    String
+  author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  title       String
+  content     String
+  category    ForumCategory
+  tags        String[]
+
+  isPinned    Boolean       @default(false)
+  isSolved    Boolean       @default(false)
+  isLocked    Boolean       @default(false)
+
+  views       Int           @default(0)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  replies     ForumReply[]
+  votes       ForumVote[]   @relation("TopicVotes")
+
+  @@index([authorId])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model ForumReply {
+  id          String       @id @default(cuid())
+  topicId     String
+  topic       ForumTopic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  parentId    String?      // For threaded replies
+  content     String
+  isAccepted  Boolean      @default(false)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  votes       ForumVote[]  @relation("ReplyVotes")
+
+  @@index([topicId])
+  @@index([authorId])
+  @@index([parentId])
+}
+
+model ForumVote {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  topicId     String?
+  topic       ForumTopic?  @relation("TopicVotes", fields: [topicId], references: [id], onDelete: Cascade)
+  replyId     String?
+  reply       ForumReply?  @relation("ReplyVotes", fields: [replyId], references: [id], onDelete: Cascade)
+
+  value       Int          // +1 or -1
+
+  createdAt   DateTime     @default(now())
+
+  @@unique([userId, topicId])
+  @@unique([userId, replyId])
+  @@index([topicId])
+  @@index([replyId])
+}
+
+// ============================================
+// TOOL RENTAL SYSTEM
+// ============================================
+
+enum ToolCategory {
+  HAND_TOOLS
+  POWER_TOOLS
+  IRRIGATION
+  SOIL_COMPOST
+  HARVESTING
+  STORAGE
+  OTHER
+}
+
+enum ToolCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  NEEDS_REPAIR
+}
+
+enum ToolListingType {
+  RENT
+  SALE
+  BOTH
+}
+
+enum ToolStatus {
+  AVAILABLE
+  RENTED
+  SOLD
+  PENDING
+  MAINTENANCE
+}
+
+enum RentalStatus {
+  PENDING
+  APPROVED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model Tool {
+  id              String          @id @default(cuid())
+  ownerId         String
+  owner           User            @relation("ToolOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  name            String
+  description     String
+  category        ToolCategory
+  condition       ToolCondition
+  images          String[]
+
+  listingType     ToolListingType @default(RENT)
+  salePrice       Float?
+  dailyRate       Float?
+  weeklyRate      Float?
+  depositRequired Float?
+
+  status          ToolStatus      @default(AVAILABLE)
+
+  // Location
+  location        String?
+  availableFrom   DateTime?
+  availableTo     DateTime?
+
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  rentals         ToolRental[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([category])
+}
+
+model ToolRental {
+  id              String        @id @default(cuid())
+  toolId          String
+  tool            Tool          @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  renterId        String
+  renter          User          @relation("ToolRenter", fields: [renterId], references: [id], onDelete: Cascade)
+
+  startDate       DateTime
+  endDate         DateTime
+  dailyRate       Float
+  totalCost       Float
+  depositAmount   Float?
+
+  status          RentalStatus  @default(PENDING)
+
+  // Check-in/out
+  pickedUpAt      DateTime?
+  returnedAt      DateTime?
+
+  // Notes
+  renterNotes     String?
+  ownerNotes      String?
+
+  // Timestamps
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  approvedAt      DateTime?
+  cancelledAt     DateTime?
+
+  @@index([toolId])
+  @@index([renterId])
+  @@index([status])
 }
 
 // ============================================
