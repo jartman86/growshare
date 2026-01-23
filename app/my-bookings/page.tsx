@@ -14,9 +14,11 @@ import {
   AlertCircle,
   Loader2,
   MessageSquare,
+  CreditCard,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { ReviewModal } from '@/components/plot/review-modal'
+import { BookingPaymentModal } from '@/components/payments/booking-payment-modal'
 
 interface Booking {
   id: string
@@ -49,6 +51,7 @@ export default function MyBookingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
   const [reviewingBooking, setReviewingBooking] = useState<Booking | null>(null)
+  const [payingBooking, setPayingBooking] = useState<Booking | null>(null)
 
   useEffect(() => {
     fetchBookings()
@@ -106,9 +109,9 @@ export default function MyBookingsPage() {
         className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
       },
       APPROVED: {
-        icon: CheckCircle,
-        text: 'Approved',
-        className: 'bg-green-100 text-green-800 border-green-200',
+        icon: CreditCard,
+        text: 'Awaiting Payment',
+        className: 'bg-amber-100 text-amber-800 border-amber-200',
       },
       REJECTED: {
         icon: XCircle,
@@ -304,6 +307,16 @@ export default function MyBookingsPage() {
                         Contact Owner
                       </button>
 
+                      {booking.status === 'APPROVED' && (
+                        <button
+                          onClick={() => setPayingBooking(booking)}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
+                        >
+                          <CreditCard className="h-4 w-4" />
+                          Pay Now
+                        </button>
+                      )}
+
                       {booking.status === 'COMPLETED' && !booking.hasReviewed && (
                         <button
                           onClick={() => setReviewingBooking(booking)}
@@ -344,6 +357,18 @@ export default function MyBookingsPage() {
           onClose={() => setReviewingBooking(null)}
           onSuccess={() => {
             fetchBookings()
+          }}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {payingBooking && (
+        <BookingPaymentModal
+          booking={payingBooking}
+          onClose={() => setPayingBooking(null)}
+          onSuccess={() => {
+            fetchBookings()
+            setPayingBooking(null)
           }}
         />
       )}
