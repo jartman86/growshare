@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { useForm } from 'react-hook-form'
@@ -51,9 +51,15 @@ type PlotFormData = z.infer<typeof plotSchema>
 
 export default function CreatePlotPage() {
   const router = useRouter()
-  const { isSignedIn } = useUser()
+  const { isSignedIn, isLoaded } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>([])
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/sign-in')
+    }
+  }, [isLoaded, isSignedIn, router])
 
   const {
     register,
@@ -84,9 +90,17 @@ export default function CreatePlotPage() {
   const soilTypes = watch('soilType') || []
   const waterAccessTypes = watch('waterAccess') || []
 
-  if (!isSignedIn) {
-    router.push('/sign-in')
-    return null
+  // Show loading state while checking auth
+  if (!isLoaded || !isSignedIn) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen garden-gradient-light topo-lines flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </main>
+        <Footer />
+      </>
+    )
   }
 
   const handleSoilTypeToggle = (type: string) => {
