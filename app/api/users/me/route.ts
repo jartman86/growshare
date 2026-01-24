@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { ensureUser } from '@/lib/ensure-user'
 
 export async function GET() {
   try {
-    const { userId } = await auth()
+    // First ensure user exists (auto-sync from Clerk)
+    const baseUser = await ensureUser()
 
-    if (!userId) {
+    if (!baseUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Fetch with full includes
     const user = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: baseUser.id },
       include: {
         userBadges: {
           include: {
@@ -38,10 +40,6 @@ export async function GET() {
       },
     })
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
-
     return NextResponse.json(user)
   } catch (error) {
     console.error('Error fetching current user:', error)
@@ -54,9 +52,10 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    const { userId } = await auth()
+    // Ensure user exists (auto-sync from Clerk)
+    const currentUser = await ensureUser()
 
-    if (!userId) {
+    if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -69,7 +68,7 @@ export async function PATCH(request: Request) {
         where: { username: username.toLowerCase() },
       })
 
-      if (existingUser && existingUser.clerkId !== userId) {
+      if (existingUser && existingUser.id !== currentUser.id) {
         return NextResponse.json(
           { error: 'Username is already taken' },
           { status: 400 }
@@ -79,7 +78,7 @@ export async function PATCH(request: Request) {
 
     // Update user profile
     const user = await prisma.user.update({
-      where: { clerkId: userId },
+      where: { id: currentUser.id },
       data: {
         ...(username && { username: username.toLowerCase() }),
         ...(location && { location }),

@@ -50,14 +50,31 @@ export async function POST(req: Request) {
   const eventType = evt.type
 
   if (eventType === 'user.created') {
-    const { id, email_addresses, first_name, last_name, image_url } = evt.data
+    const { id, email_addresses, username, first_name, last_name, image_url } = evt.data
 
     try {
+      // Generate username from Clerk username or email
+      let baseUsername = username
+      if (!baseUsername) {
+        // Generate from email (part before @)
+        const emailPrefix = email_addresses[0].email_address.split('@')[0]
+        baseUsername = emailPrefix.toLowerCase().replace(/[^a-z0-9]/g, '')
+      }
+
+      // Ensure username is unique
+      let finalUsername = baseUsername
+      let counter = 1
+      while (await prisma.user.findUnique({ where: { username: finalUsername } })) {
+        finalUsername = `${baseUsername}${counter}`
+        counter++
+      }
+
       // Create user in database
       const user = await prisma.user.create({
         data: {
           clerkId: id,
           email: email_addresses[0].email_address,
+          username: finalUsername,
           firstName: first_name || '',
           lastName: last_name || '',
           avatar: image_url,
