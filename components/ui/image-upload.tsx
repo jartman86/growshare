@@ -38,9 +38,13 @@ export function ImageUpload({
       // Get signature from our API
       const signatureRes = await fetch(`/api/cloudinary/signature?folder=${folder}`)
       if (!signatureRes.ok) {
-        throw new Error('Failed to get upload signature')
+        const errorText = await signatureRes.text()
+        console.error('Signature error:', signatureRes.status, errorText.substring(0, 200))
+        throw new Error(`Failed to get upload signature: ${signatureRes.status}`)
       }
-      const { timestamp, signature, cloud_name, api_key, folder: uploadFolder } = await signatureRes.json()
+      const signatureData = await signatureRes.json()
+      console.log('Got signature:', signatureData)
+      const { timestamp, signature, cloud_name, api_key, folder: uploadFolder } = signatureData
 
       // Create form data for Cloudinary upload
       const formData = new FormData()
