@@ -53,7 +53,7 @@ export function NavDropdown({ trigger, icon, items, isActive }: NavDropdownProps
           align="start"
           sideOffset={8}
           className="
-            min-w-[220px] bg-white rounded-lg shadow-lg border border-gray-200
+            z-[100] min-w-[220px] bg-white rounded-lg shadow-lg border border-gray-200
             overflow-hidden
             animate-in fade-in-0 zoom-in-95
             data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95

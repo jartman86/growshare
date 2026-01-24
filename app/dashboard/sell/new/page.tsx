@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ProductCategory } from '@/lib/marketplace-data'
-import { Upload, X, CheckCircle } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 export default function NewProductPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,6 +26,7 @@ export default function NewProductPage() {
     pickupLocation: '',
     varietyName: '',
     tags: '',
+    images: [] as string[],
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -77,16 +80,52 @@ export default function NewProductPage() {
     }
 
     setIsSubmitting(true)
+    setError(null)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      // Map delivery methods to API format
+      const deliveryMethodsMap: Record<string, string> = {
+        'pickup': 'PICKUP',
+        'delivery': 'DELIVERY',
+        'shipping': 'DELIVERY',
+        'csa-box': 'CENTRAL_DROP',
+      }
 
-    alert(
-      `🎉 Product listed successfully!\n\n"${formData.title}" is now live on the marketplace.\n\nYou've earned 100 points for your first listing!`
-    )
+      const response = await fetch('/api/marketplace/listings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productName: formData.title,
+          variety: formData.varietyName || null,
+          description: formData.description,
+          category: formData.category.toLowerCase(),
+          quantity: parseFloat(formData.quantity),
+          unit: formData.unit,
+          pricePerUnit: parseFloat(formData.price),
+          availableDate: new Date().toISOString(),
+          deliveryMethods: formData.deliveryMethods.map(m => deliveryMethodsMap[m] || 'PICKUP'),
+          pickupLocation: formData.pickupLocation || null,
+          images: formData.images,
+          isOrganic: formData.organic,
+          isCertified: formData.certifiedOrganic,
+          certifications: formData.certifiedOrganic ? ['USDA Organic'] : [],
+        }),
+      })
 
-    // Navigate to seller dashboard
-    router.push('/dashboard/sell')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create listing')
+      }
+
+      // Navigate to seller dashboard on success
+      router.push('/dashboard/sell')
+    } catch (err) {
+      console.error('Error creating listing:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      setIsSubmitting(false)
+    }
   }
 
   const toggleDeliveryMethod = (method: string) => {
@@ -117,6 +156,15 @@ export default function NewProductPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">
+                  <strong>Error:</strong> {error}
+                </p>
+              </div>
+            )}
+
             {/* Basic Information */}
             <div className="bg-white rounded-xl border p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-6">Basic Information</h2>
@@ -306,6 +354,20 @@ export default function NewProductPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Product Images */}
+            <div className="bg-white rounded-xl border p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Product Images</h2>
+              <p className="text-sm text-gray-600 mb-6">
+                Add photos of your product. The first image will be used as the main listing photo.
+              </p>
+              <ImageUpload
+                value={formData.images}
+                onChange={(images) => setFormData({ ...formData, images })}
+                maxImages={5}
+                folder="growshare/produce"
+              />
             </div>
 
             {/* Certifications */}

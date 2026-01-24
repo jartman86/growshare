@@ -6,9 +6,10 @@ import { useUser } from '@clerk/nextjs'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { Loader2, Upload, X } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 const plotSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters'),
@@ -155,19 +156,9 @@ export default function EditPlotPage({
     }
   }
 
-  const handleAddImage = () => {
-    const url = prompt('Enter image URL:')
-    if (url) {
-      const newImages = [...imageUrls, url]
-      setImageUrls(newImages)
-      setValue('images', newImages)
-    }
-  }
-
-  const handleRemoveImage = (index: number) => {
-    const newImages = imageUrls.filter((_, i) => i !== index)
-    setImageUrls(newImages)
-    setValue('images', newImages)
+  const handleImagesChange = (urls: string[]) => {
+    setImageUrls(urls)
+    setValue('images', urls)
   }
 
   const onSubmit = async (data: PlotFormData) => {
@@ -592,37 +583,17 @@ export default function EditPlotPage({
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-semibold text-[#2d5016] mb-4">Images & Media</h2>
 
-              <div className="mb-4">
-                <button
-                  type="button"
-                  onClick={handleAddImage}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#aed581] text-[#2d5016] rounded-lg hover:bg-[#9bc76f] transition-colors"
-                >
-                  <Upload className="h-4 w-4" />
-                  Add Image URL
-                </button>
+              <div className="mb-6">
+                <p className="text-sm text-[#4a3f35] mb-3">
+                  Add photos of your plot. The first image will be used as the main listing photo.
+                </p>
+                <ImageUpload
+                  value={imageUrls}
+                  onChange={handleImagesChange}
+                  maxImages={10}
+                  folder="growshare/plots"
+                />
               </div>
-
-              {imageUrls.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                  {imageUrls.map((url, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={url}
-                        alt={`Plot image ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index)}
-                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

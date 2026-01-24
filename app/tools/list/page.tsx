@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { type ToolCategory, type ToolCondition } from '@/lib/tools-data'
 import {
   ArrowLeft,
-  Upload,
   DollarSign,
   Shield,
   Clock,
@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Wrench,
 } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 const categories: ToolCategory[] = [
   'Hand Tools',
@@ -28,7 +29,28 @@ const categories: ToolCategory[] = [
 
 const conditions: ToolCondition[] = ['Excellent', 'Good', 'Fair', 'Needs Repair']
 
+// Map display categories to API enum values
+const categoryToEnum: Record<string, string> = {
+  'Hand Tools': 'HAND_TOOLS',
+  'Power Tools': 'POWER_TOOLS',
+  'Irrigation': 'IRRIGATION',
+  'Soil & Compost': 'SOIL_COMPOST',
+  'Harvesting': 'HARVESTING',
+  'Storage': 'STORAGE',
+  'Other': 'OTHER',
+}
+
+const conditionToEnum: Record<string, string> = {
+  'Excellent': 'EXCELLENT',
+  'Good': 'GOOD',
+  'Fair': 'FAIR',
+  'Needs Repair': 'NEEDS_REPAIR',
+}
+
 export default function ListToolPage() {
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -48,12 +70,54 @@ export default function ListToolPage() {
     depositRequired: '',
     maxRentalDays: '7',
     isFree: false,
+    images: [] as string[],
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Tool listing submitted:', formData)
-    // Would integrate with backend here
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      // Map listing type to API enum
+      const listingTypeMap: Record<string, string> = {
+        'rent': 'RENT',
+        'sale': 'SALE',
+        'both': 'BOTH',
+      }
+
+      const response = await fetch('/api/tools', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          category: categoryToEnum[formData.category] || 'OTHER',
+          condition: conditionToEnum[formData.condition] || 'GOOD',
+          listingType: listingTypeMap[formData.listingType] || 'RENT',
+          salePrice: formData.salePrice ? parseFloat(formData.salePrice) : null,
+          dailyRate: formData.isFree ? 0 : (formData.dailyRate ? parseFloat(formData.dailyRate) : null),
+          weeklyRate: formData.weeklyRate ? parseFloat(formData.weeklyRate) : null,
+          depositRequired: formData.depositRequired ? parseFloat(formData.depositRequired) : null,
+          images: formData.images,
+          location: formData.pickupNotes,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create tool listing')
+      }
+
+      // Navigate to tools page on success
+      router.push('/tools')
+    } catch (err) {
+      console.error('Error creating tool listing:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      setIsSubmitting(false)
+    }
   }
 
   const handleInputChange = (
@@ -116,6 +180,15 @@ export default function ListToolPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">
+                  <strong>Error:</strong> {error}
+                </p>
+              </div>
+            )}
+
             {/* Basic Information */}
             <div className="bg-white rounded-xl border p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Basic Information</h2>
@@ -252,13 +325,14 @@ export default function ListToolPage() {
             {/* Photos */}
             <div className="bg-white rounded-xl border p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Photos</h2>
-              <p className="text-gray-600 mb-6">Add photos to showcase your tool (recommended)</p>
+              <p className="text-gray-600 mb-6">Add photos to showcase your tool. The first image will be the main listing photo.</p>
 
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-orange-500 transition-colors cursor-pointer">
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-700 font-medium mb-1">Click to upload photos</p>
-                <p className="text-sm text-gray-500">PNG, JPG up to 5MB each (max 5 photos)</p>
-              </div>
+              <ImageUpload
+                value={formData.images}
+                onChange={(images) => setFormData({ ...formData, images })}
+                maxImages={8}
+                folder="growshare/tools"
+              />
             </div>
 
             {/* Details */}
@@ -548,10 +622,17 @@ export default function ListToolPage() {
                 </Link>
                 <button
                   type="submit"
-                  className="flex-1 bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <CheckCircle2 className="h-5 w-5" />
-                  List My Tool
+                  {isSubmitting ? (
+                    'Listing Tool...'
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-5 w-5" />
+                      List My Tool
+                    </>
+                  )}
                 </button>
               </div>
             </div>
