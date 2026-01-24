@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, MapPin, DollarSign, Loader2 } from 'lucide-react'
+import { Plus, Edit, Trash2, MapPin, DollarSign, Loader2, Eye, EyeOff } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
@@ -27,6 +27,7 @@ export default function MyPlotsPage() {
   const [plots, setPlots] = useState<Plot[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -51,6 +52,40 @@ export default function MyPlotsPage() {
       console.error('Error fetching plots:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'ACTIVE' ? 'DRAFT' : 'ACTIVE'
+    const action = newStatus === 'ACTIVE' ? 'publish' : 'unpublish'
+
+    if (!confirm(`Are you sure you want to ${action} this plot?`)) {
+      return
+    }
+
+    setTogglingId(id)
+    try {
+      const response = await fetch(`/api/plots/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        alert(data.error || `Failed to ${action} plot`)
+        return
+      }
+
+      // Refresh plots
+      await fetchMyPlots()
+    } catch (error) {
+      console.error(`Error ${action}ing plot:`, error)
+      alert(`Failed to ${action} plot`)
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -203,25 +238,45 @@ export default function MyPlotsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/plots/${plot.id}/edit`}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-[#aed581] text-[#2d5016] rounded-lg hover:bg-[#9bc76f] transition-colors"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Edit
-                      </Link>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/plots/${plot.id}/edit`}
+                          className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-[#aed581] text-[#2d5016] rounded-lg hover:bg-[#9bc76f] transition-colors"
+                        >
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(plot.id)}
+                          disabled={deletingId === plot.id}
+                          className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
+                        >
+                          {deletingId === plot.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          Delete
+                        </button>
+                      </div>
                       <button
-                        onClick={() => handleDelete(plot.id)}
-                        disabled={deletingId === plot.id}
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
+                        onClick={() => handleToggleStatus(plot.id, plot.status)}
+                        disabled={togglingId === plot.id}
+                        className={`w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 ${
+                          plot.status === 'ACTIVE'
+                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
                       >
-                        {deletingId === plot.id ? (
+                        {togglingId === plot.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : plot.status === 'ACTIVE' ? (
+                          <EyeOff className="h-4 w-4" />
                         ) : (
-                          <Trash2 className="h-4 w-4" />
+                          <Eye className="h-4 w-4" />
                         )}
-                        Delete
+                        {plot.status === 'ACTIVE' ? 'Unpublish' : 'Publish'}
                       </button>
                     </div>
                   </div>
