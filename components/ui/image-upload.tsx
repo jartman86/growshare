@@ -35,28 +35,21 @@ export function ImageUpload({
     setUploadingFiles((prev) => [...prev, { id: fileId, name: file.name, progress: 0 }])
 
     try {
-      // Get signature from our API
-      const signatureRes = await fetch(`/api/cloudinary/signature?folder=${folder}`)
-      if (!signatureRes.ok) {
-        const errorText = await signatureRes.text()
-        console.error('Signature error:', signatureRes.status, errorText.substring(0, 200))
-        throw new Error(`Failed to get upload signature: ${signatureRes.status}`)
-      }
-      const signatureData = await signatureRes.json()
-      console.log('Got signature:', signatureData)
-      const { timestamp, signature, cloud_name, api_key, folder: uploadFolder } = signatureData
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 
-      // Create form data for Cloudinary upload
+      if (!cloudName) {
+        throw new Error('Cloudinary cloud name not configured')
+      }
+
+      // Create form data for unsigned Cloudinary upload
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('timestamp', timestamp.toString())
-      formData.append('signature', signature)
-      formData.append('api_key', api_key)
-      formData.append('folder', uploadFolder)
+      formData.append('upload_preset', 'growshare_unsigned')
+      formData.append('folder', folder)
 
-      // Upload to Cloudinary
+      // Upload to Cloudinary using unsigned preset
       const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         {
           method: 'POST',
           body: formData,
@@ -65,6 +58,7 @@ export function ImageUpload({
 
       if (!uploadRes.ok) {
         const errorData = await uploadRes.json()
+        console.error('Cloudinary error:', errorData)
         throw new Error(errorData.error?.message || 'Upload failed')
       }
 
