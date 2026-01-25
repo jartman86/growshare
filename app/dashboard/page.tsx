@@ -126,7 +126,10 @@ export default async function DashboardPage() {
             <div className="space-y-6">
               {/* Upcoming Tasks */}
               <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-6">
-                <h3 className="text-lg font-bold text-[#2d5016] dark:text-green-400 mb-4">Upcoming</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-[#2d5016] dark:text-green-400">Upcoming</h3>
+                  <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">Coming Soon</span>
+                </div>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 p-3 bg-[#a8dadc]/20 dark:bg-blue-900/20 rounded-lg border border-[#87ceeb]/30 dark:border-blue-800">
                     <div className="w-2 h-2 bg-[#457b9d] dark:bg-blue-400 rounded-full mt-2"></div>
@@ -160,7 +163,10 @@ export default async function DashboardPage() {
 
               {/* Weather Widget Placeholder */}
               <div className="bg-gradient-to-br from-[#87ceeb] to-[#457b9d] rounded-xl p-6 text-white shadow-lg">
-                <h3 className="text-lg font-bold mb-2 drop-shadow-md">Weather Today</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-bold drop-shadow-md">Weather Today</h3>
+                  <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Coming Soon</span>
+                </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-4xl font-bold drop-shadow-md">72°F</p>
@@ -193,9 +199,12 @@ export default async function DashboardPage() {
 
           {/* Achievements Timeline (Coming Soon) */}
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-6 shadow-md">
-            <h2 className="text-2xl font-bold text-[#2d5016] dark:text-green-400 mb-4">
-              Your Growing Journey
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-[#2d5016] dark:text-green-400">
+                Your Growing Journey
+              </h2>
+              <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">Coming Soon</span>
+            </div>
             <div className="relative">
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#8bc34a] to-[#4a7c2c] dark:from-green-500 dark:to-green-700"></div>
               <div className="space-y-6">

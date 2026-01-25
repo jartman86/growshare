@@ -9,21 +9,17 @@ const footerNavigation = {
   ],
   community: [
     { name: 'Community Forum', href: '/community' },
-    { name: 'Success Stories', href: '/stories' },
     { name: 'Events', href: '/events' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'Challenges', href: '/challenges' },
+    { name: 'Leaderboard', href: '/leaderboard' },
   ],
   support: [
-    { name: 'Help Center', href: '/help' },
-    { name: 'FAQs', href: '/faq' },
-    { name: 'Contact Us', href: '/contact' },
-    { name: 'Partner With Us', href: '/partners' },
+    { name: 'Resources', href: '/resources' },
+    { name: 'Tool Library', href: '/tools' },
   ],
   legal: [
     { name: 'Terms of Service', href: '/terms' },
     { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Lease Templates', href: '/legal/leases' },
-    { name: 'Insurance', href: '/insurance' },
   ],
 }
 

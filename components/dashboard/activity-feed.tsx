@@ -37,15 +37,15 @@ const activityIcons: Record<string, any> = {
 }
 
 const activityColors: Record<string, string> = {
-  PLOT_LISTED: 'bg-blue-100 text-blue-600',
-  PLOT_RENTED: 'bg-green-100 text-green-600',
-  FIRST_HARVEST: 'bg-green-100 text-green-600',
-  JOURNAL_ENTRY: 'bg-purple-100 text-purple-600',
-  COURSE_COMPLETED: 'bg-orange-100 text-orange-600',
-  BADGE_EARNED: 'bg-yellow-100 text-yellow-600',
-  REVIEW_RECEIVED: 'bg-pink-100 text-pink-600',
-  PRODUCE_SOLD: 'bg-teal-100 text-teal-600',
-  MILESTONE_REACHED: 'bg-indigo-100 text-indigo-600',
+  PLOT_LISTED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+  PLOT_RENTED: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+  FIRST_HARVEST: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+  JOURNAL_ENTRY: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+  COURSE_COMPLETED: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+  BADGE_EARNED: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400',
+  REVIEW_RECEIVED: 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400',
+  PRODUCE_SOLD: 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
+  MILESTONE_REACHED: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
 }
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {
@@ -69,7 +69,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
 
             return (
               <div key={activity.id} className="flex gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full ${colorClass} dark:bg-opacity-20 flex items-center justify-center`}>
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full ${colorClass} flex items-center justify-center`}>
                   <Icon className="h-5 w-5" />
                 </div>
 

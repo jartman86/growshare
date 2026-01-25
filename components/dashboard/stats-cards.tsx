@@ -25,8 +25,8 @@ export function StatsCards({ stats, userRole }: StatsCardsProps) {
             label: 'Active Plots',
             value: stats.plots,
             icon: MapPin,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-100',
+            color: 'text-blue-600 dark:text-blue-400',
+            bgColor: 'bg-blue-100 dark:bg-blue-900/30',
           },
         ]
       : []),
@@ -36,8 +36,8 @@ export function StatsCards({ stats, userRole }: StatsCardsProps) {
             label: 'Active Bookings',
             value: stats.bookings,
             icon: Calendar,
-            color: 'text-green-600',
-            bgColor: 'bg-green-100',
+            color: 'text-green-600 dark:text-green-400',
+            bgColor: 'bg-green-100 dark:bg-green-900/30',
           },
         ]
       : []),
@@ -45,30 +45,30 @@ export function StatsCards({ stats, userRole }: StatsCardsProps) {
       label: 'Sales Made',
       value: stats.sales,
       icon: ShoppingBag,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
+      color: 'text-purple-600 dark:text-purple-400',
+      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
     },
     {
       label: 'Average Rating',
       value: stats.rating.toFixed(1),
       icon: Star,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100',
+      color: 'text-yellow-600 dark:text-yellow-400',
+      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
       suffix: '/5.0',
     },
     {
       label: 'Total Points',
       value: stats.totalPoints.toLocaleString(),
       icon: TrendingUp,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
+      color: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-100 dark:bg-green-900/30',
     },
     {
       label: 'Badges Earned',
       value: stats.badges,
       icon: Award,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
+      color: 'text-orange-600 dark:text-orange-400',
+      bgColor: 'bg-orange-100 dark:bg-orange-900/30',
     },
   ]
 
@@ -90,7 +90,7 @@ export function StatsCards({ stats, userRole }: StatsCardsProps) {
               </p>
             </div>
 
-            <div className={`${card.bgColor} dark:bg-opacity-20 ${card.color} p-3 rounded-lg`}>
+            <div className={`${card.bgColor} ${card.color} p-3 rounded-lg`}>
               <card.icon className="h-6 w-6" />
             </div>
           </div>

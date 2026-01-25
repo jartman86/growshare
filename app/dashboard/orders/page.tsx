@@ -34,12 +34,12 @@ interface Order {
   }
 }
 
-const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-  PENDING: { label: 'Pending', color: 'yellow', icon: Clock },
-  CONFIRMED: { label: 'Confirmed', color: 'blue', icon: CheckCircle },
-  READY: { label: 'Ready', color: 'green', icon: Package },
-  COMPLETED: { label: 'Completed', color: 'green', icon: CheckCircle },
-  CANCELLED: { label: 'Cancelled', color: 'red', icon: XCircle },
+const statusConfig: Record<string, { label: string; bgClass: string; textClass: string; icon: typeof CheckCircle }> = {
+  PENDING: { label: 'Pending', bgClass: 'bg-yellow-100 dark:bg-yellow-900/30', textClass: 'text-yellow-800 dark:text-yellow-400', icon: Clock },
+  CONFIRMED: { label: 'Confirmed', bgClass: 'bg-blue-100 dark:bg-blue-900/30', textClass: 'text-blue-800 dark:text-blue-400', icon: CheckCircle },
+  READY: { label: 'Ready', bgClass: 'bg-green-100 dark:bg-green-900/30', textClass: 'text-green-800 dark:text-green-400', icon: Package },
+  COMPLETED: { label: 'Completed', bgClass: 'bg-green-100 dark:bg-green-900/30', textClass: 'text-green-800 dark:text-green-400', icon: CheckCircle },
+  CANCELLED: { label: 'Cancelled', bgClass: 'bg-red-100 dark:bg-red-900/30', textClass: 'text-red-800 dark:text-red-400', icon: XCircle },
 }
 
 export default function MyOrdersPage() {
@@ -85,12 +85,12 @@ export default function MyOrdersPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
-              <p className="text-gray-600 mt-1">Track your marketplace purchases</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Orders</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">Track your marketplace purchases</p>
             </div>
             <Link
               href="/marketplace"
@@ -184,7 +184,7 @@ export default function MyOrdersPage() {
                             <p className="font-bold text-gray-900">
                               ${order.totalPrice.toFixed(2)}
                             </p>
-                            <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-${status.color}-100 text-${status.color}-800`}>
+                            <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.bgClass} ${status.textClass}`}>
                               <StatusIcon className="h-3 w-3" />
                               {status.label}
                             </div>
