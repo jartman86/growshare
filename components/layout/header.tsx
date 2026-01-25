@@ -126,6 +126,7 @@ export function Header() {
   const [firstName, setFirstName] = useState<string | null>(null)
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isInstructor, setIsInstructor] = useState(false)
   const [showMobileListMenu, setShowMobileListMenu] = useState(false)
 
   // Fetch user's profile data
@@ -145,6 +146,9 @@ export function Header() {
           }
           if (data.role && data.role.includes('ADMIN')) {
             setIsAdmin(true)
+          }
+          if (data.isInstructor) {
+            setIsInstructor(true)
           }
         })
         .catch((err) => console.error('Failed to fetch profile:', err))
@@ -241,8 +245,16 @@ export function Header() {
               <NavDropdown
                 trigger="Learn"
                 icon={<BookOpenIcon className="h-5 w-5" />}
-                items={learnDropdownItems}
-                isActive={isLearnActive}
+                items={[
+                  ...learnDropdownItems,
+                  ...(isInstructor ? [{
+                    label: 'Instructor Dashboard',
+                    href: '/instructor',
+                    icon: <Sprout className="h-4 w-4" />,
+                    description: 'Manage your courses',
+                  }] : []),
+                ]}
+                isActive={isLearnActive || pathname.startsWith('/instructor')}
               />
 
               {/* List Dropdown (authenticated only) */}

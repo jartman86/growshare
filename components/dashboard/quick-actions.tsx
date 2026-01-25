@@ -10,6 +10,7 @@ import {
   Calendar,
   FileText,
   Award,
+  GraduationCap,
 } from 'lucide-react'
 
 interface QuickActionsProps {
@@ -41,6 +42,12 @@ export function QuickActions({ userRole }: QuickActionsProps) {
           },
         ]
       : []),
+    {
+      label: 'My Courses',
+      href: '/dashboard/courses',
+      icon: GraduationCap,
+      color: 'bg-emerald-600 hover:bg-emerald-700',
+    },
     {
       label: 'Learning Hub',
       href: '/knowledge',

@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
         coverImage: true,
         avatar: true,
         role: true,
+        isInstructor: true,
       },
     })
 

@@ -8,7 +8,8 @@ import { Footer } from '@/components/layout/footer'
 import { CourseCard } from '@/components/knowledge/course-card'
 import { CalendarView } from '@/components/knowledge/calendar-view'
 import { SAMPLE_COURSES, COURSE_CATEGORIES, CourseCategory } from '@/lib/course-data'
-import { BookOpen, Search, Filter, Award, Calendar, LayoutGrid, Loader2 } from 'lucide-react'
+import { BookOpen, Search, Filter, Award, Calendar, LayoutGrid, Loader2, Plus } from 'lucide-react'
+import { useUser } from '@clerk/nextjs'
 
 interface DBCourse {
   id: string
@@ -35,6 +36,7 @@ interface DBCourse {
 }
 
 export default function KnowledgeHubPage() {
+  const { isSignedIn } = useUser()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<CourseCategory | 'All'>('All')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('All')
@@ -172,6 +174,16 @@ export default function KnowledgeHubPage() {
                 <h2 className="text-xl font-bold text-[#2d5016] dark:text-white">Find Your Course</h2>
               </div>
 
+              <div className="flex items-center gap-4">
+                {/* Create Course Button */}
+                <Link
+                  href={isSignedIn ? '/instructor/courses/new' : '/sign-in?redirect_url=/instructor/courses/new'}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#5a7f3a] hover:bg-[#4a6b2e] text-white rounded-lg font-medium transition-colors shadow-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">Create Course</span>
+                </Link>
+
               {/* View Mode Toggle */}
               <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                 <button
@@ -196,6 +208,7 @@ export default function KnowledgeHubPage() {
                   <Calendar className="h-4 w-4" />
                   <span className="text-sm font-medium hidden sm:inline">Events</span>
                 </button>
+              </div>
               </div>
             </div>
 
