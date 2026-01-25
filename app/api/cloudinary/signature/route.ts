@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
       'growshare/test',
       'growshare/verification',
       'growshare/posts',
+      'growshare/courses',
     ]
     if (!validFolders.includes(folder)) {
       return NextResponse.json(
