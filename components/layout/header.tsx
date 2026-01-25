@@ -172,10 +172,9 @@ export function Header() {
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
   const [isAdmin, setIsAdmin] = useState(false)
 
-  // Fetch user's username, role, and unread message count
+  // Fetch user's username and role
   useEffect(() => {
     if (isSignedIn) {
-      // Fetch username and role
       fetch('/api/profile')
         .then((res) => res.json())
         .then((data) => {
@@ -187,8 +186,14 @@ export function Header() {
           }
         })
         .catch((err) => console.error('Failed to fetch profile:', err))
+    }
+  }, [isSignedIn])
 
-      // Fetch unread message count
+  // Poll unread message count every 30 seconds
+  useEffect(() => {
+    if (!isSignedIn) return
+
+    const fetchUnreadCount = () => {
       fetch('/api/messages/unread-count')
         .then((res) => res.json())
         .then((data) => {
@@ -198,6 +203,14 @@ export function Header() {
         })
         .catch((err) => console.error('Failed to fetch unread count:', err))
     }
+
+    // Fetch immediately on mount
+    fetchUnreadCount()
+
+    // Poll every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000)
+
+    return () => clearInterval(interval)
   }, [isSignedIn])
 
   const isDashboardActive =
