@@ -39,6 +39,24 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
+        <head>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  try {
+                    var theme = localStorage.getItem('growshare-theme') || 'system';
+                    var resolved = theme;
+                    if (theme === 'system') {
+                      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    }
+                    document.documentElement.classList.add(resolved);
+                  } catch (e) {}
+                })();
+              `,
+            }}
+          />
+        </head>
         <body className={`${inter.variable} font-sans antialiased`}>
           <ThemeProvider>
             {children}
