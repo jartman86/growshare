@@ -166,7 +166,7 @@ export function ImageUpload({
         onDrop={handleDrop}
         className={`
           relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-          ${isDragging ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-gray-400'}
+          ${isDragging ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         `}
       >
@@ -181,14 +181,14 @@ export function ImageUpload({
         />
 
         <div className="flex flex-col items-center gap-2">
-          <div className="p-3 bg-gray-100 rounded-full">
-            <Upload className="h-6 w-6 text-gray-500" />
+          <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-full">
+            <Upload className="h-6 w-6 text-gray-500 dark:text-gray-400" />
           </div>
           <div>
-            <p className="font-medium text-gray-700">
+            <p className="font-medium text-gray-700 dark:text-gray-200">
               Drop images here or click to upload
             </p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               PNG, JPG, GIF up to 10MB each. Max {maxImages} images.
             </p>
           </div>
@@ -197,7 +197,7 @@ export function ImageUpload({
 
       {/* Error Message */}
       {error && (
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
       )}
 
       {/* Uploading Files */}
@@ -206,13 +206,13 @@ export function ImageUpload({
           {uploadingFiles.map((file) => (
             <div
               key={file.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
             >
-              <Loader2 className="h-5 w-5 text-green-600 animate-spin" />
-              <span className="text-sm text-gray-700 truncate flex-1">
+              <Loader2 className="h-5 w-5 text-green-600 dark:text-green-400 animate-spin" />
+              <span className="text-sm text-gray-700 dark:text-gray-200 truncate flex-1">
                 {file.name}
               </span>
-              <span className="text-xs text-gray-500">Uploading...</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Uploading...</span>
             </div>
           ))}
         </div>
@@ -224,7 +224,7 @@ export function ImageUpload({
           {value.map((url, index) => (
             <div
               key={url}
-              className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group"
+              className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 group"
             >
               <img
                 src={url}
@@ -251,17 +251,17 @@ export function ImageUpload({
             <button
               type="button"
               onClick={handleClick}
-              className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-2 hover:border-gray-400 transition-colors"
+              className="aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center gap-2 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
             >
-              <ImageIcon className="h-8 w-8 text-gray-400" />
-              <span className="text-xs text-gray-500">Add Image</span>
+              <ImageIcon className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+              <span className="text-xs text-gray-500 dark:text-gray-400">Add Image</span>
             </button>
           )}
         </div>
       )}
 
       {/* Image Count */}
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-500 dark:text-gray-400">
         {value.length} of {maxImages} images uploaded
       </p>
     </div>
