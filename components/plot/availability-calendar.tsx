@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,6 +8,8 @@ import {
   Calendar,
   X,
   Plus,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react'
 
 interface BookedDate {
@@ -24,6 +26,12 @@ interface BlockedDate {
   reason: string | null
 }
 
+interface CachedMonthData {
+  bookings: BookedDate[]
+  blockedDates: BlockedDate[]
+  fetchedAt: number
+}
+
 interface AvailabilityCalendarProps {
   plotId: string
   isOwner?: boolean
@@ -34,6 +42,9 @@ interface AvailabilityCalendarProps {
   pricePerMonth?: number
   minimumLease?: number
 }
+
+// Cache expiration time: 5 minutes
+const CACHE_EXPIRATION = 5 * 60 * 1000
 
 export function AvailabilityCalendar({
   plotId,
@@ -49,6 +60,7 @@ export function AvailabilityCalendar({
   const [bookedDates, setBookedDates] = useState<BookedDate[]>([])
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectingStart, setSelectingStart] = useState(true)
   const [showBlockModal, setShowBlockModal] = useState(false)
   const [blockStart, setBlockStart] = useState('')
@@ -56,30 +68,72 @@ export function AvailabilityCalendar({
   const [blockReason, setBlockReason] = useState('')
   const [blockLoading, setBlockLoading] = useState(false)
 
-  useEffect(() => {
-    fetchAvailability()
-  }, [plotId, currentMonth])
+  // Cache for previously fetched months
+  const cacheRef = useRef<Map<string, CachedMonthData>>(new Map())
 
-  const fetchAvailability = async () => {
+  const getCacheKey = useCallback((year: number, month: number) => {
+    return `${plotId}-${year}-${month}`
+  }, [plotId])
+
+  const fetchAvailability = useCallback(async (forceRefresh = false) => {
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
+    const cacheKey = getCacheKey(year, month)
+
+    // Check cache first (unless forced refresh)
+    if (!forceRefresh) {
+      const cached = cacheRef.current.get(cacheKey)
+      if (cached && Date.now() - cached.fetchedAt < CACHE_EXPIRATION) {
+        setBookedDates(cached.bookings)
+        setBlockedDates(cached.blockedDates)
+        setLoading(false)
+        setError(null)
+        return
+      }
+    }
+
+    setLoading(true)
+    setError(null)
+
     try {
-      const start = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
-      const end = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 2, 0)
+      const start = new Date(year, month, 1)
+      const end = new Date(year, month + 2, 0)
 
       const res = await fetch(
         `/api/plots/${plotId}/availability?start=${start.toISOString()}&end=${end.toISOString()}`
       )
 
-      if (!res.ok) throw new Error('Failed to fetch')
+      if (!res.ok) throw new Error('Failed to fetch availability')
 
       const data = await res.json()
-      setBookedDates(data.bookings || [])
-      setBlockedDates(data.blockedDates || [])
-    } catch (error) {
-      console.error('Error fetching availability:', error)
+      const bookings = data.bookings || []
+      const blocked = data.blockedDates || []
+
+      // Update cache
+      cacheRef.current.set(cacheKey, {
+        bookings,
+        blockedDates: blocked,
+        fetchedAt: Date.now(),
+      })
+
+      setBookedDates(bookings)
+      setBlockedDates(blocked)
+    } catch (err) {
+      console.error('Error fetching availability:', err)
+      setError('Unable to load availability. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentMonth, plotId, getCacheKey])
+
+  useEffect(() => {
+    fetchAvailability()
+  }, [fetchAvailability])
+
+  // Invalidate cache when blocked dates change (owner actions)
+  const invalidateCache = useCallback(() => {
+    cacheRef.current.clear()
+  }, [])
 
   const isDateBooked = (date: Date) => {
     return bookedDates.some((booking) => {
@@ -173,7 +227,8 @@ export function AvailabilityCalendar({
       setBlockStart('')
       setBlockEnd('')
       setBlockReason('')
-      fetchAvailability()
+      invalidateCache()
+      fetchAvailability(true)
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to block dates')
     } finally {
@@ -189,7 +244,8 @@ export function AvailabilityCalendar({
       )
 
       if (!res.ok) throw new Error('Failed to unblock')
-      fetchAvailability()
+      invalidateCache()
+      fetchAvailability(true)
     } catch (error) {
       console.error('Error unblocking dates:', error)
     }
@@ -276,7 +332,7 @@ export function AvailabilityCalendar({
     'July', 'August', 'September', 'October', 'November', 'December',
   ]
 
-  if (loading) {
+  if (loading && bookedDates.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -284,8 +340,41 @@ export function AvailabilityCalendar({
     )
   }
 
+  if (error && bookedDates.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
+        <p className="text-gray-600 mb-4">{error}</p>
+        <button
+          onClick={() => fetchAvailability(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
+      {/* Error banner for non-blocking errors */}
+      {error && bookedDates.length > 0 && (
+        <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg text-sm">
+          <div className="flex items-center gap-2 text-red-800">
+            <AlertCircle className="h-4 w-4" />
+            <span>{error}</span>
+          </div>
+          <button
+            onClick={() => fetchAvailability(true)}
+            className="flex items-center gap-1 px-2 py-1 text-red-700 hover:bg-red-100 rounded transition-colors"
+          >
+            <RefreshCw className="h-3 w-3" />
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <button

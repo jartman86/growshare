@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
@@ -66,7 +66,7 @@ const statusConfig: Record<string, { label: string; bgClass: string; textClass: 
   CANCELLED: { label: 'Cancelled', bgClass: 'bg-red-100', textClass: 'text-red-800', icon: XCircle },
 }
 
-export default function OrderDetailPage() {
+function OrderDetailContent() {
   const params = useParams()
   const searchParams = useSearchParams()
   const orderId = params.orderId as string
@@ -387,5 +387,25 @@ export default function OrderDetailPage() {
 
       <Footer />
     </>
+  )
+}
+
+export default function OrderDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <>
+          <Header />
+          <main className="min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+            </div>
+          </main>
+          <Footer />
+        </>
+      }
+    >
+      <OrderDetailContent />
+    </Suspense>
   )
 }

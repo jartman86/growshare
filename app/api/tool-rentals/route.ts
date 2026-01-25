@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { createNotification } from '@/lib/notifications'
 
 export async function GET(request: NextRequest) {
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
     const role = searchParams.get('role') // 'renter' or 'owner'
     const status = searchParams.get('status')
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
 
     if (role === 'owner') {

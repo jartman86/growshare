@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { notifyNewReview } from '@/lib/notifications'
 
 // Create a new review
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
           select: { rating: true },
         })
 
-        const averageRating = allReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / allReviews.length
+        const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
 
         // Update plot with new average rating
         await tx.plot.update({
@@ -180,6 +181,7 @@ export async function GET(request: NextRequest) {
     const authorId = searchParams.get('authorId')
     const limit = searchParams.get('limit')
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
 
     if (plotId) {

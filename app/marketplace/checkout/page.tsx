@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
@@ -39,7 +39,7 @@ interface Order {
   }
 }
 
-export default function MarketplaceCheckoutPage() {
+function MarketplaceCheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
@@ -311,5 +311,25 @@ export default function MarketplaceCheckoutPage() {
 
       <Footer />
     </>
+  )
+}
+
+export default function MarketplaceCheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <>
+          <Header />
+          <main className="min-h-screen bg-gray-50">
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+            </div>
+          </main>
+          <Footer />
+        </>
+      }
+    >
+      <MarketplaceCheckoutContent />
+    </Suspense>
   )
 }

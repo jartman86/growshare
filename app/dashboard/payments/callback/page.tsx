@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CheckCircle, RefreshCw, Loader2, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
-export default function StripeConnectCallbackPage() {
+function StripeConnectCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'checking' | 'success' | 'refresh' | 'error'>('checking')
@@ -184,5 +184,30 @@ export default function StripeConnectCallbackPage() {
 
       <Footer />
     </>
+  )
+}
+
+export default function StripeConnectCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <>
+          <Header />
+          <main className="min-h-screen bg-gray-50 py-12">
+            <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-white rounded-xl border-2 border-gray-200 p-8 text-center">
+                <Loader2 className="h-12 w-12 animate-spin text-green-600 mx-auto" />
+                <h2 className="mt-4 text-xl font-semibold text-gray-900">
+                  Loading...
+                </h2>
+              </div>
+            </div>
+          </main>
+          <Footer />
+        </>
+      }
+    >
+      <StripeConnectCallbackContent />
+    </Suspense>
   )
 }

@@ -8,7 +8,8 @@ import { ChatInterface } from '@/components/messages/chat-interface'
 import { NewMessageModal } from '@/components/messages/new-message-modal'
 import { Plus, MessageSquare, Loader2, Wifi, WifiOff } from 'lucide-react'
 
-const POLL_INTERVAL = 5000 // 5 seconds
+const POLL_INTERVAL = 10000 // 10 seconds when active
+const POLL_INTERVAL_BACKGROUND = 60000 // 60 seconds when tab is inactive
 
 interface User {
   id: string
@@ -106,16 +107,35 @@ function MessagesPageContent() {
     }
   }, [])
 
-  // Set up polling interval
+  // Track tab visibility for smart polling
+  const [isTabVisible, setIsTabVisible] = useState(true)
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsTabVisible(!document.hidden)
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
+
+  // Set up polling interval with visibility-aware intervals
   useEffect(() => {
     const poll = async () => {
       await Promise.all([pollConversations(), pollMessages()])
-      pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL)
+      // Use shorter interval when tab is visible, longer when in background
+      const interval = isTabVisible ? POLL_INTERVAL : POLL_INTERVAL_BACKGROUND
+      pollTimeoutRef.current = setTimeout(poll, interval)
     }
 
     // Start polling after initial load
     if (!isLoading) {
-      pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL)
+      // Poll immediately when tab becomes visible again
+      if (isTabVisible) {
+        Promise.all([pollConversations(), pollMessages()])
+      }
+      const interval = isTabVisible ? POLL_INTERVAL : POLL_INTERVAL_BACKGROUND
+      pollTimeoutRef.current = setTimeout(poll, interval)
     }
 
     return () => {
@@ -123,7 +143,7 @@ function MessagesPageContent() {
         clearTimeout(pollTimeoutRef.current)
       }
     }
-  }, [isLoading, pollConversations, pollMessages])
+  }, [isLoading, isTabVisible, pollConversations, pollMessages])
 
   useEffect(() => {
     fetchConversations()

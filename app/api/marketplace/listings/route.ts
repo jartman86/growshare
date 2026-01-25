@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
 export async function GET(request: NextRequest) {
@@ -14,6 +15,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
     const userId = searchParams.get('userId')
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
 
     // Default to available listings unless status is specified

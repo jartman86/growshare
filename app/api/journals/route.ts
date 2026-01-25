@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
     const stage = searchParams.get('stage')
     const cropName = searchParams.get('cropName')
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {
       userId: currentUser.id,
     }

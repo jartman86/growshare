@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { ensureUser, ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
 // Helper function to geocode an address
@@ -61,6 +62,8 @@ export async function GET(request: NextRequest) {
     const instantBookOnly = searchParams.get('instantBookOnly')
     const minRating = searchParams.get('minRating')
 
+    // Dynamic where clause for flexible filtering from request params
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
 
     // Status filter - support multiple statuses or default to ACTIVE and RENTED
@@ -111,7 +114,7 @@ export async function GET(request: NextRequest) {
     if (instantBookOnly === 'true') where.instantBook = true
 
     // Determine sort order
-    let orderBy: any = { createdAt: 'desc' }
+    let orderBy: Prisma.PlotOrderByWithRelationInput = { createdAt: 'desc' }
     switch (sortBy) {
       case 'price-low':
         orderBy = { pricePerMonth: 'asc' }
@@ -441,47 +444,44 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Parallelize badge check and activity creation for better performance
+    const [plotsCount, landSharerBadge] = await Promise.all([
+      prisma.plot.count({ where: { ownerId: currentUser.id } }),
+      prisma.badge.findFirst({ where: { name: 'Land Sharer' } }),
+    ])
+
+    // Calculate total points to award (base 50 + badge bonus if first plot)
+    let totalPointsToAdd = 50
+    const isFirstPlot = plotsCount === 1
+
     // Award badge for first plot listing
-    const plotsCount = await prisma.plot.count({
-      where: { ownerId: currentUser.id },
-    })
-
-    if (plotsCount === 1) {
-      const landSharerBadge = await prisma.badge.findFirst({
-        where: { name: 'Land Sharer' },
+    if (isFirstPlot && landSharerBadge) {
+      totalPointsToAdd += landSharerBadge.points
+      // Create badge in parallel with other operations
+      await prisma.userBadge.create({
+        data: {
+          userId: currentUser.id,
+          badgeId: landSharerBadge.id,
+        },
       })
-
-      if (landSharerBadge) {
-        await prisma.userBadge.create({
-          data: {
-            userId: currentUser.id,
-            badgeId: landSharerBadge.id,
-          },
-        })
-
-        await prisma.user.update({
-          where: { id: currentUser.id },
-          data: { totalPoints: { increment: landSharerBadge.points } },
-        })
-      }
     }
 
-    // Create activity
-    await prisma.userActivity.create({
-      data: {
-        userId: currentUser.id,
-        type: 'PLOT_LISTED',
-        title: 'Listed new plot',
-        description: plot.title,
-        points: 50,
-      },
-    })
-
-    // Add points for listing
-    await prisma.user.update({
-      where: { id: currentUser.id },
-      data: { totalPoints: { increment: 50 } },
-    })
+    // Parallelize activity creation and points update
+    await Promise.all([
+      prisma.userActivity.create({
+        data: {
+          userId: currentUser.id,
+          type: 'PLOT_LISTED',
+          title: 'Listed new plot',
+          description: plot.title,
+          points: 50,
+        },
+      }),
+      prisma.user.update({
+        where: { id: currentUser.id },
+        data: { totalPoints: { increment: totalPointsToAdd } },
+      }),
+    ])
 
     return NextResponse.json(plot, { status: 201 })
   } catch (error) {

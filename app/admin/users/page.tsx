@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { Suspense, useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import {
   Search,
@@ -46,7 +46,7 @@ interface Pagination {
   totalPages: number
 }
 
-export default function AdminUsersPage() {
+function AdminUsersContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -448,5 +448,19 @@ export default function AdminUsersPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function AdminUsersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      }
+    >
+      <AdminUsersContent />
+    </Suspense>
   )
 }

@@ -1,15 +1,27 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { Header } from '@/components/layout/header'
 import { Map } from '@/components/map/map'
 import { PlotCard } from '@/components/map/plot-card'
 import { FilterSidebar } from '@/components/map/filter-sidebar'
 import { MapFilters, PlotMarker } from '@/lib/types'
-import { Search, LayoutGrid, Map as MapIcon, Loader2 } from 'lucide-react'
+import { Search, LayoutGrid, Map as MapIcon, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type ViewMode = 'map' | 'grid'
+
+// Debounce hook for filter changes
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay])
+
+  return debouncedValue
+}
 
 export default function ExplorePage() {
   const [filters, setFilters] = useState<MapFilters>({})
@@ -18,43 +30,56 @@ export default function ExplorePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [plots, setPlots] = useState<PlotMarker[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Fetch plots from API
-  useEffect(() => {
-    const fetchPlots = async () => {
-      setIsLoading(true)
-      try {
-        const params = new URLSearchParams()
+  // Debounce filters to prevent rapid API calls
+  const debouncedFilters = useDebounce(filters, 300)
 
-        if (filters.minPrice) params.append('minPrice', filters.minPrice.toString())
-        if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString())
-        if (filters.minAcreage) params.append('minAcreage', filters.minAcreage.toString())
-        if (filters.maxAcreage) params.append('maxAcreage', filters.maxAcreage.toString())
-        if (filters.soilTypes?.length) params.append('soilTypes', filters.soilTypes.join(','))
-        if (filters.waterAccess?.length) params.append('waterAccess', filters.waterAccess.join(','))
-        if (filters.hasIrrigation) params.append('hasIrrigation', 'true')
-        if (filters.hasFencing) params.append('hasFencing', 'true')
-        if (filters.hasGreenhouse) params.append('hasGreenhouse', 'true')
-        if (filters.hasElectricity) params.append('hasElectricity', 'true')
-        if (filters.status?.length) params.append('status', filters.status.join(','))
-        if (filters.availableFrom) params.append('availableFrom', filters.availableFrom)
-        if (filters.availableTo) params.append('availableTo', filters.availableTo)
+  // Track if this is the initial load
+  const isInitialLoad = useRef(true)
 
-        const response = await fetch(`/api/plots?${params.toString()}`)
-        if (!response.ok) throw new Error('Failed to fetch plots')
+  // Fetch plots from API with debounced filters
+  const fetchPlots = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const params = new URLSearchParams()
 
-        const data = await response.json()
-        setPlots(data)
-      } catch (error) {
-        console.error('Error fetching plots:', error)
+      if (debouncedFilters.minPrice) params.append('minPrice', debouncedFilters.minPrice.toString())
+      if (debouncedFilters.maxPrice) params.append('maxPrice', debouncedFilters.maxPrice.toString())
+      if (debouncedFilters.minAcreage) params.append('minAcreage', debouncedFilters.minAcreage.toString())
+      if (debouncedFilters.maxAcreage) params.append('maxAcreage', debouncedFilters.maxAcreage.toString())
+      if (debouncedFilters.soilTypes?.length) params.append('soilTypes', debouncedFilters.soilTypes.join(','))
+      if (debouncedFilters.waterAccess?.length) params.append('waterAccess', debouncedFilters.waterAccess.join(','))
+      if (debouncedFilters.hasIrrigation) params.append('hasIrrigation', 'true')
+      if (debouncedFilters.hasFencing) params.append('hasFencing', 'true')
+      if (debouncedFilters.hasGreenhouse) params.append('hasGreenhouse', 'true')
+      if (debouncedFilters.hasElectricity) params.append('hasElectricity', 'true')
+      if (debouncedFilters.status?.length) params.append('status', debouncedFilters.status.join(','))
+      if (debouncedFilters.availableFrom) params.append('availableFrom', debouncedFilters.availableFrom)
+      if (debouncedFilters.availableTo) params.append('availableTo', debouncedFilters.availableTo)
+
+      const response = await fetch(`/api/plots?${params.toString()}`)
+      if (!response.ok) throw new Error('Failed to fetch plots')
+
+      const data = await response.json()
+      setPlots(data)
+      isInitialLoad.current = false
+    } catch (err) {
+      console.error('Error fetching plots:', err)
+      setError('Unable to load plots. Please try again.')
+      // Keep existing plots on error (don't clear them)
+      if (isInitialLoad.current) {
         setPlots([])
-      } finally {
-        setIsLoading(false)
       }
+    } finally {
+      setIsLoading(false)
     }
+  }, [debouncedFilters])
 
+  useEffect(() => {
     fetchPlots()
-  }, [filters])
+  }, [fetchPlots])
 
   // Filter plots based on search query (client-side)
   const filteredPlots = useMemo(() => {
@@ -117,6 +142,25 @@ export default function ExplorePage() {
           </div>
         </div>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="bg-red-50 border-b border-red-200 px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertCircle className="h-5 w-5" />
+              <span>{error}</span>
+            </div>
+            <button
+              onClick={fetchPlots}
+              className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
