@@ -245,3 +245,28 @@ export async function notifyPaymentReceived(userId: string, amount: string, desc
 
   return notification
 }
+
+export async function notifyRefundProcessed(
+  userId: string,
+  amount: number,
+  plotTitle: string,
+  bookingId: string,
+  refundPercentage: number
+) {
+  // Create in-app notification
+  const notification = await createNotification({
+    userId,
+    type: 'PAYMENT_RECEIVED', // Reusing type since it's payment-related
+    title: 'Refund Processed',
+    content: `Your ${refundPercentage}% refund of $${amount.toFixed(2)} for "${plotTitle}" has been processed.`,
+    link: `/my-bookings`,
+    metadata: {
+      bookingId,
+      refundAmount: amount,
+      refundPercentage,
+      isRefund: true,
+    },
+  })
+
+  return notification
+}

@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
       // Create onboarding link
       const accountLink = await createConnectAccountLink(
         account.id,
-        `${baseUrl}/dashboard/seller/onboarding?refresh=true`,
-        `${baseUrl}/dashboard/seller/onboarding?success=true`
+        `${baseUrl}/dashboard/payments/callback?refresh=true`,
+        `${baseUrl}/dashboard/payments/callback?success=true`
       )
 
       return NextResponse.json({
@@ -119,8 +119,8 @@ export async function POST(request: NextRequest) {
     if (action === 'onboard' && currentUser.stripeConnectId) {
       const accountLink = await createConnectAccountLink(
         currentUser.stripeConnectId,
-        `${baseUrl}/dashboard/seller/onboarding?refresh=true`,
-        `${baseUrl}/dashboard/seller/onboarding?success=true`
+        `${baseUrl}/dashboard/payments/callback?refresh=true`,
+        `${baseUrl}/dashboard/payments/callback?success=true`
       )
 
       return NextResponse.json({

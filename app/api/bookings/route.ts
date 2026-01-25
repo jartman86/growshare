@@ -254,6 +254,13 @@ export async function GET(request: NextRequest) {
               avatar: true,
             },
           },
+          paymentIntent: {
+            select: {
+              status: true,
+              failureMessage: true,
+              metadata: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',
@@ -282,6 +289,13 @@ export async function GET(request: NextRequest) {
                   avatar: true,
                 },
               },
+            },
+          },
+          paymentIntent: {
+            select: {
+              status: true,
+              failureMessage: true,
+              metadata: true,
             },
           },
         },

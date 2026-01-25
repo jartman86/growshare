@@ -15,8 +15,20 @@ import {
   Loader2,
   User,
   MessageSquare,
+  CreditCard,
+  RotateCcw,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+
+interface PaymentIntent {
+  status: string
+  failureMessage?: string
+  metadata?: {
+    refundAmount?: number
+    refundPercentage?: number
+    refundedAt?: string
+  }
+}
 
 interface Booking {
   id: string
@@ -25,6 +37,8 @@ interface Booking {
   status: string
   totalAmount: number
   createdAt: string
+  paidAt?: string
+  paymentIntent?: PaymentIntent
   plot: {
     id: string
     title: string
@@ -166,6 +180,59 @@ export default function ManageBookingsPage() {
     })
   }
 
+  const getPaymentStatusBadge = (booking: Booking) => {
+    const paymentIntent = booking.paymentIntent
+
+    if (!paymentIntent) {
+      if (booking.status === 'APPROVED') {
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+            <CreditCard className="h-3 w-3" />
+            Awaiting Payment
+          </span>
+        )
+      }
+      return null
+    }
+
+    switch (paymentIntent.status) {
+      case 'SUCCEEDED':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+            <CheckCircle className="h-3 w-3" />
+            Paid
+          </span>
+        )
+      case 'FAILED':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+            <XCircle className="h-3 w-3" />
+            Payment Failed
+          </span>
+        )
+      case 'REFUNDED':
+        const refundAmount = paymentIntent.metadata?.refundAmount
+        const refundPercentage = paymentIntent.metadata?.refundPercentage
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+            <RotateCcw className="h-3 w-3" />
+            Refunded {refundPercentage}%
+            {refundAmount && ` ($${refundAmount.toFixed(2)})`}
+          </span>
+        )
+      case 'PENDING':
+      case 'PROCESSING':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Processing
+          </span>
+        )
+      default:
+        return null
+    }
+  }
+
   const filteredBookings =
     filterStatus === 'all'
       ? bookings
@@ -273,11 +340,12 @@ export default function ManageBookingsPage() {
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
                           <h2 className="text-xl font-semibold text-gray-900">
                             {booking.plot.title}
                           </h2>
                           {getStatusBadge(booking.status)}
+                          {getPaymentStatusBadge(booking)}
                         </div>
                         <div className="flex items-center gap-2 text-gray-600">
                           <MapPin className="h-4 w-4" />

@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
-import { notifyBookingApproved, notifyBookingRejected, notifyBookingCancelled } from '@/lib/notifications'
+import { notifyBookingApproved, notifyBookingRejected, notifyBookingCancelled, notifyRefundProcessed } from '@/lib/notifications'
+import { createRefund, centsToDollars } from '@/lib/stripe'
+
+// Calculate refund percentage based on days until booking start
+function calculateRefundPercentage(startDate: Date): number {
+  const now = new Date()
+  const msPerDay = 1000 * 60 * 60 * 24
+  const daysUntilStart = Math.ceil((startDate.getTime() - now.getTime()) / msPerDay)
+
+  if (daysUntilStart >= 7) {
+    return 100 // Full refund: 7+ days before start
+  } else if (daysUntilStart >= 3) {
+    return 50 // Partial refund: 3-6 days before start
+  } else {
+    return 0 // No refund: less than 3 days before start
+  }
+}
 
 // Update booking status (approve, reject, cancel)
 export async function PATCH(
@@ -36,7 +52,7 @@ export async function PATCH(
       )
     }
 
-    // Get booking with plot and renter info
+    // Get booking with plot, renter info, and payment intent
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
@@ -47,6 +63,7 @@ export async function PATCH(
                 id: true,
                 firstName: true,
                 lastName: true,
+                stripeOnboardingComplete: true,
               },
             },
           },
@@ -58,6 +75,7 @@ export async function PATCH(
             lastName: true,
           },
         },
+        paymentIntent: true,
       },
     })
 
@@ -82,6 +100,17 @@ export async function PATCH(
       if (booking.status !== 'PENDING') {
         return NextResponse.json(
           { error: `Cannot ${status.toLowerCase()} a ${booking.status.toLowerCase()} booking` },
+          { status: 400 }
+        )
+      }
+
+      // Require Stripe Connect setup to approve bookings
+      if (status === 'APPROVED' && !booking.plot.owner.stripeOnboardingComplete) {
+        return NextResponse.json(
+          {
+            error: 'Please set up your payout account before approving bookings. Go to Dashboard > Payments to complete setup.',
+            requiresConnectSetup: true,
+          },
           { status: 400 }
         )
       }
@@ -124,6 +153,12 @@ export async function PATCH(
             lastName: true,
             email: true,
             avatar: true,
+          },
+        },
+        paymentIntent: {
+          select: {
+            status: true,
+            metadata: true,
           },
         },
       },
@@ -184,13 +219,71 @@ export async function PATCH(
         console.error('Failed to send notification:', error)
       }
     } else if (status === 'CANCELLED') {
+      // Process refund if booking was paid
+      let refundInfo: { refundAmount: number; refundPercentage: number; refundId: string } | null = null
+
+      if (booking.paidAt && booking.paymentIntent && booking.paymentIntent.status === 'SUCCEEDED') {
+        const refundPercentage = calculateRefundPercentage(booking.startDate)
+
+        if (refundPercentage > 0) {
+          try {
+            const refundAmount = Math.round(booking.paymentIntent.amount * (refundPercentage / 100))
+
+            // Process refund via Stripe
+            const refund = await createRefund(
+              booking.paymentIntent.stripePaymentIntentId,
+              refundAmount
+            )
+
+            // Update payment intent status
+            await prisma.paymentIntent.update({
+              where: { id: booking.paymentIntent.id },
+              data: {
+                status: 'REFUNDED',
+                metadata: {
+                  ...((booking.paymentIntent.metadata as object) || {}),
+                  refundId: refund.id,
+                  refundAmount,
+                  refundPercentage,
+                  refundedAt: new Date().toISOString(),
+                },
+              },
+            })
+
+            refundInfo = {
+              refundAmount: centsToDollars(refundAmount),
+              refundPercentage,
+              refundId: refund.id,
+            }
+
+            // Notify renter about the refund
+            try {
+              await notifyRefundProcessed(
+                booking.renterId,
+                centsToDollars(refundAmount),
+                booking.plot.title,
+                bookingId,
+                refundPercentage
+              )
+            } catch (error) {
+              console.error('Failed to send refund notification:', error)
+            }
+          } catch (error) {
+            console.error('Failed to process refund:', error)
+            // Continue with cancellation even if refund fails - log for manual processing
+          }
+        }
+      }
+
       // Create activity for the user who cancelled
       await prisma.userActivity.create({
         data: {
           userId: currentUser.id,
           type: 'BOOKING_CANCELLED',
           title: 'Booking cancelled',
-          description: `Cancelled booking for ${booking.plot.title}`,
+          description: refundInfo
+            ? `Cancelled booking for ${booking.plot.title} (${refundInfo.refundPercentage}% refund: $${refundInfo.refundAmount.toFixed(2)})`
+            : `Cancelled booking for ${booking.plot.title}`,
           points: 0,
         },
       })
@@ -202,7 +295,9 @@ export async function PATCH(
           userId: otherUserId,
           type: 'BOOKING_CANCELLED',
           title: 'Booking cancelled',
-          description: `Booking for ${booking.plot.title} was cancelled`,
+          description: refundInfo
+            ? `Booking for ${booking.plot.title} was cancelled (${refundInfo.refundPercentage}% refund processed)`
+            : `Booking for ${booking.plot.title} was cancelled`,
           points: 0,
         },
       })
