@@ -83,10 +83,10 @@ export function StripeConnectStatus({ onStatusChange }: StripeConnectStatusProps
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center gap-3">
-          <Loader2 className="h-5 w-5 animate-spin text-green-600" />
-          <span className="text-gray-600">Loading payout status...</span>
+          <Loader2 className="h-5 w-5 animate-spin text-green-600 dark:text-green-400" />
+          <span className="text-gray-600 dark:text-gray-400">Loading payout status...</span>
         </div>
       </div>
     )
@@ -94,14 +94,14 @@ export function StripeConnectStatus({ onStatusChange }: StripeConnectStatusProps
 
   if (error) {
     return (
-      <div className="bg-red-50 rounded-xl border-2 border-red-200 p-6">
-        <div className="flex items-center gap-3 text-red-800">
+      <div className="bg-red-50 dark:bg-red-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 p-6">
+        <div className="flex items-center gap-3 text-red-800 dark:text-red-400">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
         <button
           onClick={fetchStatus}
-          className="mt-4 text-sm text-red-700 hover:text-red-900 underline"
+          className="mt-4 text-sm text-red-700 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 underline"
         >
           Try again
         </button>
@@ -112,18 +112,18 @@ export function StripeConnectStatus({ onStatusChange }: StripeConnectStatusProps
   // Onboarding complete - show success state
   if (status?.onboardingComplete) {
     return (
-      <div className="bg-green-50 rounded-xl border-2 border-green-200 p-6">
+      <div className="bg-green-50 dark:bg-green-900/20 rounded-xl border-2 border-green-200 dark:border-green-800 p-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-green-900">
+            <h3 className="text-lg font-semibold text-green-900 dark:text-green-400">
               Payouts Enabled
             </h3>
-            <p className="text-green-700 mt-1">
+            <p className="text-green-700 dark:text-green-300 mt-1">
               Your account is set up to receive payments from plot rentals.
               Funds are automatically transferred to your connected bank account.
             </p>
@@ -147,22 +147,22 @@ export function StripeConnectStatus({ onStatusChange }: StripeConnectStatusProps
   // Has account but incomplete - show continue setup
   if (status?.hasConnectAccount && !status.onboardingComplete) {
     return (
-      <div className="bg-amber-50 rounded-xl border-2 border-amber-200 p-6">
+      <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl border-2 border-amber-200 dark:border-amber-800 p-6">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-              <AlertCircle className="h-6 w-6 text-amber-600" />
+            <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <AlertCircle className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-amber-900">
+            <h3 className="text-lg font-semibold text-amber-900 dark:text-amber-400">
               Complete Your Payout Setup
             </h3>
-            <p className="text-amber-700 mt-1">
-              You started setting up payouts but haven't finished. Complete the
+            <p className="text-amber-700 dark:text-amber-300 mt-1">
+              You started setting up payouts but haven&apos;t finished. Complete the
               setup to start receiving payments from your plot rentals.
             </p>
-            <div className="mt-3 text-sm text-amber-700">
+            <div className="mt-3 text-sm text-amber-700 dark:text-amber-300">
               <p>
                 {status.chargesEnabled ? '- Charges: Enabled' : '- Charges: Not yet enabled'}
               </p>
@@ -195,32 +195,32 @@ export function StripeConnectStatus({ onStatusChange }: StripeConnectStatusProps
 
   // No account - show setup prompt
   return (
-    <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-            <CreditCard className="h-6 w-6 text-gray-600" />
+          <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            <CreditCard className="h-6 w-6 text-gray-600 dark:text-gray-400" />
           </div>
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Set Up Payouts
           </h3>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Connect your bank account to receive payments when renters book your
             plots. We use Stripe for secure, reliable payouts.
           </p>
-          <ul className="mt-3 space-y-1 text-sm text-gray-600">
+          <ul className="mt-3 space-y-1 text-sm text-gray-600 dark:text-gray-400">
             <li className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
               Secure bank-level encryption
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
               Automatic deposits to your account
             </li>
             <li className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CheckCircle className="h-4 w-4 text-green-500 dark:text-green-400" />
               Track earnings and view reports
             </li>
           </ul>
