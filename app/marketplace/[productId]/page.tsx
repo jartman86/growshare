@@ -1,8 +1,12 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import { notFound } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { SAMPLE_PRODUCTS } from '@/lib/marketplace-data'
-import { PurchaseCard } from '@/components/marketplace/purchase-card'
 import {
   MapPin,
   Star,
@@ -12,33 +16,124 @@ import {
   Calendar,
   CheckCircle,
   Tag,
+  Loader2,
+  ArrowLeft,
+  ShoppingCart,
+  MessageSquare,
 } from 'lucide-react'
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: Promise<{ productId: string }>
-}) {
-  const { productId } = await params
-  const product = SAMPLE_PRODUCTS.find((p) => p.id === productId)
+interface ProduceListing {
+  id: string
+  productName: string
+  variety: string | null
+  description: string
+  category: string
+  quantity: number
+  unit: string
+  pricePerUnit: number
+  status: string
+  availableDate: string
+  expiresDate: string | null
+  deliveryMethods: string[]
+  pickupLocation: string | null
+  deliveryRadius: number | null
+  images: string[]
+  isOrganic: boolean
+  isCertified: boolean
+  certifications: string[]
+  createdAt: string
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    avatar: string | null
+    isVerified: boolean
+  }
+}
 
-  if (!product) {
-    notFound()
+export default function ProductDetailPage() {
+  const params = useParams()
+  const productId = params.productId as string
+
+  const [listing, setListing] = useState<ProduceListing | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState(0)
+
+  useEffect(() => {
+    if (productId) {
+      fetchListing()
+    }
+  }, [productId])
+
+  const fetchListing = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/marketplace/listings/${productId}`)
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('Product not found')
+        } else {
+          throw new Error('Failed to fetch listing')
+        }
+        return
+      }
+      const data = await response.json()
+      setListing(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load listing')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const formatDate = (date: Date) => {
+  const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
-    }).format(date)
+    }).format(new Date(dateString))
   }
 
   const deliveryMethodLabels: Record<string, string> = {
-    pickup: 'Farm Pickup',
-    delivery: 'Local Delivery',
-    shipping: 'Shipping Available',
-    'csa-box': 'CSA Box Subscription',
+    PICKUP: 'Farm Pickup',
+    DELIVERY: 'Local Delivery',
+    SHIPPING: 'Shipping Available',
+    'CSA-BOX': 'CSA Box Subscription',
+  }
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
+  if (error || !listing) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-gray-50">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+            <p className="text-gray-600 mb-8">This listing may have been removed or is no longer available.</p>
+            <Link
+              href="/marketplace"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Marketplace
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
   }
 
   return (
@@ -46,19 +141,38 @@ export default async function ProductDetailPage({
       <Header />
 
       <main className="min-h-screen bg-gray-50">
+        {/* Back Link */}
+        <div className="bg-white border-b">
+          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+            <Link
+              href="/marketplace"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Marketplace
+            </Link>
+          </div>
+        </div>
+
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Main Content */}
             <div className="lg:col-span-2">
               {/* Image Gallery */}
               <div className="bg-white rounded-xl overflow-hidden border mb-6">
-                <div className="aspect-video relative">
-                  <img
-                    src={product.images[0]}
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                  />
-                  {product.certifiedOrganic && (
+                <div className="aspect-video relative bg-gray-100">
+                  {listing.images.length > 0 && listing.images[selectedImage] ? (
+                    <img
+                      src={listing.images[selectedImage]}
+                      alt={listing.productName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Sprout className="h-16 w-16 text-green-300" />
+                    </div>
+                  )}
+                  {listing.isCertified && (
                     <div className="absolute top-4 right-4">
                       <div className="px-4 py-2 bg-green-600 text-white rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg">
                         <Award className="h-4 w-4" />
@@ -66,7 +180,7 @@ export default async function ProductDetailPage({
                       </div>
                     </div>
                   )}
-                  {!product.certifiedOrganic && product.organic && (
+                  {listing.isOrganic && !listing.isCertified && (
                     <div className="absolute top-4 right-4">
                       <div className="px-4 py-2 bg-green-500 text-white rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg">
                         <Sprout className="h-4 w-4" />
@@ -75,12 +189,22 @@ export default async function ProductDetailPage({
                     </div>
                   )}
                 </div>
-                {product.images.length > 1 && (
+                {listing.images.length > 1 && (
                   <div className="grid grid-cols-4 gap-2 p-4">
-                    {product.images.slice(1).map((image, index) => (
-                      <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                        <img src={image} alt={`${product.title} ${index + 2}`} className="w-full h-full object-cover" />
-                      </div>
+                    {listing.images.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImage(index)}
+                        className={`aspect-square rounded-lg overflow-hidden border-2 ${
+                          selectedImage === index ? 'border-green-500' : 'border-transparent'
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`${listing.productName} ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
                     ))}
                   </div>
                 )}
@@ -89,34 +213,19 @@ export default async function ProductDetailPage({
               {/* Product Info */}
               <div className="bg-white rounded-xl border p-6 mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                    {product.category}
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium capitalize">
+                    {listing.category}
                   </span>
-                  {product.varietyName && (
+                  {listing.variety && (
                     <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                      {product.varietyName}
+                      {listing.variety}
                     </span>
                   )}
                 </div>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.title}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">{listing.productName}</h1>
 
-                <p className="text-lg text-gray-700 mb-6 leading-relaxed">{product.description}</p>
-
-                {/* Tags */}
-                {product.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {product.tags.map((tag, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                      >
-                        <Tag className="h-3 w-3" />
-                        {tag}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <p className="text-lg text-gray-700 mb-6 leading-relaxed">{listing.description}</p>
 
                 {/* Product Details */}
                 <div className="grid gap-4 sm:grid-cols-2 pt-6 border-t">
@@ -126,46 +235,32 @@ export default async function ProductDetailPage({
                       <div className="flex justify-between text-sm">
                         <dt className="text-gray-600">Available Quantity:</dt>
                         <dd className="font-medium text-gray-900">
-                          {product.quantity} {product.unit}
-                          {product.quantity > 1 ? 's' : ''}
+                          {listing.quantity} {listing.unit}
                         </dd>
                       </div>
-                      {product.minOrder && (
-                        <div className="flex justify-between text-sm">
-                          <dt className="text-gray-600">Minimum Order:</dt>
-                          <dd className="font-medium text-gray-900">
-                            {product.minOrder} {product.unit}
-                            {product.minOrder > 1 ? 's' : ''}
-                          </dd>
-                        </div>
-                      )}
-                      {product.harvestedDate && (
-                        <div className="flex justify-between text-sm">
-                          <dt className="text-gray-600">Harvested:</dt>
-                          <dd className="font-medium text-gray-900">
-                            {formatDate(product.harvestedDate)}
-                          </dd>
-                        </div>
-                      )}
+                      <div className="flex justify-between text-sm">
+                        <dt className="text-gray-600">Price:</dt>
+                        <dd className="font-medium text-gray-900">
+                          ${listing.pricePerUnit.toFixed(2)} / {listing.unit}
+                        </dd>
+                      </div>
                     </dl>
                   </div>
 
                   <div>
                     <h3 className="text-sm font-semibold text-gray-900 mb-3">Availability</h3>
                     <dl className="space-y-2">
-                      {product.availableFrom && (
-                        <div className="flex justify-between text-sm">
-                          <dt className="text-gray-600">Available From:</dt>
-                          <dd className="font-medium text-gray-900">
-                            {formatDate(product.availableFrom)}
-                          </dd>
-                        </div>
-                      )}
-                      {product.availableUntil && (
+                      <div className="flex justify-between text-sm">
+                        <dt className="text-gray-600">Available From:</dt>
+                        <dd className="font-medium text-gray-900">
+                          {formatDate(listing.availableDate)}
+                        </dd>
+                      </div>
+                      {listing.expiresDate && (
                         <div className="flex justify-between text-sm">
                           <dt className="text-gray-600">Available Until:</dt>
                           <dd className="font-medium text-gray-900">
-                            {formatDate(product.availableUntil)}
+                            {formatDate(listing.expiresDate)}
                           </dd>
                         </div>
                       )}
@@ -178,35 +273,66 @@ export default async function ProductDetailPage({
               <div className="bg-white rounded-xl border p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">About the Seller</h2>
                 <div className="flex items-start gap-4">
-                  {product.sellerAvatar && (
+                  {listing.user.avatar ? (
                     <img
-                      src={product.sellerAvatar}
-                      alt={product.sellerName}
-                      className="w-16 h-16 rounded-full"
+                      src={listing.user.avatar}
+                      alt={listing.user.firstName}
+                      className="w-16 h-16 rounded-full object-cover"
                     />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                      <span className="text-xl font-bold text-green-600">
+                        {listing.user.firstName[0]}
+                      </span>
+                    </div>
                   )}
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{product.sellerName}</h3>
-                    <div className="flex items-center gap-2 mt-1 mb-3">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold text-gray-900">{product.sellerRating}</span>
-                        <span className="text-sm text-gray-600">rating</span>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {listing.user.firstName} {listing.user.lastName}
+                    </h3>
+                    {listing.user.isVerified && (
+                      <div className="flex items-center gap-1 text-green-600 text-sm mt-1">
+                        <CheckCircle className="h-4 w-4" />
+                        Verified Seller
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <MapPin className="h-4 w-4" />
-                      <span className="text-sm">{product.sellerLocation}</span>
-                    </div>
+                    )}
+                    {listing.pickupLocation && (
+                      <div className="flex items-center gap-2 text-gray-600 mt-2">
+                        <MapPin className="h-4 w-4" />
+                        <span className="text-sm">{listing.pickupLocation}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Sidebar - Purchase Card */}
+            {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-4">
-                <PurchaseCard product={product} />
+                {/* Purchase Card */}
+                <div className="bg-white rounded-xl border p-6">
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    ${listing.pricePerUnit.toFixed(2)}
+                    <span className="text-lg font-normal text-gray-600">/{listing.unit}</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-6">
+                    {listing.quantity} {listing.unit} available
+                  </p>
+
+                  <button className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors mb-3">
+                    <ShoppingCart className="h-5 w-5" />
+                    Add to Cart
+                  </button>
+
+                  <Link
+                    href={`/messages?to=${listing.user.id}`}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    Contact Seller
+                  </Link>
+                </div>
 
                 {/* Delivery Methods */}
                 <div className="bg-white rounded-xl border p-6 mt-6">
@@ -215,52 +341,55 @@ export default async function ProductDetailPage({
                     Delivery Options
                   </h3>
                   <ul className="space-y-3">
-                    {product.deliveryMethods.map((method) => (
+                    {listing.deliveryMethods.map((method) => (
                       <li key={method} className="flex items-start gap-2 text-sm">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{deliveryMethodLabels[method]}</span>
+                        <span className="text-gray-700">
+                          {deliveryMethodLabels[method] || method}
+                        </span>
                       </li>
                     ))}
                   </ul>
-                  {product.pickupLocation && (
+                  {listing.pickupLocation && (
                     <div className="mt-4 pt-4 border-t">
                       <p className="text-xs font-semibold text-gray-900 mb-1">Pickup Location:</p>
-                      <p className="text-sm text-gray-600">{product.pickupLocation}</p>
+                      <p className="text-sm text-gray-600">{listing.pickupLocation}</p>
+                    </div>
+                  )}
+                  {listing.deliveryRadius && (
+                    <div className="mt-2">
+                      <p className="text-xs font-semibold text-gray-900 mb-1">Delivery Radius:</p>
+                      <p className="text-sm text-gray-600">{listing.deliveryRadius} miles</p>
                     </div>
                   )}
                 </div>
 
                 {/* Certifications */}
-                <div className="bg-green-50 rounded-xl border border-green-200 p-6 mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">Quality Assurance</h3>
-                  <ul className="space-y-3">
-                    {product.certifiedOrganic && (
-                      <li className="flex items-start gap-2 text-sm">
-                        <Award className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-gray-900">Certified Organic</p>
-                          <p className="text-xs text-gray-600">USDA certified organic practices</p>
-                        </div>
-                      </li>
-                    )}
-                    {product.organic && !product.certifiedOrganic && (
-                      <li className="flex items-start gap-2 text-sm">
-                        <Sprout className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-gray-900">Organically Grown</p>
-                          <p className="text-xs text-gray-600">No synthetic pesticides or fertilizers</p>
-                        </div>
-                      </li>
-                    )}
-                    <li className="flex items-start gap-2 text-sm">
-                      <Star className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium text-gray-900">Verified Grower</p>
-                        <p className="text-xs text-gray-600">GrowShare community verified</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
+                {(listing.isOrganic || listing.isCertified) && (
+                  <div className="bg-green-50 rounded-xl border border-green-200 p-6 mt-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">Quality Assurance</h3>
+                    <ul className="space-y-3">
+                      {listing.isCertified && (
+                        <li className="flex items-start gap-2 text-sm">
+                          <Award className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-gray-900">Certified Organic</p>
+                            <p className="text-xs text-gray-600">USDA certified organic practices</p>
+                          </div>
+                        </li>
+                      )}
+                      {listing.isOrganic && !listing.isCertified && (
+                        <li className="flex items-start gap-2 text-sm">
+                          <Sprout className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-gray-900">Organically Grown</p>
+                            <p className="text-xs text-gray-600">No synthetic pesticides or fertilizers</p>
+                          </div>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           </div>

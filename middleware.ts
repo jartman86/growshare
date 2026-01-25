@@ -7,7 +7,7 @@ const isPublicRoute = createRouteMatcher([
   '/sync-user(.*)',
   '/api/webhooks(.*)',
   '/api/auth(.*)',
-  '/api/marketplace/listings',
+  '/api/marketplace/listings(.*)',
   '/api/plots(.*)',
   '/api/search(.*)',
   '/explore(.*)',
