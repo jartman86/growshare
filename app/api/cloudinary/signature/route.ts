@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
       'growshare/tools',
       'growshare/avatars',
       'growshare/test',
+      'growshare/verification',
     ]
     if (!validFolders.includes(folder)) {
       return NextResponse.json(

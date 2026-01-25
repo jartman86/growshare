@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Shield,
   Phone,
@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Upload,
   Loader2,
-  X
+  X,
+  Image as ImageIcon
 } from 'lucide-react'
 
 interface VerificationStatusProps {
@@ -44,6 +45,33 @@ export function VerificationStatus({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [idPending, setIdPending] = useState(false)
+
+  // ID document upload state
+  const [uploadedDocumentUrl, setUploadedDocumentUrl] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Check for pending verification requests on mount
+  useEffect(() => {
+    if (showActions && !isIdVerified) {
+      checkPendingVerification()
+    }
+  }, [showActions, isIdVerified])
+
+  const checkPendingVerification = async () => {
+    try {
+      const response = await fetch('/api/verification/id')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.pendingRequest) {
+          setIdPending(true)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to check verification status:', err)
+    }
+  }
 
   const verificationLevel = (isEmailVerified ? 1 : 0) + (isPhoneVerified ? 1 : 0) + (isIdVerified ? 1 : 0)
   const maxLevel = 3
@@ -99,19 +127,72 @@ export function VerificationStatus({
     }
   }
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
+    if (!validTypes.includes(file.type)) {
+      setError('Please upload a JPG, PNG, or PDF file')
+      return
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File must be less than 10MB')
+      return
+    }
+
+    setIsUploading(true)
+    setError(null)
+    setUploadProgress(0)
+
+    try {
+      // Upload to Cloudinary
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'growshare_unsigned')
+      formData.append('folder', 'growshare/verification')
+
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Upload failed')
+      }
+
+      const data = await response.json()
+      setUploadedDocumentUrl(data.secure_url)
+      setUploadProgress(100)
+    } catch (err) {
+      console.error('Upload error:', err)
+      setError('Failed to upload document. Please try again.')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const handleSubmitId = async () => {
+    if (!uploadedDocumentUrl) {
+      setError('Please upload a document first')
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
     try {
-      // In a real implementation, you would upload the document to Cloudinary first
-      // and then submit the URL to the API
-      const documentUrl = 'placeholder-url' // This would be the Cloudinary URL
-
       const response = await fetch('/api/verification/id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ documentUrl }),
+        body: JSON.stringify({ documentUrl: uploadedDocumentUrl }),
       })
 
       const data = await response.json()
@@ -122,6 +203,7 @@ export function VerificationStatus({
 
       setIdPending(true)
       setShowIdModal(false)
+      setUploadedDocumentUrl(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -415,6 +497,8 @@ export function VerificationStatus({
                 onClick={() => {
                   setShowIdModal(false)
                   setError(null)
+                  setUploadedDocumentUrl(null)
+                  setUploadProgress(0)
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -424,18 +508,86 @@ export function VerificationStatus({
 
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                Upload a clear photo of your government-issued ID (driver's license, passport, or national ID card).
+                Upload a clear photo of your government-issued ID (driver&apos;s license, passport, or national ID card).
               </p>
 
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-500 transition-colors cursor-pointer">
-                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  JPG, PNG or PDF up to 10MB
-                </p>
-              </div>
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/jpg,application/pdf"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+
+              {/* Upload area */}
+              {!uploadedDocumentUrl ? (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                    isUploading
+                      ? 'border-green-400 bg-green-50'
+                      : 'border-gray-300 hover:border-green-500'
+                  }`}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-8 w-8 text-green-600 mx-auto mb-2 animate-spin" />
+                      <p className="text-sm text-green-600 font-medium">
+                        Uploading...
+                      </p>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+                        <div
+                          className="bg-green-600 h-2 rounded-full transition-all"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        JPG, PNG or PDF up to 10MB
+                      </p>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="border rounded-lg p-4 bg-green-50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <ImageIcon className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-800">
+                        Document uploaded
+                      </p>
+                      <p className="text-xs text-green-600">
+                        Ready to submit
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setUploadedDocumentUrl(null)
+                        setUploadProgress(0)
+                      }}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  {uploadedDocumentUrl && !uploadedDocumentUrl.endsWith('.pdf') && (
+                    <img
+                      src={uploadedDocumentUrl}
+                      alt="Uploaded document preview"
+                      className="mt-3 rounded-lg max-h-40 w-full object-contain"
+                    />
+                  )}
+                </div>
+              )}
 
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                 <p className="text-sm text-yellow-800">
@@ -450,7 +602,7 @@ export function VerificationStatus({
 
               <button
                 onClick={handleSubmitId}
-                disabled={isLoading}
+                disabled={isLoading || !uploadedDocumentUrl}
                 className="w-full bg-green-600 text-white py-2.5 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
