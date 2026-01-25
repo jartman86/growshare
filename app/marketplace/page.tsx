@@ -316,7 +316,7 @@ export default function MarketplacePage() {
                   className="group bg-white rounded-xl border-2 border-[#aed581]/30 overflow-hidden shadow-md hover:shadow-xl transition-all hover:border-[#4a7c2c]/50"
                 >
                   <div className="aspect-square relative bg-gray-100">
-                    {listing.images.length > 0 ? (
+                    {listing.images.length > 0 && listing.images[0] ? (
                       <Image
                         src={listing.images[0]}
                         alt={listing.productName}
@@ -354,7 +354,7 @@ export default function MarketplacePage() {
                       </span>
                     </div>
                     <div className="mt-2 flex items-center gap-2 text-sm text-[#4a3f35]">
-                      {listing.user.avatar ? (
+                      {listing.user.avatar && listing.user.avatar.startsWith('http') ? (
                         <Image
                           src={listing.user.avatar}
                           alt={listing.user.firstName}
