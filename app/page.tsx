@@ -347,12 +347,18 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#5a7f3a] to-[#4a6f2a]"></div>
-        <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white sm:text-5xl">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/70 z-10"></div>
+        <Image
+          src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1920&q=80"
+          alt="Fresh market vegetables growing in garden rows"
+          fill
+          className="object-cover"
+        />
+        <div className="relative z-20 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-white sm:text-5xl drop-shadow-lg">
             Ready to Start Growing?
           </h2>
-          <p className="mt-6 text-xl text-gray-100">
+          <p className="mt-6 text-xl text-gray-100 drop-shadow-md">
             Join thousands of growers and landowners building the future of sustainable agriculture.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
