@@ -102,28 +102,28 @@ export default function ExplorePage() {
       <Header />
 
       {/* Search Bar */}
-      <div className="border-b-2 border-[#8bc34a]/30 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur p-4 lg:px-8 shadow-md">
+      <div className="border-b-2 border-[#8bc34a]/30 dark:border-gray-700 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-800/95 backdrop-blur p-4 lg:px-8 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c] dark:text-green-400" />
             <input
               type="text"
               placeholder="Search by location, city, or plot name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border-2 border-[#8bc34a]/30 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent bg-white dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
             />
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center bg-[#aed581]/20 rounded-lg p-1 border border-[#8bc34a]/30">
+          <div className="flex items-center bg-[#aed581]/20 dark:bg-gray-700 rounded-lg p-1 border border-[#8bc34a]/30 dark:border-gray-600">
             <button
               onClick={() => setViewMode('map')}
               className={cn(
                 'px-4 py-2 rounded-md text-sm font-medium transition-all',
                 viewMode === 'map'
                   ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
-                  : 'text-[#4a3f35] hover:text-[#2d5016]'
+                  : 'text-[#4a3f35] dark:text-gray-300 hover:text-[#2d5016] dark:hover:text-white'
               )}
             >
               <MapIcon className="h-4 w-4" />
@@ -134,7 +134,7 @@ export default function ExplorePage() {
                 'px-4 py-2 rounded-md text-sm font-medium transition-all',
                 viewMode === 'grid'
                   ? 'bg-gradient-to-r from-[#8bc34a] to-[#6ba03f] text-white shadow-md'
-                  : 'text-[#4a3f35] hover:text-[#2d5016]'
+                  : 'text-[#4a3f35] dark:text-gray-300 hover:text-[#2d5016] dark:hover:text-white'
               )}
             >
               <LayoutGrid className="h-4 w-4" />

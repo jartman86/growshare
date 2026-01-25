@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CommunitySidebar } from '@/components/community/community-sidebar'
@@ -30,16 +31,24 @@ export default function ActivityFeedPage() {
 
       <main className="min-h-screen topo-lines">
         {/* Header Section */}
-        <div className="garden-gradient-vibrant topo-dense text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
-          <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-3 mb-4">
-              <TrendingUp className="h-12 w-12 drop-shadow-md" />
-              <h1 className="text-4xl font-bold drop-shadow-lg">Activity Feed</h1>
+        <div className="text-white relative overflow-hidden h-[300px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1920&q=80"
+            alt="Active community members gardening together"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 h-full flex items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <TrendingUp className="h-12 w-12 drop-shadow-md" />
+                <h1 className="text-4xl font-bold drop-shadow-lg">Activity Feed</h1>
+              </div>
+              <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
+                See what's happening in your GrowShare community
+              </p>
             </div>
-            <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
-              See what's happening in your GrowShare community
-            </p>
           </div>
         </div>
 

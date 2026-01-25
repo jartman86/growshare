@@ -363,3 +363,39 @@ html {
 .dark select:focus {
   border-color: #4a7c2c;
 }
+
+/* Override tan/earthy gradient backgrounds in dark mode */
+.dark .from-\[\#f4e4c1\]\/95,
+.dark .via-white\/95,
+.dark .to-\[\#aed581\]\/95 {
+  --tw-gradient-from: rgb(17 17 17 / 0.95) !important;
+  --tw-gradient-to: rgb(31 31 31 / 0.95) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), rgb(24 24 24 / 0.95), var(--tw-gradient-to) !important;
+}
+
+/* Override custom green/tan borders */
+.dark .border-\[\#8bc34a\]\/30 {
+  border-color: rgb(55 65 81) !important;
+}
+
+.dark .border-\[\#aed581\]\/30 {
+  border-color: rgb(55 65 81) !important;
+}
+
+/* Override earthy text colors */
+.dark .text-\[\#4a3f35\] {
+  color: rgb(209 213 219) !important;
+}
+
+.dark .text-\[\#2d5016\] {
+  color: rgb(134 239 172) !important;
+}
+
+/* Override earthy background colors */
+.dark .bg-\[\#aed581\]\/20 {
+  background-color: rgb(55 65 81) !important;
+}
+
+.dark .bg-white\/90 {
+  background-color: rgb(31 41 55 / 0.9) !important;
+}

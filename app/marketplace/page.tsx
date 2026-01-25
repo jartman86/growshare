@@ -128,7 +128,7 @@ export default function MarketplacePage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}
         <div className="text-white relative overflow-hidden h-[400px]">
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
@@ -173,18 +173,18 @@ export default function MarketplacePage() {
         </div>
 
         {/* Filters Section */}
-        <div className="bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur border-b-2 border-[#8bc34a]/30 sticky top-0 z-10 shadow-md">
+        <div className="bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-800/95 backdrop-blur border-b-2 border-[#8bc34a]/30 dark:border-gray-700 sticky top-0 z-10 shadow-md">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             {/* Search Bar */}
             <div className="mb-4">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c]" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c] dark:text-green-400" />
                 <input
                   type="text"
                   placeholder="Search products, tags, or descriptions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent bg-white dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                 />
               </div>
             </div>
@@ -198,7 +198,7 @@ export default function MarketplacePage() {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-sm ${
                     selectedCategory === category
                       ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
-                      : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
+                      : 'bg-[#aed581]/20 dark:bg-gray-700 text-[#4a3f35] dark:text-gray-300 hover:bg-[#aed581]/40 dark:hover:bg-gray-600 border border-[#8bc34a]/30 dark:border-gray-600'
                   }`}
                 >
                   {category}
@@ -212,8 +212,8 @@ export default function MarketplacePage() {
                 onClick={() => setShowOnlyOrganic(!showOnlyOrganic)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   showOnlyOrganic
-                    ? 'bg-[#aed581]/30 text-[#2d5016] border-2 border-[#4a7c2c] shadow-md'
-                    : 'bg-white text-[#4a3f35] border-2 border-[#8bc34a]/30 hover:bg-[#aed581]/10'
+                    ? 'bg-[#aed581]/30 dark:bg-green-900/30 text-[#2d5016] dark:text-green-400 border-2 border-[#4a7c2c] shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-[#4a3f35] dark:text-gray-300 border-2 border-[#8bc34a]/30 dark:border-gray-600 hover:bg-[#aed581]/10 dark:hover:bg-gray-700'
                 }`}
               >
                 <Sprout className="h-4 w-4" />
@@ -224,8 +224,8 @@ export default function MarketplacePage() {
                 onClick={() => setShowOnlyCertified(!showOnlyCertified)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   showOnlyCertified
-                    ? 'bg-[#ffb703]/30 text-[#2d5016] border-2 border-[#fb8500] shadow-md'
-                    : 'bg-white text-[#4a3f35] border-2 border-[#8bc34a]/30 hover:bg-[#aed581]/10'
+                    ? 'bg-[#ffb703]/30 dark:bg-yellow-900/30 text-[#2d5016] dark:text-yellow-400 border-2 border-[#fb8500] shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-[#4a3f35] dark:text-gray-300 border-2 border-[#8bc34a]/30 dark:border-gray-600 hover:bg-[#aed581]/10 dark:hover:bg-gray-700'
                 }`}
               >
                 <Award className="h-4 w-4" />

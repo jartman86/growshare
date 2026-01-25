@@ -180,9 +180,9 @@ export default function HomePage() {
 
           <div className="mt-20 grid gap-12 lg:grid-cols-2">
             {/* For Landowners */}
-            <div className="rounded-xl bg-white/95 backdrop-blur-sm p-10 shadow-xl">
-              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <MapIcon className="h-7 w-7 text-[#5a7f3a]" />
+            <div className="rounded-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm p-10 shadow-xl">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                <MapIcon className="h-7 w-7 text-[#5a7f3a] dark:text-green-400" />
                 For Landowners
               </h3>
               <div className="mt-8 space-y-6">
@@ -191,8 +191,8 @@ export default function HomePage() {
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 text-lg">List Your Land</h4>
-                    <p className="mt-2 text-gray-600 leading-relaxed">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">List Your Land</h4>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
                       Create listings with photos, soil data, and amenities. Set your terms and pricing.
                     </p>
                   </div>
@@ -202,8 +202,8 @@ export default function HomePage() {
                     2
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 text-lg">Review Applications</h4>
-                    <p className="mt-2 text-gray-600 leading-relaxed">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Review Applications</h4>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
                       See grower profiles, certifications, and references. Choose who works your land.
                     </p>
                   </div>
@@ -213,8 +213,8 @@ export default function HomePage() {
                     3
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 text-lg">Earn & Engage</h4>
-                    <p className="mt-2 text-gray-600 leading-relaxed">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Earn & Engage</h4>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
                       Receive passive income while staying connected to your land's farming journey.
                     </p>
                   </div>
@@ -223,9 +223,9 @@ export default function HomePage() {
             </div>
 
             {/* For Growers */}
-            <div className="rounded-xl bg-white/95 backdrop-blur-sm p-10 shadow-xl">
-              <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <Users className="h-7 w-7 text-[#5a7f3a]" />
+            <div className="rounded-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm p-10 shadow-xl">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                <Users className="h-7 w-7 text-[#5a7f3a] dark:text-green-400" />
                 For Growers
               </h3>
               <div className="mt-8 space-y-6">
@@ -234,8 +234,8 @@ export default function HomePage() {
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 text-lg">Find Your Plot</h4>
-                    <p className="mt-2 text-gray-600 leading-relaxed">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Find Your Plot</h4>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
                       Browse plots, check soil types, water access, and location. Apply to properties that fit your needs.
                     </p>
                   </div>
@@ -245,8 +245,8 @@ export default function HomePage() {
                     2
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 text-lg">Start Growing</h4>
-                    <p className="mt-2 text-gray-600 leading-relaxed">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Start Growing</h4>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
                       Get approved, sign agreements, and begin cultivating. Track progress and earn achievements.
                     </p>
                   </div>
@@ -256,8 +256,8 @@ export default function HomePage() {
                     3
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 text-lg">Harvest & Sell</h4>
-                    <p className="mt-2 text-gray-600 leading-relaxed">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Harvest & Sell</h4>
+                    <p className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
                       Use our marketplace to sell produce, build your reputation, and grow your farming business.
                     </p>
                   </div>
@@ -269,17 +269,17 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 dark:bg-gray-900">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl font-bold text-gray-900">Trusted by Growers & Landowners</h2>
-            <p className="mt-4 text-xl text-gray-600">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white">Trusted by Growers & Landowners</h2>
+            <p className="mt-4 text-xl text-gray-600 dark:text-gray-300">
               See what our community members are saying
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <div className="bg-white rounded-xl p-8 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm">
               <div className="flex items-center gap-1 text-yellow-500 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <svg key={i} className="h-5 w-5 fill-current" viewBox="0 0 20 20">
@@ -287,20 +287,20 @@ export default function HomePage() {
                   </svg>
                 ))}
               </div>
-              <p className="text-gray-700 leading-relaxed mb-6">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                 "GrowShare changed everything for us. We found the perfect plot within weeks and
                 the community support has been incredible."
               </p>
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-gray-200"></div>
+                <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-600"></div>
                 <div>
-                  <p className="font-semibold text-gray-900">Sarah Martinez</p>
-                  <p className="text-sm text-gray-600">Urban Farmer, Portland</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">Sarah Martinez</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Urban Farmer, Portland</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-8 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm">
               <div className="flex items-center gap-1 text-yellow-500 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <svg key={i} className="h-5 w-5 fill-current" viewBox="0 0 20 20">
@@ -308,20 +308,20 @@ export default function HomePage() {
                   </svg>
                 ))}
               </div>
-              <p className="text-gray-700 leading-relaxed mb-6">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                 "As a landowner, I love seeing my property put to good use. The rental income
                 is great, and the growers are respectful and professional."
               </p>
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-gray-200"></div>
+                <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-600"></div>
                 <div>
-                  <p className="font-semibold text-gray-900">Robert Chen</p>
-                  <p className="text-sm text-gray-600">Landowner, Vermont</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">Robert Chen</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Landowner, Vermont</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-8 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm">
               <div className="flex items-center gap-1 text-yellow-500 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <svg key={i} className="h-5 w-5 fill-current" viewBox="0 0 20 20">
@@ -329,15 +329,15 @@ export default function HomePage() {
                   </svg>
                 ))}
               </div>
-              <p className="text-gray-700 leading-relaxed mb-6">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                 "The marketplace feature helped me connect directly with restaurants.
                 I've doubled my revenue in just one season!"
               </p>
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-gray-200"></div>
+                <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-600"></div>
                 <div>
-                  <p className="font-semibold text-gray-900">Emily Rodriguez</p>
-                  <p className="text-sm text-gray-600">Market Gardener, California</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">Emily Rodriguez</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Market Gardener, California</p>
                 </div>
               </div>
             </div>

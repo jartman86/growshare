@@ -165,7 +165,7 @@ export default function CommunityPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}
         <div className="text-white relative overflow-hidden h-[400px]">
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
@@ -273,31 +273,31 @@ export default function CommunityPage() {
             {/* Main Content */}
             <div className="lg:col-span-3">
               {/* Search & Filters */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-4 mb-6 shadow-md">
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-4 mb-6 shadow-md">
                 {/* Search Bar */}
                 <div className="mb-4">
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c]" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4a7c2c] dark:text-green-400" />
                     <input
                       type="text"
                       placeholder="Search topics, tags, or keywords..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent bg-white dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
                 </div>
 
                 {/* Sort Options & Filters */}
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-sm font-medium text-[#2d5016]">Sort by:</span>
+                  <span className="text-sm font-medium text-[#2d5016] dark:text-green-400">Sort by:</span>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setSortBy('recent')}
                       className={`px-3 py-1 rounded-lg text-sm font-medium transition-all shadow-sm ${
                         sortBy === 'recent'
                           ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
-                          : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
+                          : 'bg-[#aed581]/20 dark:bg-gray-700 text-[#4a3f35] dark:text-gray-300 hover:bg-[#aed581]/40 dark:hover:bg-gray-600 border border-[#8bc34a]/30 dark:border-gray-600'
                       }`}
                     >
                       Recent
