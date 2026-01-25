@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { notifyBookingRequest } from '@/lib/notifications'
-import { ensureUser } from '@/lib/ensure-user'
+import { ensureUser, ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
 // Create a new booking request
 export async function POST(request: NextRequest) {
   try {
-    const currentUser = await ensureUser()
+    const currentUser = await ensureVerifiedUser()
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -203,6 +203,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error) {
+    if (error instanceof EmailNotVerifiedError) {
+      return NextResponse.json(
+        { error: error.message, requiresVerification: true },
+        { status: 403 }
+      )
+    }
     console.error('Error creating booking:', error)
     return NextResponse.json(
       { error: 'Failed to create booking' },

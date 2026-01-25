@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
-import { ensureUser } from '@/lib/ensure-user'
+import { ensureUser, ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
 // Helper function to geocode an address
 async function geocodeAddress(address: string, city: string, state: string, zipCode: string): Promise<{ latitude: number; longitude: number } | null> {
@@ -169,8 +169,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get or create user in database (auto-sync from Clerk)
-    const currentUser = await ensureUser()
+    // Get or create user in database (auto-sync from Clerk) - require verified email
+    const currentUser = await ensureVerifiedUser()
 
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -382,6 +382,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(plot, { status: 201 })
   } catch (error) {
+    if (error instanceof EmailNotVerifiedError) {
+      return NextResponse.json(
+        { error: error.message, requiresVerification: true },
+        { status: 403 }
+      )
+    }
     console.error('Error creating plot:', error)
     return NextResponse.json(
       { error: 'Failed to create plot' },

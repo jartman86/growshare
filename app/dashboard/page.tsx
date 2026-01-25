@@ -7,6 +7,7 @@ import { ActivityFeed } from '@/components/dashboard/activity-feed'
 import { StatsCards } from '@/components/dashboard/stats-cards'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ConnectSetupBanner } from '@/components/payments/connect-setup-banner'
+import { VerificationBanner } from '@/components/verification/verification-banner'
 
 // Mock user data - in production, this would come from database/API
 const mockUserData = {
@@ -108,6 +109,9 @@ export default async function DashboardPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          {/* Email Verification Banner */}
+          <VerificationBanner className="rounded-lg" />
+
           {/* Connect Setup Banner for Landowners */}
           <ConnectSetupBanner />
 

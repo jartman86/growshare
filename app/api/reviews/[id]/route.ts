@@ -68,18 +68,85 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const { rating, comment } = body
+    const { rating, comment, response: ownerResponse } = body
 
-    // Get existing review
+    // Get existing review with plot info
     const existingReview = await prisma.review.findUnique({
       where: { id },
+      include: {
+        plot: {
+          select: {
+            ownerId: true,
+          },
+        },
+      },
     })
 
     if (!existingReview) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 })
     }
 
-    // Check if user owns this review
+    // Handle owner response
+    if (ownerResponse !== undefined) {
+      // Check if user is the plot owner
+      if (!existingReview.plot || existingReview.plot.ownerId !== currentUser.id) {
+        return NextResponse.json(
+          { error: 'Only the plot owner can respond to reviews' },
+          { status: 403 }
+        )
+      }
+
+      // Validate response content
+      if (typeof ownerResponse !== 'string' || ownerResponse.trim().length === 0) {
+        return NextResponse.json(
+          { error: 'Response cannot be empty' },
+          { status: 400 }
+        )
+      }
+
+      if (ownerResponse.length > 2000) {
+        return NextResponse.json(
+          { error: 'Response cannot exceed 2000 characters' },
+          { status: 400 }
+        )
+      }
+
+      // Update with owner response
+      const updatedReview = await prisma.review.update({
+        where: { id },
+        data: {
+          response: ownerResponse.trim(),
+          respondedAt: new Date(),
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            },
+          },
+          plot: {
+            select: {
+              id: true,
+              title: true,
+              ownerId: true,
+              owner: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      return NextResponse.json(updatedReview)
+    }
+
+    // Handle regular review update (by review author)
     if (existingReview.authorId !== currentUser.id) {
       return NextResponse.json(
         { error: 'You can only update your own reviews' },

@@ -2,6 +2,16 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
 /**
+ * Error thrown when a user's email is not verified
+ */
+export class EmailNotVerifiedError extends Error {
+  constructor() {
+    super('Please verify your email address before performing this action')
+    this.name = 'EmailNotVerifiedError'
+  }
+}
+
+/**
  * Ensures the authenticated user exists in the database.
  * If not, creates them automatically (fallback for webhook failures).
  * Returns the database user or null if not authenticated.
@@ -44,6 +54,10 @@ export async function ensureUser() {
     counter++
   }
 
+  // Check email verification status from Clerk
+  const primaryEmail = clerkUser.emailAddresses[0]
+  const isEmailVerified = primaryEmail.verification?.status === 'verified'
+
   // Create user in database
   try {
     user = await prisma.user.create({
@@ -57,6 +71,8 @@ export async function ensureUser() {
         role: ['RENTER'],
         totalPoints: 0,
         level: 1,
+        isVerified: isEmailVerified,
+        verifiedAt: isEmailVerified ? new Date() : null,
       },
     })
 
@@ -99,4 +115,23 @@ export async function ensureUser() {
       where: { clerkId: userId },
     })
   }
+}
+
+/**
+ * Ensures the authenticated user exists and has a verified email.
+ * Throws EmailNotVerifiedError if email is not verified.
+ * Returns the database user or null if not authenticated.
+ */
+export async function ensureVerifiedUser() {
+  const user = await ensureUser()
+
+  if (!user) {
+    return null
+  }
+
+  if (!user.isVerified) {
+    throw new EmailNotVerifiedError()
+  }
+
+  return user
 }

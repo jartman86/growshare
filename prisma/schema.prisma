@@ -90,6 +90,7 @@ model User {
   forumTopics       ForumTopic[]
   forumReplies      ForumReply[]
   forumVotes        ForumVote[]
+  reviewVotes       ReviewVote[]
   emailPreferences  EmailPreferences?
 
   @@index([clerkId])
@@ -644,21 +645,21 @@ enum ReviewType {
 }
 
 model Review {
-  id          String     @id @default(cuid())
+  id          String       @id @default(cuid())
   type        ReviewType
 
   authorId    String
-  author      User       @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  author      User         @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
 
   // For Plot Reviews
   plotId      String?
-  plot        Plot?      @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  plot        Plot?        @relation(fields: [plotId], references: [id], onDelete: Cascade)
 
   // For User Reviews
   subjectId   String?
-  subject     User?      @relation("ReviewSubject", fields: [subjectId], references: [id], onDelete: Cascade)
+  subject     User?        @relation("ReviewSubject", fields: [subjectId], references: [id], onDelete: Cascade)
 
-  rating      Int        // 1-5
+  rating      Int          // 1-5
   title       String?
   content     String
 
@@ -666,15 +667,34 @@ model Review {
   response    String?
   respondedAt DateTime?
 
-  isPublic    Boolean    @default(true)
+  isPublic    Boolean      @default(true)
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  // Helpful votes
+  votes       ReviewVote[]
+  helpfulCount    Int      @default(0)
+  notHelpfulCount Int      @default(0)
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@index([authorId])
   @@index([plotId])
   @@index([subjectId])
   @@index([type])
+}
+
+model ReviewVote {
+  id        String   @id @default(cuid())
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     Int      // 1 for helpful, -1 for not helpful
+  createdAt DateTime @default(now())
+
+  @@unique([userId, reviewId])
+  @@index([reviewId])
+  @@index([userId])
 }
 
 // ============================================

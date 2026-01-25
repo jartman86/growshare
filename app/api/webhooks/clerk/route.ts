@@ -69,6 +69,10 @@ export async function POST(req: Request) {
         counter++
       }
 
+      // Check email verification status from Clerk
+      const primaryEmail = email_addresses[0]
+      const isEmailVerified = primaryEmail.verification?.status === 'verified'
+
       // Create user in database
       const user = await prisma.user.create({
         data: {
@@ -81,6 +85,8 @@ export async function POST(req: Request) {
           role: ['RENTER'], // Default role
           totalPoints: 0,
           level: 1,
+          isVerified: isEmailVerified,
+          verifiedAt: isEmailVerified ? new Date() : null,
         },
       })
 
@@ -134,17 +140,42 @@ export async function POST(req: Request) {
     const { id, email_addresses, first_name, last_name, image_url } = evt.data
 
     try {
-      await prisma.user.update({
+      // Check email verification status from Clerk
+      const primaryEmail = email_addresses[0]
+      const isEmailVerified = primaryEmail.verification?.status === 'verified'
+
+      // Get current user to check if verification status changed
+      const existingUser = await prisma.user.findUnique({
         where: { clerkId: id },
-        data: {
-          email: email_addresses[0].email_address,
-          firstName: first_name || undefined,
-          lastName: last_name || undefined,
-          avatar: image_url || undefined,
-        },
+        select: { isVerified: true },
       })
 
-      console.log('Updated user in database:', id)
+      const updateData: {
+        email: string
+        firstName?: string
+        lastName?: string
+        avatar?: string
+        isVerified?: boolean
+        verifiedAt?: Date
+      } = {
+        email: email_addresses[0].email_address,
+        firstName: first_name || undefined,
+        lastName: last_name || undefined,
+        avatar: image_url || undefined,
+      }
+
+      // Update verification status if it changed to verified
+      if (isEmailVerified && existingUser && !existingUser.isVerified) {
+        updateData.isVerified = true
+        updateData.verifiedAt = new Date()
+      }
+
+      await prisma.user.update({
+        where: { clerkId: id },
+        data: updateData,
+      })
+
+      console.log('Updated user in database:', id, isEmailVerified ? '(verified)' : '')
 
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
