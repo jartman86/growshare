@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { StarRating } from '@/components/reviews/star-rating'
-import { MessageSquare, Reply, Loader2 } from 'lucide-react'
+import { MessageSquare, Reply, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react'
 
 interface Review {
   id: string
@@ -11,6 +11,8 @@ interface Review {
   createdAt: Date
   response?: string | null
   respondedAt?: Date | null
+  helpfulCount?: number
+  notHelpfulCount?: number
   author: {
     id: string
     firstName: string
@@ -24,13 +26,17 @@ interface PlotReviewCardProps {
   isOwner?: boolean
   ownerName?: string
   onResponseSubmitted?: () => void
+  isOwnReview?: boolean
+  initialUserVote?: number | null
 }
 
 export function PlotReviewCard({
   review,
   isOwner = false,
   ownerName,
-  onResponseSubmitted
+  onResponseSubmitted,
+  isOwnReview = false,
+  initialUserVote = null,
 }: PlotReviewCardProps) {
   const [showResponseForm, setShowResponseForm] = useState(false)
   const [responseText, setResponseText] = useState('')
@@ -38,6 +44,12 @@ export function PlotReviewCard({
   const [responseError, setResponseError] = useState<string | null>(null)
   const [localResponse, setLocalResponse] = useState(review.response)
   const [localRespondedAt, setLocalRespondedAt] = useState(review.respondedAt)
+
+  // Voting state
+  const [isVoting, setIsVoting] = useState(false)
+  const [userVote, setUserVote] = useState<number | null>(initialUserVote)
+  const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount || 0)
+  const [notHelpfulCount, setNotHelpfulCount] = useState(review.notHelpfulCount || 0)
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -81,6 +93,32 @@ export function PlotReviewCard({
   }
 
   const canRespond = isOwner && !localResponse
+
+  const handleVote = async (value: 1 | -1) => {
+    if (isVoting || isOwnReview) return
+
+    setIsVoting(true)
+    try {
+      const res = await fetch(`/api/reviews/${review.id}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to vote')
+      }
+
+      const data = await res.json()
+      setHelpfulCount(data.helpfulCount)
+      setNotHelpfulCount(data.notHelpfulCount)
+      setUserVote(data.userVote)
+    } catch (error) {
+      console.error('Error voting:', error)
+    } finally {
+      setIsVoting(false)
+    }
+  }
 
   return (
     <div className="bg-white rounded-lg border p-6">
@@ -205,6 +243,36 @@ export function PlotReviewCard({
               )}
             </div>
           )}
+
+          {/* Voting Buttons */}
+          <div className="flex items-center gap-4 pt-4 mt-4 border-t">
+            <button
+              onClick={() => handleVote(1)}
+              disabled={isVoting || isOwnReview}
+              className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors disabled:cursor-not-allowed ${
+                userVote === 1
+                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                  : 'text-gray-700 hover:bg-gray-100'
+              } ${isOwnReview ? 'opacity-50' : ''}`}
+              title={isOwnReview ? "You can't vote on your own review" : 'Mark as helpful'}
+            >
+              <ThumbsUp className={`h-4 w-4 ${userVote === 1 ? 'fill-current' : ''}`} />
+              <span>Helpful ({helpfulCount})</span>
+            </button>
+            <button
+              onClick={() => handleVote(-1)}
+              disabled={isVoting || isOwnReview}
+              className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors disabled:cursor-not-allowed ${
+                userVote === -1
+                  ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                  : 'text-gray-700 hover:bg-gray-100'
+              } ${isOwnReview ? 'opacity-50' : ''}`}
+              title={isOwnReview ? "You can't vote on your own review" : 'Mark as not helpful'}
+            >
+              <ThumbsDown className={`h-4 w-4 ${userVote === -1 ? 'fill-current' : ''}`} />
+              <span>({notHelpfulCount})</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

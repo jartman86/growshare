@@ -52,6 +52,9 @@ async function getPlot(plotId: string) {
             createdAt: true,
             response: true,
             respondedAt: true,
+            helpfulCount: true,
+            notHelpfulCount: true,
+            authorId: true,
             author: {
               select: {
                 id: true,
@@ -110,8 +113,9 @@ export default async function PlotDetailPage({
 
   // Check if current user is the plot owner
   let isOwner = false
+  let currentUser: { id: string } | null = null
   if (userId) {
-    const currentUser = await prisma.user.findUnique({
+    currentUser = await prisma.user.findUnique({
       where: { clerkId: userId },
       select: { id: true },
     })
@@ -347,6 +351,7 @@ export default async function PlotDetailPage({
                         review={review}
                         isOwner={isOwner}
                         ownerName={ownerName}
+                        isOwnReview={currentUser?.id === review.authorId}
                       />
                     ))}
                   </div>
