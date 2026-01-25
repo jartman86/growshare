@@ -195,8 +195,8 @@ export default function TermsOfServicePage() {
                 If you have questions about these Terms, please contact us at:
               </p>
               <p className="text-gray-700 mt-2">
-                <strong>Email:</strong> legal@growshare.com<br />
-                <strong>Address:</strong> GrowShare Inc., [Address to be added]
+                <strong>Email:</strong> legal@growshare.co<br />
+                <strong>Address:</strong> GrowShare, Nebo, NC 28671
               </p>
             </section>
           </div>

@@ -225,8 +225,8 @@ export default function PrivacyPolicyPage() {
                 If you have questions about this Privacy Policy or our data practices, please contact us at:
               </p>
               <p className="text-gray-700 mt-2">
-                <strong>Email:</strong> privacy@growshare.com<br />
-                <strong>Address:</strong> GrowShare Inc., [Address to be added]
+                <strong>Email:</strong> privacy@growshare.co<br />
+                <strong>Address:</strong> GrowShare, Nebo, NC 28671
               </p>
             </section>
           </div>

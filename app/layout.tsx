@@ -10,6 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://growshare.co'),
   title: "GrowShare - Agricultural Engagement Ecosystem",
   description: "Transform land into opportunity. Connect landowners with growers, build community, and grow food together.",
   keywords: ["agriculture", "land rental", "farming", "community garden", "sustainable agriculture", "local food"],
