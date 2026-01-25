@@ -58,12 +58,12 @@ interface Order {
   } | null
 }
 
-const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-  PENDING: { label: 'Pending', color: 'yellow', icon: Clock },
-  CONFIRMED: { label: 'Confirmed', color: 'blue', icon: CheckCircle },
-  READY: { label: 'Ready for Pickup/Delivery', color: 'green', icon: Package },
-  COMPLETED: { label: 'Completed', color: 'green', icon: CheckCircle },
-  CANCELLED: { label: 'Cancelled', color: 'red', icon: XCircle },
+const statusConfig: Record<string, { label: string; bgClass: string; textClass: string; icon: typeof CheckCircle }> = {
+  PENDING: { label: 'Pending', bgClass: 'bg-yellow-100', textClass: 'text-yellow-800', icon: Clock },
+  CONFIRMED: { label: 'Confirmed', bgClass: 'bg-blue-100', textClass: 'text-blue-800', icon: CheckCircle },
+  READY: { label: 'Ready for Pickup/Delivery', bgClass: 'bg-green-100', textClass: 'text-green-800', icon: Package },
+  COMPLETED: { label: 'Completed', bgClass: 'bg-green-100', textClass: 'text-green-800', icon: CheckCircle },
+  CANCELLED: { label: 'Cancelled', bgClass: 'bg-red-100', textClass: 'text-red-800', icon: XCircle },
 }
 
 export default function OrderDetailPage() {
@@ -204,7 +204,7 @@ export default function OrderDetailPage() {
                   Placed on {formatDate(order.createdAt)}
                 </p>
               </div>
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-${status.color}-100 text-${status.color}-800`}>
+              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${status.bgClass} ${status.textClass}`}>
                 <StatusIcon className="h-5 w-5" />
                 <span className="font-semibold">{status.label}</span>
               </div>
@@ -307,13 +307,13 @@ export default function OrderDetailPage() {
                   {order.listing.user.avatar ? (
                     <img
                       src={order.listing.user.avatar}
-                      alt={order.listing.user.firstName}
+                      alt={order.listing.user.firstName || 'Seller'}
                       className="w-14 h-14 rounded-full object-cover"
                     />
                   ) : (
                     <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
                       <span className="text-xl font-bold text-green-600">
-                        {order.listing.user.firstName[0]}
+                        {order.listing.user.firstName?.charAt(0) || 'S'}
                       </span>
                     </div>
                   )}

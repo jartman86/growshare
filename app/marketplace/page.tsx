@@ -354,16 +354,16 @@ export default function MarketplacePage() {
                       </span>
                     </div>
                     <div className="mt-2 flex items-center gap-2 text-sm text-[#4a3f35]">
-                      {listing.user.avatar && listing.user.avatar.startsWith('http') ? (
-                        <Image
+                      {listing.user.avatar ? (
+                        <img
                           src={listing.user.avatar}
-                          alt={listing.user.firstName}
-                          width={20}
-                          height={20}
-                          className="rounded-full"
+                          alt={listing.user.firstName || 'User'}
+                          className="w-5 h-5 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-5 h-5 bg-[#aed581] rounded-full" />
+                        <div className="w-5 h-5 bg-[#aed581] rounded-full flex items-center justify-center text-xs text-white font-medium">
+                          {listing.user.firstName?.charAt(0) || 'U'}
+                        </div>
                       )}
                       <span>{listing.user.firstName} {listing.user.lastName}</span>
                       {listing.user.isVerified && (

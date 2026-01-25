@@ -46,8 +46,9 @@ const UNITS = ['lb', 'oz', 'bunch', 'dozen', 'each', 'pint', 'quart', 'gallon']
 
 const DELIVERY_METHODS = [
   { value: 'PICKUP', label: 'Pickup' },
-  { value: 'DELIVERY', label: 'Delivery' },
-  { value: 'CENTRAL_DROP', label: 'Central Drop Point' },
+  { value: 'DELIVERY', label: 'Local Delivery' },
+  { value: 'SHIPPING', label: 'Shipping' },
+  { value: 'CENTRAL_DROP', label: 'CSA Box / Central Drop' },
 ]
 
 export function ListingForm({ initialData, mode = 'create' }: ListingFormProps) {

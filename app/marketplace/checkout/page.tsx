@@ -270,13 +270,13 @@ export default function MarketplaceCheckoutPage() {
                   {order.listing.user.avatar ? (
                     <img
                       src={order.listing.user.avatar}
-                      alt={order.listing.user.firstName}
+                      alt={order.listing.user.firstName || 'Seller'}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                       <span className="text-lg font-bold text-green-600">
-                        {order.listing.user.firstName[0]}
+                        {order.listing.user.firstName?.charAt(0) || 'S'}
                       </span>
                     </div>
                   )}

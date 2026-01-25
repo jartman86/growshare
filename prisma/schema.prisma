@@ -802,6 +802,7 @@ enum ProduceStatus {
 enum DeliveryMethod {
   PICKUP
   DELIVERY
+  SHIPPING
   CENTRAL_DROP
 }
 
