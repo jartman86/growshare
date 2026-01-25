@@ -29,6 +29,7 @@ import {
 import { cn } from '@/lib/utils'
 import { NavDropdown } from '@/components/ui/dropdown-menu'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
+import { SearchBar } from '@/components/layout/search-bar'
 
 const standaloneNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
@@ -248,6 +249,11 @@ export function Header() {
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
+              {/* Search */}
+              <div className="hidden sm:block">
+                <SearchBar />
+              </div>
+
               {isSignedIn ? (
                 <>
                   {/* Messages Icon */}
