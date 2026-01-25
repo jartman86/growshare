@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { SAMPLE_COURSES } from '@/lib/course-data'
+import { SAMPLE_COURSES, CourseCategory } from '@/lib/course-data'
 import { EnrollButton } from '@/components/knowledge/enroll-button'
+import { prisma } from '@/lib/prisma'
 import {
   ArrowLeft,
   Clock,
@@ -23,7 +24,68 @@ export default async function CourseDetailPage({
   params: Promise<{ courseId: string }>
 }) {
   const { courseId } = await params
-  const course = SAMPLE_COURSES.find((c) => c.id === courseId)
+
+  // First check sample courses
+  let course = SAMPLE_COURSES.find((c) => c.id === courseId)
+
+  // If not found in samples, check database
+  if (!course) {
+    const dbCourse = await prisma.course.findFirst({
+      where: {
+        OR: [
+          { id: courseId },
+          { slug: courseId },
+        ],
+        isPublished: true,
+      },
+      include: {
+        instructor: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+        modules: {
+          orderBy: { order: 'asc' },
+        },
+        _count: {
+          select: {
+            progress: true,
+          },
+        },
+      },
+    })
+
+    if (dbCourse) {
+      // Convert DB course to the format expected by the page
+      course = {
+        id: dbCourse.id,
+        title: dbCourse.title,
+        description: dbCourse.description,
+        category: dbCourse.category as CourseCategory,
+        difficulty: dbCourse.level === 'BEGINNER' ? 'Beginner' :
+                    dbCourse.level === 'INTERMEDIATE' ? 'Intermediate' :
+                    dbCourse.level === 'ADVANCED' ? 'Advanced' : 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced',
+        duration: `${dbCourse.modules.length} modules`,
+        instructor: dbCourse.instructor
+          ? `${dbCourse.instructor.firstName || ''} ${dbCourse.instructor.lastName || ''}`.trim()
+          : 'Instructor',
+        instructorAvatar: dbCourse.instructor?.avatar || undefined,
+        image: dbCourse.thumbnailUrl || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
+        lessons: dbCourse.modules.length,
+        enrolled: dbCourse._count.progress,
+        rating: 4.5,
+        reviews: 0,
+        price: dbCourse.accessType === 'FREE' ? 0 : dbCourse.price || 0,
+        certification: dbCourse.isCertification,
+        points: dbCourse.pointsAwarded || 250,
+        tags: [],
+        skills: [],
+      }
+    }
+  }
 
   if (!course) {
     notFound()

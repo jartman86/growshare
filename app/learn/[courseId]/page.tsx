@@ -193,8 +193,8 @@ export default function LearnCoursePage({ params }: { params: Promise<{ courseId
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="flex flex-col lg:flex-row">
           {/* Sidebar */}
-          <div className="lg:w-80 lg:min-h-screen bg-white dark:bg-gray-800 border-r dark:border-gray-700 lg:fixed lg:left-0 lg:top-0 lg:pt-16">
-            <div className="p-4">
+          <div className="lg:w-80 lg:min-h-screen bg-white dark:bg-gray-800 border-r dark:border-gray-700 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
+            <div className="p-4 pt-6">
               <button
                 onClick={() => router.push('/knowledge')}
                 className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
