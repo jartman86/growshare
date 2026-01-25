@@ -890,6 +890,8 @@ enum NotificationType {
   NEW_REVIEW
   PAYMENT_RECEIVED
   PLOT_VIEWED
+  SYSTEM
+  SUBSCRIPTION_UPDATED
 }
 
 model Notification {

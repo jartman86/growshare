@@ -17,6 +17,8 @@ type NotificationType =
   | 'NEW_REVIEW'
   | 'PAYMENT_RECEIVED'
   | 'PLOT_VIEWED'
+  | 'SYSTEM'
+  | 'SUBSCRIPTION_UPDATED'
 
 interface CreateNotificationParams {
   userId: string

@@ -58,6 +58,30 @@ export async function POST(request: NextRequest) {
         await handleAccountUpdated(event.data.object as Stripe.Account)
         break
 
+      // Subscription events
+      case 'checkout.session.completed':
+        const session = event.data.object as Stripe.Checkout.Session
+        if (session.mode === 'subscription') {
+          await handleSubscriptionCheckout(session)
+        }
+        break
+
+      case 'customer.subscription.created':
+        await handleSubscriptionCreated(event.data.object as Stripe.Subscription)
+        break
+
+      case 'customer.subscription.updated':
+        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
+        break
+
+      case 'customer.subscription.deleted':
+        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
+        break
+
+      case 'invoice.payment_failed':
+        await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice)
+        break
+
       default:
         console.log(`Unhandled event type: ${event.type}`)
     }
@@ -204,5 +228,174 @@ async function handleAccountUpdated(account: Stripe.Account) {
   await prisma.user.update({
     where: { id: user.id },
     data: { stripeOnboardingComplete: isOnboardingComplete },
+  })
+}
+
+// Subscription handlers
+async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
+  const userId = session.metadata?.userId
+  if (!userId) {
+    console.error('No userId in subscription checkout metadata')
+    return
+  }
+
+  const subscriptionId = session.subscription as string
+  if (!subscriptionId) {
+    console.error('No subscription ID in checkout session')
+    return
+  }
+
+  // Subscription will be created by customer.subscription.created event
+  console.log(`Subscription checkout completed for user ${userId}`)
+}
+
+async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
+  const customerId = subscription.customer as string
+
+  // Find user by Stripe customer ID
+  const user = await prisma.user.findFirst({
+    where: { stripeCustomerId: customerId },
+  })
+
+  if (!user) {
+    console.error(`User not found for customer: ${customerId}`)
+    return
+  }
+
+  // Get period from subscription item (new Stripe API)
+  const subscriptionItem = subscription.items.data[0]
+  const periodStart = subscriptionItem?.current_period_start || subscription.start_date
+  const periodEnd = subscriptionItem?.current_period_end || (subscription.cancel_at || subscription.start_date + 30 * 24 * 60 * 60)
+
+  // Check if subscription already exists
+  const existing = await prisma.subscription.findUnique({
+    where: { stripeSubscriptionId: subscription.id },
+  })
+
+  if (existing) {
+    // Update existing
+    await prisma.subscription.update({
+      where: { id: existing.id },
+      data: {
+        status: subscription.status,
+        stripePriceId: subscriptionItem?.price.id || '',
+        currentPeriodStart: new Date(periodStart * 1000),
+        currentPeriodEnd: new Date(periodEnd * 1000),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      },
+    })
+  } else {
+    // Create new subscription record
+    await prisma.subscription.create({
+      data: {
+        userId: user.id,
+        stripeSubscriptionId: subscription.id,
+        stripeCustomerId: customerId,
+        stripePriceId: subscriptionItem?.price.id || '',
+        status: subscription.status,
+        currentPeriodStart: new Date(periodStart * 1000),
+        currentPeriodEnd: new Date(periodEnd * 1000),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      },
+    })
+  }
+
+  // Notify user
+  await createNotification({
+    userId: user.id,
+    type: 'SYSTEM',
+    title: 'Welcome to GrowShare Pro!',
+    content: 'Your subscription is now active. Enjoy unlimited access to all premium courses and events.',
+    link: '/knowledge',
+  })
+}
+
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const dbSubscription = await prisma.subscription.findUnique({
+    where: { stripeSubscriptionId: subscription.id },
+  })
+
+  if (!dbSubscription) {
+    console.error(`Subscription not found: ${subscription.id}`)
+    // Try to create it
+    await handleSubscriptionCreated(subscription)
+    return
+  }
+
+  // Get period from subscription item (new Stripe API)
+  const subscriptionItem = subscription.items.data[0]
+  const periodStart = subscriptionItem?.current_period_start || subscription.start_date
+  const periodEnd = subscriptionItem?.current_period_end || (subscription.cancel_at || subscription.start_date + 30 * 24 * 60 * 60)
+
+  await prisma.subscription.update({
+    where: { id: dbSubscription.id },
+    data: {
+      status: subscription.status,
+      currentPeriodStart: new Date(periodStart * 1000),
+      currentPeriodEnd: new Date(periodEnd * 1000),
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    },
+  })
+}
+
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const dbSubscription = await prisma.subscription.findUnique({
+    where: { stripeSubscriptionId: subscription.id },
+    include: { user: true },
+  })
+
+  if (!dbSubscription) {
+    console.error(`Subscription not found: ${subscription.id}`)
+    return
+  }
+
+  await prisma.subscription.update({
+    where: { id: dbSubscription.id },
+    data: {
+      status: 'canceled',
+    },
+  })
+
+  // Notify user
+  await createNotification({
+    userId: dbSubscription.userId,
+    type: 'SYSTEM',
+    title: 'Subscription Ended',
+    content: 'Your GrowShare Pro subscription has ended. You can resubscribe anytime to regain access.',
+    link: '/subscription',
+  })
+}
+
+async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
+  // Get subscription ID from the new parent structure
+  const subscriptionDetails = invoice.parent?.subscription_details
+  if (!subscriptionDetails) return
+
+  const subscriptionId = typeof subscriptionDetails.subscription === 'string'
+    ? subscriptionDetails.subscription
+    : subscriptionDetails.subscription.id
+
+  const dbSubscription = await prisma.subscription.findUnique({
+    where: { stripeSubscriptionId: subscriptionId },
+  })
+
+  if (!dbSubscription) {
+    console.error(`Subscription not found: ${subscriptionId}`)
+    return
+  }
+
+  // Mark as past due
+  await prisma.subscription.update({
+    where: { id: dbSubscription.id },
+    data: { status: 'past_due' },
+  })
+
+  // Notify user
+  await createNotification({
+    userId: dbSubscription.userId,
+    type: 'SYSTEM',
+    title: 'Payment Failed',
+    content: 'Your subscription payment failed. Please update your payment method to continue your Pro access.',
+    link: '/subscription',
   })
 }
