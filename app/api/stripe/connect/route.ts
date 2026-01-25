@@ -8,6 +8,7 @@ import {
   createConnectLoginLink,
 } from '@/lib/stripe'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { validateRequest, stripeConnectActionSchema } from '@/lib/validations'
 
 // GET: Get connect account status or dashboard link
 export async function GET(request: NextRequest) {
@@ -96,7 +97,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { action } = body
+
+    // Validate request body
+    const validation = validateRequest(stripeConnectActionSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
+    }
+
+    const { action } = validation.data
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 

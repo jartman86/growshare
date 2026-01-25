@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { createRefund, centsToDollars } from '@/lib/stripe'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { validateRequest, refundRequestSchema } from '@/lib/validations'
 
 // Calculate refund percentage based on days until booking start
 function calculateRefundPercentage(startDate: Date): number {
@@ -44,14 +45,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { bookingId } = body
 
-    if (!bookingId) {
-      return NextResponse.json(
-        { error: 'Booking ID is required' },
-        { status: 400 }
-      )
+    // Validate request body
+    const validation = validateRequest(refundRequestSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
+
+    const { bookingId } = validation.data
 
     // Get booking with payment intent
     const booking = await prisma.booking.findUnique({

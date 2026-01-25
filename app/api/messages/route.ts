@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { notifyNewMessage } from '@/lib/notifications'
+import { validateRequest, sendMessageSchema } from '@/lib/validations'
 
 // Send a new message
 export async function POST(request: NextRequest) {
@@ -20,15 +21,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { receiverId, content, subject, bookingId } = body
 
-    // Validate required fields
-    if (!receiverId || !content) {
-      return NextResponse.json(
-        { error: 'Receiver ID and content are required' },
-        { status: 400 }
-      )
+    // Validate request body
+    const validation = validateRequest(sendMessageSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
+
+    const { receiverId, content, subject, bookingId } = validation.data
 
     // Check if receiver exists
     const receiver = await prisma.user.findUnique({

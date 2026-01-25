@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/lib/admin-auth'
-import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { rateLimit, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { validateRequest, adminUserActionSchema } from '@/lib/validations'
 
 // Get all users with pagination and filtering
 export async function GET(request: NextRequest) {
@@ -119,11 +120,14 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { userId, action, role } = body
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 })
+    // Validate request body
+    const validation = validateRequest(adminUserActionSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
+
+    const { userId, action, role } = validation.data
 
     const user = await prisma.user.findUnique({
       where: { id: userId },

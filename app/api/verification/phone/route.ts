@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { validateRequest, phoneVerificationRequestSchema, phoneVerificationVerifySchema } from '@/lib/validations'
 
 // Generate a 6-digit code
 function generateCode(): string {
@@ -91,23 +92,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { phoneNumber } = body
 
-    if (!phoneNumber) {
-      return NextResponse.json(
-        { error: 'Phone number required' },
-        { status: 400 }
-      )
+    // Validate request body
+    const validation = validateRequest(phoneVerificationRequestSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
-    // Basic phone validation
+    const { phoneNumber } = validation.data
     const cleanPhone = phoneNumber.replace(/\D/g, '')
-    if (cleanPhone.length < 10 || cleanPhone.length > 15) {
-      return NextResponse.json(
-        { error: 'Invalid phone number format' },
-        { status: 400 }
-      )
-    }
 
     // Check for recent verification request (rate limiting)
     const recentRequest = await prisma.verificationRequest.findFirst({
@@ -198,14 +191,14 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { code } = body
 
-    if (!code || code.length !== 6) {
-      return NextResponse.json(
-        { error: 'Invalid verification code' },
-        { status: 400 }
-      )
+    // Validate request body
+    const validation = validateRequest(phoneVerificationVerifySchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
+
+    const { code } = validation.data
 
     // Find pending verification request
     const verificationRequest = await prisma.verificationRequest.findFirst({

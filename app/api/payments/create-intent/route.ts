@@ -8,6 +8,7 @@ import {
   calculatePlatformFee,
 } from '@/lib/stripe'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { validateRequest, createPaymentIntentSchema } from '@/lib/validations'
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,29 +35,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { type, bookingId, orderId } = body
 
-    // Validate request
-    if (!type || (type !== 'booking' && type !== 'order')) {
-      return NextResponse.json(
-        { error: 'Invalid payment type' },
-        { status: 400 }
-      )
+    // Validate request body
+    const validation = validateRequest(createPaymentIntentSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
-    if (type === 'booking' && !bookingId) {
-      return NextResponse.json(
-        { error: 'Booking ID is required' },
-        { status: 400 }
-      )
-    }
-
-    if (type === 'order' && !orderId) {
-      return NextResponse.json(
-        { error: 'Order ID is required' },
-        { status: 400 }
-      )
-    }
+    const { type, bookingId, orderId } = validation.data
 
     // Get or create Stripe customer
     const customer = await getOrCreateCustomer(

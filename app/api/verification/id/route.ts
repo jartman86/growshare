@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { validateRequest, idVerificationRequestSchema } from '@/lib/validations'
 
 // POST - Submit ID for verification
 export async function POST(request: NextRequest) {
@@ -54,14 +55,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { documentUrl } = body
 
-    if (!documentUrl) {
-      return NextResponse.json(
-        { error: 'Document URL required' },
-        { status: 400 }
-      )
+    // Validate request body
+    const validation = validateRequest(idVerificationRequestSchema, body)
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
+
+    const { documentUrl } = validation.data
 
     // Create verification request
     const verificationRequest = await prisma.verificationRequest.create({
