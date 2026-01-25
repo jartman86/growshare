@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ImageUpload } from '@/components/ui/image-upload'
 import { User, MapPin, Globe, Save, X } from 'lucide-react'
 
 export default function EditProfilePage() {
@@ -79,7 +80,7 @@ export default function EditProfilePage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50 py-12">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <Card>
             <CardHeader>
@@ -92,7 +93,7 @@ export default function EditProfilePage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Username */}
                 <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Username
                   </label>
                   <input
@@ -100,11 +101,11 @@ export default function EditProfilePage() {
                     id="username"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     placeholder="your-username"
                     required
                   />
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     This will be your profile URL: /profile/your-username
                   </p>
                 </div>
@@ -112,7 +113,7 @@ export default function EditProfilePage() {
                 {/* Name */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       First Name
                     </label>
                     <input
@@ -120,12 +121,12 @@ export default function EditProfilePage() {
                       id="firstName"
                       value={formData.firstName}
                       onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       required
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Last Name
                     </label>
                     <input
@@ -133,7 +134,7 @@ export default function EditProfilePage() {
                       id="lastName"
                       value={formData.lastName}
                       onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       required
                     />
                   </div>
@@ -141,7 +142,7 @@ export default function EditProfilePage() {
 
                 {/* Bio */}
                 <div>
-                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Bio
                   </label>
                   <textarea
@@ -149,17 +150,17 @@ export default function EditProfilePage() {
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     placeholder="Tell us about yourself and your growing experience..."
                   />
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     {formData.bio.length}/500 characters
                   </p>
                 </div>
 
                 {/* Location */}
                 <div>
-                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     <MapPin className="inline h-4 w-4 mr-1" />
                     Location
                   </label>
@@ -168,14 +169,14 @@ export default function EditProfilePage() {
                     id="location"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     placeholder="City, State"
                   />
                 </div>
 
                 {/* Website */}
                 <div>
-                  <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     <Globe className="inline h-4 w-4 mr-1" />
                     Website
                   </label>
@@ -184,70 +185,41 @@ export default function EditProfilePage() {
                     id="website"
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     placeholder="https://yourwebsite.com"
                   />
                 </div>
 
                 {/* Profile Image */}
                 <div>
-                  <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 mb-1">
-                    Profile Image URL
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Profile Image
                   </label>
-                  <input
-                    type="url"
-                    id="avatar"
-                    value={formData.avatar}
-                    onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="https://example.com/profile.jpg"
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     Recommended: Square image, at least 400x400px
                   </p>
-                  {formData.avatar && (
-                    <div className="mt-2 flex items-center gap-4">
-                      <img
-                        src={formData.avatar}
-                        alt="Profile preview"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                        }}
-                      />
-                      <span className="text-sm text-gray-500">Preview</span>
-                    </div>
-                  )}
+                  <ImageUpload
+                    value={formData.avatar ? [formData.avatar] : []}
+                    onChange={(urls) => setFormData({ ...formData, avatar: urls[0] || '' })}
+                    maxImages={1}
+                    folder="growshare/avatars"
+                  />
                 </div>
 
                 {/* Cover Image */}
                 <div>
-                  <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 mb-1">
-                    Cover Image URL
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Cover Image
                   </label>
-                  <input
-                    type="url"
-                    id="coverImage"
-                    value={formData.coverImage}
-                    onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="https://example.com/cover.jpg"
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                     Recommended: 1500x400px image
                   </p>
-                  {formData.coverImage && (
-                    <div className="mt-2">
-                      <img
-                        src={formData.coverImage}
-                        alt="Cover preview"
-                        className="w-full h-32 object-cover rounded-lg"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                        }}
-                      />
-                    </div>
-                  )}
+                  <ImageUpload
+                    value={formData.coverImage ? [formData.coverImage] : []}
+                    onChange={(urls) => setFormData({ ...formData, coverImage: urls[0] || '' })}
+                    maxImages={1}
+                    folder="growshare/avatars"
+                  />
                 </div>
 
                 {/* Message */}
@@ -255,8 +227,8 @@ export default function EditProfilePage() {
                   <div
                     className={`p-4 rounded-lg ${
                       message.includes('success')
-                        ? 'bg-green-50 text-green-800'
-                        : 'bg-red-50 text-red-800'
+                        ? 'bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+                        : 'bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-400'
                     }`}
                   >
                     {message}
@@ -276,7 +248,7 @@ export default function EditProfilePage() {
                   <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition-colors"
+                    className="px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-semibold transition-colors"
                   >
                     <X className="h-4 w-4 inline mr-1" />
                     Cancel
