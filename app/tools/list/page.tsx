@@ -165,23 +165,23 @@ export default function ListToolPage() {
 
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Benefits Banner */}
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6 mb-8">
-            <h2 className="font-bold text-gray-900 mb-4 text-center">Why List Your Tools?</h2>
+          <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-200 dark:border-orange-800 p-6 mb-8">
+            <h2 className="font-bold text-gray-900 dark:text-white mb-4 text-center">Why List Your Tools?</h2>
             <div className="grid gap-4 md:grid-cols-3 text-sm">
               <div className="flex flex-col items-center text-center">
                 <div className="text-3xl mb-2">💰</div>
-                <p className="font-medium text-gray-900">Earn Extra Income</p>
-                <p className="text-gray-600">Make money from tools sitting in your garage</p>
+                <p className="font-medium text-gray-900 dark:text-white">Earn Extra Income</p>
+                <p className="text-gray-600 dark:text-gray-300">Make money from tools sitting in your garage</p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <div className="text-3xl mb-2">🤝</div>
-                <p className="font-medium text-gray-900">Help Community</p>
-                <p className="text-gray-600">Support fellow gardeners in their projects</p>
+                <p className="font-medium text-gray-900 dark:text-white">Help Community</p>
+                <p className="text-gray-600 dark:text-gray-300">Support fellow gardeners in their projects</p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <div className="text-3xl mb-2">⭐</div>
-                <p className="font-medium text-gray-900">Earn Rewards</p>
-                <p className="text-gray-600">Get points and achievements for sharing</p>
+                <p className="font-medium text-gray-900 dark:text-white">Earn Rewards</p>
+                <p className="text-gray-600 dark:text-gray-300">Get points and achievements for sharing</p>
               </div>
             </div>
           </div>
@@ -190,20 +190,20 @@ export default function ListToolPage() {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Error Message */}
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-800">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-sm text-red-800 dark:text-red-300">
                   <strong>Error:</strong> {error}
                 </p>
               </div>
             )}
 
             {/* Basic Information */}
-            <div className="bg-white rounded-xl border p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Basic Information</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Basic Information</h2>
 
               <div className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Tool Name *
                   </label>
                   <input
@@ -214,12 +214,12 @@ export default function ListToolPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="e.g., Gas-Powered Tiller, Wheelbarrow, etc."
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Description *
                   </label>
                   <textarea
@@ -230,14 +230,14 @@ export default function ListToolPage() {
                     onChange={handleInputChange}
                     rows={4}
                     placeholder="Describe your tool, its features, and what makes it useful..."
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
-                  <p className="mt-1 text-sm text-gray-500">Be detailed and honest about the tool's capabilities</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Be detailed and honest about the tool's capabilities</p>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Category *
                     </label>
                     <select
@@ -246,7 +246,7 @@ export default function ListToolPage() {
                       required
                       value={formData.category}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="">Select a category</option>
                       {categories.map((cat) => (
@@ -258,7 +258,7 @@ export default function ListToolPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="condition" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="condition" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Condition *
                     </label>
                     <select
@@ -267,7 +267,7 @@ export default function ListToolPage() {
                       required
                       value={formData.condition}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="">Select condition</option>
                       {conditions.map((cond) => (
@@ -281,7 +281,7 @@ export default function ListToolPage() {
 
                 <div className="grid gap-6 md:grid-cols-3">
                   <div>
-                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Brand
                     </label>
                     <input
@@ -291,12 +291,12 @@ export default function ListToolPage() {
                       value={formData.brand}
                       onChange={handleInputChange}
                       placeholder="e.g., Troy-Bilt"
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Model
                     </label>
                     <input
@@ -306,12 +306,12 @@ export default function ListToolPage() {
                       value={formData.model}
                       onChange={handleInputChange}
                       placeholder="e.g., Pony ES"
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="yearPurchased" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="yearPurchased" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Year Purchased
                     </label>
                     <input
@@ -323,7 +323,7 @@ export default function ListToolPage() {
                       min="1950"
                       max={new Date().getFullYear()}
                       placeholder="2022"
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
                 </div>
@@ -331,9 +331,9 @@ export default function ListToolPage() {
             </div>
 
             {/* Photos */}
-            <div className="bg-white rounded-xl border p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Photos</h2>
-              <p className="text-gray-600 mb-6">Add photos to showcase your tool. The first image will be the main listing photo.</p>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Photos</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">Add photos to showcase your tool. The first image will be the main listing photo.</p>
 
               <ImageUpload
                 value={formData.images}
@@ -344,12 +344,12 @@ export default function ListToolPage() {
             </div>
 
             {/* Details */}
-            <div className="bg-white rounded-xl border p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Additional Details</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Additional Details</h2>
 
               <div className="space-y-6">
                 <div>
-                  <label htmlFor="specifications" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="specifications" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Specifications
                   </label>
                   <textarea
@@ -359,12 +359,12 @@ export default function ListToolPage() {
                     onChange={handleInputChange}
                     rows={4}
                     placeholder="List key specifications (one per line)&#10;e.g., 196cc 4-cycle OHV engine&#10;Tilling width: 21 inches"
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="instructions" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="instructions" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Usage Instructions
                   </label>
                   <textarea
@@ -374,12 +374,12 @@ export default function ListToolPage() {
                     onChange={handleInputChange}
                     rows={3}
                     placeholder="Any special instructions for using this tool?"
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="pickupNotes" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="pickupNotes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Pickup Notes *
                   </label>
                   <textarea
@@ -390,20 +390,20 @@ export default function ListToolPage() {
                     onChange={handleInputChange}
                     rows={3}
                     placeholder="How will renters pick up the tool? Any delivery options?"
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Listing Type & Pricing */}
-            <div className="bg-white rounded-xl border p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Listing Type & Pricing</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-8">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Listing Type & Pricing</h2>
 
               <div className="space-y-6">
                 {/* Listing Type Selection */}
                 <div>
-                  <label htmlFor="listingType" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="listingType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Listing Type *
                   </label>
                   <select
@@ -412,26 +412,26 @@ export default function ListToolPage() {
                     required
                     value={formData.listingType}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white"
                   >
                     <option value="">Select listing type</option>
                     <option value="rent">For Rent</option>
                     <option value="sale">For Sale</option>
                     <option value="both">Rent or Buy</option>
                   </select>
-                  <p className="mt-2 text-sm text-gray-600">
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     Choose whether you want to rent, sell, or offer both options for this tool
                   </p>
                 </div>
 
                 {/* Sale Price (if for sale or both) */}
                 {(formData.listingType === 'sale' || formData.listingType === 'both') && (
-                  <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg space-y-4">
-                    <h3 className="font-semibold text-gray-900">Sale Information</h3>
+                  <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg space-y-4">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Sale Information</h3>
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <label htmlFor="salePrice" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-purple-600" />
+                        <label htmlFor="salePrice" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                           Sale Price *
                         </label>
                         <input
@@ -444,7 +444,7 @@ export default function ListToolPage() {
                           min="0"
                           step="0.01"
                           placeholder="150.00"
-                          className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                         />
                       </div>
                       <div className="flex items-end">
@@ -456,7 +456,7 @@ export default function ListToolPage() {
                             onChange={handleInputChange}
                             className="h-5 w-5 text-purple-600 rounded focus:ring-2 focus:ring-purple-500"
                           />
-                          <span className="text-sm font-medium text-gray-700">Price is negotiable</span>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Price is negotiable</span>
                         </label>
                       </div>
                     </div>
@@ -467,10 +467,10 @@ export default function ListToolPage() {
                 {(formData.listingType === 'rent' || formData.listingType === 'both') && (
                   <>
                     {formData.listingType === 'both' && (
-                      <h3 className="font-semibold text-gray-900 mt-6">Rental Information</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white mt-6">Rental Information</h3>
                     )}
                     {/* Free Option */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
                       type="checkbox"
@@ -480,8 +480,8 @@ export default function ListToolPage() {
                       className="mt-1 h-5 w-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                     />
                     <div>
-                      <div className="font-semibold text-gray-900 mb-1">Offer for free (deposit only)</div>
-                      <p className="text-sm text-gray-600">
+                      <div className="font-semibold text-gray-900 dark:text-white mb-1">Offer for free (deposit only)</div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Build community goodwill by lending your tool for free. You'll still collect a refundable deposit.
                       </p>
                     </div>
@@ -491,8 +491,8 @@ export default function ListToolPage() {
                 {!formData.isFree && (
                   <div className="grid gap-6 md:grid-cols-2">
                     <div>
-                      <label htmlFor="dailyRate" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-orange-600" />
+                      <label htmlFor="dailyRate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                         Daily Rate *
                       </label>
                       <input
@@ -505,12 +505,12 @@ export default function ListToolPage() {
                         min="0"
                         step="0.01"
                         placeholder="25.00"
-                        className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="weeklyRate" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="weeklyRate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Weekly Rate (Optional)
                       </label>
                       <input
@@ -522,17 +522,17 @@ export default function ListToolPage() {
                         min="0"
                         step="0.01"
                         placeholder="100.00"
-                        className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                        className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                       />
-                      <p className="mt-1 text-sm text-gray-500">Offer a discount for weekly rentals</p>
+                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Offer a discount for weekly rentals</p>
                     </div>
                   </div>
                 )}
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <label htmlFor="depositRequired" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-green-600" />
+                    <label htmlFor="depositRequired" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-green-600 dark:text-green-400" />
                       Security Deposit *
                     </label>
                     <input
@@ -545,14 +545,14 @@ export default function ListToolPage() {
                       min="0"
                       step="0.01"
                       placeholder="50.00"
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                     />
-                    <p className="mt-1 text-sm text-gray-500">Refundable if tool is returned in good condition</p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Refundable if tool is returned in good condition</p>
                   </div>
 
                   <div>
-                    <label htmlFor="maxRentalDays" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-blue-600" />
+                    <label htmlFor="maxRentalDays" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       Max Rental Period *
                     </label>
                     <select
@@ -561,7 +561,7 @@ export default function ListToolPage() {
                       required
                       value={formData.maxRentalDays}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full px-4 py-3 border dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white"
                     >
                       <option value="1">1 day</option>
                       <option value="3">3 days</option>
@@ -577,10 +577,10 @@ export default function ListToolPage() {
                 )}
 
                 {/* Pricing Tips */}
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
-                  <Info className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-gray-700">
-                    <p className="font-semibold text-gray-900 mb-1">Pricing Tips</p>
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-start gap-3">
+                  <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-semibold text-gray-900 dark:text-white mb-1">Pricing Tips</p>
                     <ul className="list-disc list-inside space-y-1">
                       {formData.listingType === 'sale' || formData.listingType === 'both' ? (
                         <>
@@ -604,7 +604,7 @@ export default function ListToolPage() {
             </div>
 
             {/* Submit */}
-            <div className="bg-white rounded-xl border p-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-8">
               <div className="flex items-start gap-3 mb-6">
                 <input
                   type="checkbox"
@@ -612,9 +612,9 @@ export default function ListToolPage() {
                   required
                   className="mt-1 h-5 w-5 text-orange-600 rounded focus:ring-2 focus:ring-orange-500"
                 />
-                <label htmlFor="terms" className="text-sm text-gray-700">
+                <label htmlFor="terms" className="text-sm text-gray-700 dark:text-gray-300">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-orange-600 hover:text-orange-700 font-medium">
+                  <Link href="/terms" className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
                     Tool Sharing Terms
                   </Link>{' '}
                   and confirm that this tool is in safe working condition. I understand that I am responsible for any damage or injury caused by defects I fail to disclose.
@@ -624,7 +624,7 @@ export default function ListToolPage() {
               <div className="flex gap-4">
                 <Link
                   href="/tools"
-                  className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
+                  className="flex-1 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center"
                 >
                   Cancel
                 </Link>
