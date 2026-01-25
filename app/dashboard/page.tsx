@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { redirect } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { LevelProgress } from '@/components/dashboard/level-progress'
@@ -8,79 +9,69 @@ import { StatsCards } from '@/components/dashboard/stats-cards'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ConnectSetupBanner } from '@/components/payments/connect-setup-banner'
 import { VerificationBanner } from '@/components/verification/verification-banner'
-
-// Mock user data - in production, this would come from database/API
-const mockUserData = {
-  user: {
-    firstName: 'Alex',
-    lastName: 'Johnson',
-    email: 'alex@growshare.com',
-    role: ['RENTER'],
-    totalPoints: 1250,
-    level: 4,
-  },
-  stats: {
-    plots: 0,
-    bookings: 2,
-    sales: 5,
-    rating: 4.8,
-    totalPoints: 1250,
-    badges: 6,
-  },
-  earnedBadges: [
-    'FIRST_PLOT_RENTED',
-    'FIRST_HARVEST',
-    'SOIL_HEALTH_CERTIFIED',
-    'HELPFUL_NEIGHBOR',
-    'HUNDRED_POUNDS',
-    'DIVERSE_GROWER',
-  ],
-  recentActivities: [
-    {
-      id: '1',
-      type: 'BADGE_EARNED',
-      title: '100 Pound Club Badge Earned!',
-      description: 'Harvested 100 pounds of produce',
-      points: 300,
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    },
-    {
-      id: '2',
-      type: 'PRODUCE_SOLD',
-      title: 'Sold Fresh Tomatoes',
-      description: '15 lbs to Mountain View Restaurant',
-      points: 50,
-      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
-    },
-    {
-      id: '3',
-      type: 'JOURNAL_ENTRY',
-      title: 'Added Crop Journal Entry',
-      description: 'Updated tomato growth progress',
-      points: 10,
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    },
-    {
-      id: '4',
-      type: 'COURSE_COMPLETED',
-      title: 'Completed Soil Health Fundamentals',
-      description: 'Earned certification',
-      points: 100,
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-    },
-    {
-      id: '5',
-      type: 'FIRST_HARVEST',
-      title: 'First Harvest Logged',
-      description: '25 lbs of tomatoes harvested',
-      points: 150,
-      timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-    },
-  ],
-}
+import { ensureUser } from '@/lib/ensure-user'
+import { prisma } from '@/lib/prisma'
 
 export default async function DashboardPage() {
-  const { user, stats, earnedBadges, recentActivities } = mockUserData
+  // Get current user and check onboarding status
+  const currentUser = await ensureUser()
+
+  if (!currentUser) {
+    redirect('/sign-in')
+  }
+
+  if (!currentUser.onboardingComplete) {
+    redirect('/onboarding')
+  }
+
+  // Fetch user with related data
+  const user = await prisma.user.findUnique({
+    where: { id: currentUser.id },
+    include: {
+      userBadges: {
+        include: {
+          badge: true,
+        },
+      },
+      activities: {
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      },
+      ownedPlots: {
+        where: { status: { in: ['ACTIVE', 'RENTED'] } },
+      },
+      rentedPlots: {
+        where: { status: { in: ['ACTIVE', 'APPROVED'] } },
+      },
+    },
+  })
+
+  if (!user) {
+    redirect('/sign-in')
+  }
+
+  // Calculate stats
+  const stats = {
+    plots: user.ownedPlots.length,
+    bookings: user.rentedPlots.length,
+    sales: 0, // Would need marketplace sales data
+    rating: 4.8, // Would calculate from reviews
+    totalPoints: user.totalPoints,
+    badges: user.userBadges.length,
+  }
+
+  // Map earned badges to their IDs
+  const earnedBadges = user.userBadges.map(ub => ub.badge.id)
+
+  // Format activities for the activity feed
+  const recentActivities = user.activities.map(activity => ({
+    id: activity.id,
+    type: activity.type,
+    title: activity.title,
+    description: activity.description || '',
+    points: activity.points,
+    timestamp: activity.createdAt,
+  }))
 
   return (
     <>

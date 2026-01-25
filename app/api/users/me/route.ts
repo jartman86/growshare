@@ -77,6 +77,9 @@ export async function PATCH(request: Request) {
     }
 
     // Update user profile
+    // Mark onboarding complete if username is being set (required field during onboarding)
+    const isCompletingOnboarding = username && !currentUser.onboardingComplete
+
     const user = await prisma.user.update({
       where: { id: currentUser.id },
       data: {
@@ -84,6 +87,7 @@ export async function PATCH(request: Request) {
         ...(location && { location }),
         ...(bio !== undefined && { bio }),
         ...(role && { role }),
+        ...(isCompletingOnboarding && { onboardingComplete: true }),
       },
     })
 

@@ -38,9 +38,17 @@ export default function OnboardingPage() {
         const response = await fetch('/api/users/me')
         if (response.ok) {
           const userData = await response.json()
-          if (userData.username) {
-            // User already has username, redirect to dashboard
+          if (userData.onboardingComplete) {
+            // User already completed onboarding, redirect to dashboard
             router.push('/dashboard')
+          } else if (userData.username) {
+            // Pre-fill username if auto-generated
+            setFormData(prev => ({
+              ...prev,
+              username: userData.username || '',
+              location: userData.location || '',
+              bio: userData.bio || '',
+            }))
           }
         }
       } catch (err) {
@@ -83,6 +91,27 @@ export default function OnboardingPage() {
       }
 
       // Success! Redirect to dashboard
+      router.push('/dashboard')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      setLoading(false)
+    }
+  }
+
+  const handleSkip = async () => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/users/onboarding/skip', {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to skip onboarding')
+      }
+
       router.push('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -189,7 +218,14 @@ export default function OnboardingPage() {
                 <p>You can select both if you plan to list land and rent land.</p>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={handleSkip}
+                  disabled={loading}
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  Skip for now
+                </button>
                 <button
                   onClick={() => setStep(2)}
                   disabled={!canProceedStep1}
@@ -280,13 +316,22 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-semibold hover:bg-gray-50 transition-colors"
-                >
-                  Back
-                </button>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleSkip}
+                    disabled={loading}
+                    className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    Skip for now
+                  </button>
+                </div>
                 <button
                   onClick={handleSubmit}
                   disabled={!canProceedStep2 || loading}
