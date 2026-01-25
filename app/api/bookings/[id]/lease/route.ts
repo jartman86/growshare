@@ -6,7 +6,7 @@ import { generateLeaseHTML, getLeaseDataFromBooking } from '@/lib/lease-generato
 // GET - Get lease document for a booking
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ bookingId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -23,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const { bookingId } = await params
+    const { id: bookingId } = await params
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -99,7 +99,7 @@ export async function GET(
 // POST - Generate and save lease document (triggered on booking approval)
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ bookingId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -116,7 +116,7 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const { bookingId } = await params
+    const { id: bookingId } = await params
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },

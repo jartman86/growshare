@@ -1,15 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Header } from '@/components/layout/header'
 import { PrivacySettings } from '@/components/settings/privacy-settings'
 import { VerificationStatus } from '@/components/profile/verification-status'
-import { Settings, Shield, UserCheck, Bell, CreditCard } from 'lucide-react'
+import { Settings, Shield, UserCheck, Bell, CreditCard, Loader2 } from 'lucide-react'
 
 type SettingsTab = 'privacy' | 'verification' | 'notifications' | 'billing'
 
+interface UserVerification {
+  isVerified: boolean
+  isPhoneVerified: boolean
+  phoneVerifiedAt: string | null
+  isIdVerified: boolean
+  idVerifiedAt: string | null
+  phoneNumber: string | null
+}
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('privacy')
+  const [verification, setVerification] = useState<UserVerification | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchVerificationStatus()
+  }, [])
+
+  const fetchVerificationStatus = async () => {
+    try {
+      const response = await fetch('/api/verification/id')
+      if (response.ok) {
+        const data = await response.json()
+        setVerification({
+          isVerified: data.email?.verified || false,
+          isPhoneVerified: data.phone?.verified || false,
+          phoneVerifiedAt: data.phone?.verifiedAt || null,
+          isIdVerified: data.id?.verified || false,
+          idVerifiedAt: data.id?.verifiedAt || null,
+          phoneNumber: data.phone?.number || null,
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching verification status:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const tabs = [
     { id: 'privacy' as const, label: 'Privacy', icon: Shield },
@@ -69,7 +105,21 @@ export default function SettingsPage() {
               {activeTab === 'privacy' && <PrivacySettings />}
 
               {activeTab === 'verification' && (
-                <VerificationStatus showActions={true} />
+                isLoading ? (
+                  <div className="bg-white rounded-lg border shadow-sm p-6 flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+                  </div>
+                ) : (
+                  <VerificationStatus
+                    showActions={true}
+                    isEmailVerified={verification?.isVerified}
+                    isPhoneVerified={verification?.isPhoneVerified}
+                    phoneVerifiedAt={verification?.phoneVerifiedAt}
+                    isIdVerified={verification?.isIdVerified}
+                    idVerifiedAt={verification?.idVerifiedAt}
+                    phoneNumber={verification?.phoneNumber}
+                  />
+                )
               )}
 
               {activeTab === 'notifications' && (
