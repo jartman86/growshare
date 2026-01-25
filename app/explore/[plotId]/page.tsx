@@ -21,6 +21,7 @@ import { BookingCard } from '@/components/plot/booking-card'
 import { PlotReviewCard } from '@/components/plot/plot-review-card'
 import { formatCurrency } from '@/lib/utils'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@clerk/nextjs/server'
 
 async function getPlot(plotId: string) {
   try {
@@ -44,7 +45,13 @@ async function getPlot(plotId: string) {
           take: 1,
         },
         reviews: {
-          include: {
+          select: {
+            id: true,
+            rating: true,
+            content: true,
+            createdAt: true,
+            response: true,
+            respondedAt: true,
             author: {
               select: {
                 id: true,
@@ -93,11 +100,22 @@ export default async function PlotDetailPage({
   params: Promise<{ plotId: string }>
 }) {
   const { plotId } = await params
+  const { userId } = await auth()
 
   const plot = await getPlot(plotId)
 
   if (!plot) {
     notFound()
+  }
+
+  // Check if current user is the plot owner
+  let isOwner = false
+  if (userId) {
+    const currentUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true },
+    })
+    isOwner = currentUser?.id === plot.owner.id
   }
 
   const ownerName = `${plot.owner.firstName} ${plot.owner.lastName}`
@@ -324,7 +342,12 @@ export default async function PlotDetailPage({
                 {reviewCount > 0 ? (
                   <div className="space-y-4">
                     {plot.reviews.map((review: any) => (
-                      <PlotReviewCard key={review.id} review={review} />
+                      <PlotReviewCard
+                        key={review.id}
+                        review={review}
+                        isOwner={isOwner}
+                        ownerName={ownerName}
+                      />
                     ))}
                   </div>
                 ) : (
