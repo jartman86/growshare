@@ -57,10 +57,53 @@
   --animate-scale-in: scale-in 0.2s ease-out;
 }
 
+/* Dark mode - class-based for user preference control */
+.dark {
+  --background: #0f0f0f;
+  --foreground: #fafafa;
+
+  /* Dark mode color adjustments */
+  --soil-rich: #a89485;
+  --soil-medium: #8b7d72;
+  --soil-light: #6b5d52;
+
+  --leaf-deep: #8bc34a;
+  --leaf-vibrant: #6ba03f;
+  --leaf-fresh: #4a7c2c;
+  --leaf-spring: #3d6623;
+  --leaf-light: #2d5016;
+
+  --earth-dark: #d4a574;
+  --earth-medium: #8b7355;
+  --earth-warm: #5d4e37;
+  --earth-sand: #3d3429;
+
+  /* Dark mode semantic colors */
+  --card-bg: #1a1a1a;
+  --card-border: #2a2a2a;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --input-bg: #1f1f1f;
+  --input-border: #333333;
+}
+
+/* Light mode explicit (for class-based switching) */
+.light {
+  --background: #fefefe;
+  --foreground: #2c3e2c;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --muted: #f5f5f5;
+  --muted-foreground: #6b7280;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+}
+
+/* System preference fallback (when no class is set) */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not(.light):not(.dark) {
+    --background: #0f0f0f;
+    --foreground: #fafafa;
   }
 }
 
@@ -77,8 +120,16 @@ body {
   background-color: #fafafa;
 }
 
+.dark .topo-lines {
+  background-color: #0f0f0f;
+}
+
 .topo-dense {
   background-color: #f5f5f5;
+}
+
+.dark .topo-dense {
+  background-color: #1a1a1a;
 }
 
 /* Gradient Overlays - Muted and professional */
@@ -86,16 +137,32 @@ body {
   background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
 }
 
+.dark .garden-gradient-light {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+}
+
 .garden-gradient-vibrant {
   background: linear-gradient(135deg, #5a7f3a 0%, #4a6f2a 100%);
+}
+
+.dark .garden-gradient-vibrant {
+  background: linear-gradient(135deg, #3d6623 0%, #2d5016 100%);
 }
 
 .garden-gradient-earthy {
   background: linear-gradient(135deg, #e5d5c5 0%, #c9b5a0 100%);
 }
 
+.dark .garden-gradient-earthy {
+  background: linear-gradient(135deg, #3d3429 0%, #2a241e 100%);
+}
+
 .garden-gradient-sunrise {
   background: linear-gradient(135deg, #f5e6d3 0%, #e8d4b8 100%);
+}
+
+.dark .garden-gradient-sunrise {
+  background: linear-gradient(135deg, #2a241e 0%, #1f1a15 100%);
 }
 
 /* Custom Animations */
@@ -162,6 +229,20 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #808080;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border: 2px solid #1a1a1a;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5a;
 }
 
 /* Focus styles for accessibility */

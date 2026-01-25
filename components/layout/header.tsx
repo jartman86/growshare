@@ -192,7 +192,7 @@ export function Header() {
   return (
     <>
       {isSignedIn && <VerificationBanner />}
-      <header className="sticky top-0 z-50 w-full border-b-2 border-[#8bc34a]/30 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-md">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-[#8bc34a]/30 dark:border-gray-700 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-800/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 shadow-md">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-2">
             {/* Logo */}
@@ -219,8 +219,8 @@ export function Header() {
                     className={cn(
                       'flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-base font-medium transition-all',
                       isActive
-                        ? 'bg-[#5a7f3a] text-white shadow-sm'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                        ? 'bg-[#5a7f3a] text-white shadow-sm dark:bg-green-700'
+                        : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                     )}
                   >
                     <Icon className="h-5 w-5" />
@@ -271,10 +271,10 @@ export function Header() {
                   {/* Messages Icon */}
                   <Link
                     href="/messages"
-                    className="relative p-2 rounded-lg hover:bg-gray-100 transition-all"
+                    className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
                     title="Messages"
                   >
-                    <Mail className="h-5 w-5 text-gray-700" />
+                    <Mail className="h-5 w-5 text-gray-700 dark:text-white" />
                     {unreadMessagesCount > 0 && (
                       <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-[#5a7f3a] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
                         {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
@@ -293,7 +293,7 @@ export function Header() {
               ) : (
                 <>
                   <SignInButton mode="modal">
-                    <button className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                    <button className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors">
                       Sign In
                     </button>
                   </SignInButton>
@@ -311,7 +311,7 @@ export function Header() {
 
       {/* Mobile Bottom Navigation */}
       {isSignedIn && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur border-t-2 border-[#8bc34a]/30 shadow-lg">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-800/95 backdrop-blur border-t-2 border-[#8bc34a]/30 dark:border-gray-700 shadow-lg">
           <div className="grid grid-cols-5 gap-1 px-2 py-2">
             {/* Main nav items */}
             {mobileNavItems.map((item) => {
@@ -326,7 +326,7 @@ export function Header() {
                     'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
                     isActive
                       ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                      : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
+                      : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
                   )}
                 >
                   <Icon className={cn('h-5 w-5', isActive && 'scale-110')} />
@@ -342,7 +342,7 @@ export function Header() {
                 'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
                 showMobileListMenu
                   ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                  : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
+                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
               )}
             >
               <Plus className={cn('h-5 w-5', showMobileListMenu && 'scale-110')} />
@@ -356,7 +356,7 @@ export function Header() {
                 'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
                 pathname.startsWith('/dashboard') || pathname.startsWith('/settings') || pathname.startsWith('/profile')
                   ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                  : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
+                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
               )}
             >
               <UserIcon className={cn('h-5 w-5', (pathname.startsWith('/dashboard') || pathname.startsWith('/settings') || pathname.startsWith('/profile')) && 'scale-110')} />
@@ -373,7 +373,7 @@ export function Header() {
                 onClick={() => setShowMobileListMenu(false)}
               />
               {/* Menu */}
-              <div className="absolute bottom-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 animate-in slide-in-from-bottom-2">
+              <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 animate-in slide-in-from-bottom-2">
                 <div className="p-4 space-y-2">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Create Listing</p>
                   {listDropdownItems.slice(0, 3).map((item) => (
@@ -381,12 +381,12 @@ export function Header() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setShowMobileListMenu(false)}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <span className="text-gray-400">{item.icon}</span>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                        <p className="text-xs text-gray-500">{item.description}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.label}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
                       </div>
                     </Link>
                   ))}

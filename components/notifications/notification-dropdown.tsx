@@ -124,7 +124,7 @@ export function NotificationDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-gray-600 dark:text-white hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
         <Bell className="h-6 w-6" />
         {unreadCount > 0 && (
@@ -135,9 +135,9 @@ export function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border z-[100] max-h-[500px] flex flex-col">
-          <div className="p-4 border-b flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-[100] max-h-[500px] flex flex-col">
+          <div className="p-4 border-b dark:border-gray-700 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h3>
             {unreadCount > 0 && (
               <button onClick={markAllAsRead} className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
                 <CheckCheck className="h-4 w-4" />
@@ -153,27 +153,27 @@ export function NotificationDropdown() {
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
-                <Bell className="h-12 w-12 text-gray-300 mb-3" />
-                <p className="text-gray-600 text-center">No notifications yet</p>
+                <Bell className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-3" />
+                <p className="text-gray-600 dark:text-gray-400 text-center">No notifications yet</p>
               </div>
             ) : (
-              <div className="divide-y">
+              <div className="divide-y dark:divide-gray-700">
                 {notifications.map((notification) => (
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${!notification.isRead ? 'bg-blue-50' : ''}`}
+                    className={`w-full p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${!notification.isRead ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <h4 className={`font-semibold text-sm ${!notification.isRead ? 'text-gray-900' : 'text-gray-700'}`}>
+                          <h4 className={`font-semibold text-sm ${!notification.isRead ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                             {notification.title}
                           </h4>
                           {!notification.isRead && <span className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1.5" />}
                         </div>
-                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{notification.content}</p>
-                        <p className="text-xs text-gray-400">{formatTime(notification.createdAt)}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{notification.content}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{formatTime(notification.createdAt)}</p>
                       </div>
                     </div>
                   </button>
