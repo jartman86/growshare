@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         website: true,
         coverImage: true,
         avatar: true,
+        role: true,
       },
     })
 

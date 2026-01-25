@@ -181,7 +181,7 @@ export function Header() {
           if (data.username) {
             setUsername(data.username)
           }
-          if (data.roles && data.roles.includes('ADMIN')) {
+          if (data.role && data.role.includes('ADMIN')) {
             setIsAdmin(true)
           }
         })

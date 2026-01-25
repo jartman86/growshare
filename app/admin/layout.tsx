@@ -1,4 +1,3 @@
-import { requireAdminPage } from '@/lib/admin-auth'
 import Link from 'next/link'
 import {
   LayoutDashboard,
@@ -9,13 +8,11 @@ import {
   Shield,
 } from 'lucide-react'
 
-export default async function AdminLayout({
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const admin = await requireAdminPage()
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Admin Header */}
@@ -34,9 +31,6 @@ export default async function AdminLayout({
               <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">
-                {admin.firstName} {admin.lastName}
-              </span>
               <div className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
                 ADMIN
               </div>

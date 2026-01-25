@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 import {
   Users,
   Map,
@@ -75,12 +77,44 @@ function StatCard({
 }
 
 export default function AdminDashboard() {
+  const router = useRouter()
+  const { isLoaded, isSignedIn } = useUser()
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    // Check if user is admin
+    async function checkAdmin() {
+      try {
+        const res = await fetch('/api/profile')
+        if (!res.ok) {
+          setIsAdmin(false)
+          return
+        }
+        const data = await res.json()
+        if (data.role && data.role.includes('ADMIN')) {
+          setIsAdmin(true)
+        } else {
+          setIsAdmin(false)
+        }
+      } catch {
+        setIsAdmin(false)
+      }
+    }
+
+    if (isLoaded && isSignedIn) {
+      checkAdmin()
+    } else if (isLoaded && !isSignedIn) {
+      router.push('/sign-in')
+    }
+  }, [isLoaded, isSignedIn, router])
 
   useEffect(() => {
     async function fetchStats() {
+      if (!isAdmin) return
+
       try {
         const res = await fetch('/api/admin/stats')
         if (!res.ok) {
@@ -95,8 +129,30 @@ export default function AdminDashboard() {
       }
     }
 
-    fetchStats()
-  }, [])
+    if (isAdmin === true) {
+      fetchStats()
+    } else if (isAdmin === false) {
+      router.push('/')
+    }
+  }, [isAdmin, router])
+
+  // Show loading while checking auth
+  if (!isLoaded || isAdmin === null) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      </div>
+    )
+  }
+
+  // Redirect handled in useEffect, show loading in meantime
+  if (!isSignedIn || !isAdmin) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -188,12 +244,14 @@ export default function AdminDashboard() {
             <div
               className="bg-green-500 h-2 rounded-full transition-all"
               style={{
-                width: `${(stats.users.verified / stats.users.total) * 100}%`,
+                width: `${stats.users.total > 0 ? (stats.users.verified / stats.users.total) * 100 : 0}%`,
               }}
             />
           </div>
           <p className="text-sm text-gray-500 mt-2">
-            {((stats.users.verified / stats.users.total) * 100).toFixed(1)}%
+            {stats.users.total > 0
+              ? ((stats.users.verified / stats.users.total) * 100).toFixed(1)
+              : 0}%
             verification rate
           </p>
         </div>
