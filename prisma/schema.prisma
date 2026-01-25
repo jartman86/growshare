@@ -48,6 +48,14 @@ model User {
   // Verification
   isVerified        Boolean     @default(false)
   verifiedAt        DateTime?
+  isPhoneVerified   Boolean     @default(false)
+  phoneVerifiedAt   DateTime?
+  isIdVerified      Boolean     @default(false)
+  idVerifiedAt      DateTime?
+
+  // Privacy Settings
+  profileVisibility String      @default("PUBLIC") // PUBLIC, FOLLOWERS, PRIVATE
+  allowMessages     String      @default("EVERYONE") // EVERYONE, FOLLOWERS, NONE
 
   // Gamification
   totalPoints       Int         @default(0)
@@ -92,11 +100,63 @@ model User {
   forumVotes        ForumVote[]
   reviewVotes       ReviewVote[]
   emailPreferences  EmailPreferences?
+  verificationRequests VerificationRequest[]
+  blockedUsers      BlockedUser[] @relation("UserBlocking")
+  blockedByUsers    BlockedUser[] @relation("UserBlockedBy")
 
   @@index([clerkId])
   @@index([email])
   @@index([username])
   @@index([status])
+}
+
+// ============================================
+// VERIFICATION & PRIVACY
+// ============================================
+
+enum VerificationType {
+  PHONE
+  ID
+  ADDRESS
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model VerificationRequest {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        VerificationType
+  status      VerificationStatus @default(PENDING)
+  documentUrl String?            // For ID verification
+  phoneCode   String?            // For phone verification (hashed)
+  phoneCodeExpires DateTime?
+  notes       String?            // Admin notes
+  createdAt   DateTime           @default(now())
+  reviewedAt  DateTime?
+  reviewedBy  String?            // Admin user ID
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+}
+
+model BlockedUser {
+  id        String   @id @default(cuid())
+  blockerId String
+  blocker   User     @relation("UserBlocking", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("UserBlockedBy", fields: [blockedId], references: [id], onDelete: Cascade)
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
 }
 
 // ============================================

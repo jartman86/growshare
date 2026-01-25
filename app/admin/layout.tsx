@@ -6,6 +6,7 @@ import {
   Flag,
   Settings,
   ArrowLeft,
+  Shield,
 } from 'lucide-react'
 
 export default async function AdminLayout({
@@ -61,6 +62,13 @@ export default async function AdminLayout({
             >
               <Users className="h-5 w-5" />
               <span className="font-medium">Users</span>
+            </Link>
+            <Link
+              href="/admin/verifications"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Shield className="h-5 w-5" />
+              <span className="font-medium">Verifications</span>
             </Link>
             <Link
               href="/admin/moderation"

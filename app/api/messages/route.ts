@@ -50,6 +50,61 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if sender is blocked by receiver
+    const isBlocked = await prisma.blockedUser.findUnique({
+      where: {
+        blockerId_blockedId: {
+          blockerId: receiverId,
+          blockedId: currentUser.id,
+        },
+      },
+    })
+
+    if (isBlocked) {
+      return NextResponse.json(
+        { error: 'You cannot send messages to this user' },
+        { status: 403 }
+      )
+    }
+
+    // Check if receiver has disabled messages (unless there's an existing conversation or active booking)
+    if (receiver.allowMessages === 'NONE') {
+      // Check for existing conversation
+      const existingConversation = await prisma.message.findFirst({
+        where: {
+          OR: [
+            { senderId: currentUser.id, receiverId },
+            { senderId: receiverId, receiverId: currentUser.id },
+          ],
+        },
+      })
+
+      // Check for active booking between users
+      const activeBooking = await prisma.booking.findFirst({
+        where: {
+          OR: [
+            {
+              renterId: currentUser.id,
+              plot: { ownerId: receiverId },
+              status: { in: ['PENDING', 'APPROVED', 'ACTIVE'] },
+            },
+            {
+              renterId: receiverId,
+              plot: { ownerId: currentUser.id },
+              status: { in: ['PENDING', 'APPROVED', 'ACTIVE'] },
+            },
+          ],
+        },
+      })
+
+      if (!existingConversation && !activeBooking) {
+        return NextResponse.json(
+          { error: 'This user is not accepting messages' },
+          { status: 403 }
+        )
+      }
+    }
+
     // Create message
     const message = await prisma.message.create({
       data: {
