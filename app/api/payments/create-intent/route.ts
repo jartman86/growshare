@@ -7,12 +7,22 @@ import {
   dollarsToCents,
   calculatePlatformFee,
 } from '@/lib/stripe'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 10 payment attempts per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.payment
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({

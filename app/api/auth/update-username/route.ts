@@ -1,13 +1,23 @@
 import { auth } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 5 username updates per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.auth
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const url = new URL(request.url)
@@ -45,19 +55,28 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Error updating username:', error)
-    return NextResponse.json({
-      error: 'Failed to update username',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to update username' },
+      { status: 500 }
+    )
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 5 username updates per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.auth
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const { username } = await request.json()
@@ -94,9 +113,9 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error('Error updating username:', error)
-    return NextResponse.json({
-      error: 'Failed to update username',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to update username' },
+      { status: 500 }
+    )
   }
 }

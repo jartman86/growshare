@@ -3,6 +3,14 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 export async function POST() {
+  // Only allow in development
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'This endpoint is disabled in production' },
+      { status: 403 }
+    )
+  }
+
   try {
     const { userId } = await auth()
 
@@ -43,9 +51,9 @@ export async function POST() {
     })
   } catch (error) {
     console.error('Error resetting user:', error)
-    return NextResponse.json({
-      error: 'Failed to reset user',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to reset user' },
+      { status: 500 }
+    )
   }
 }

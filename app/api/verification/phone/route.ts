@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // Generate a 6-digit code
 function generateCode(): string {
@@ -19,8 +20,14 @@ async function sendSMS(phoneNumber: string, code: string): Promise<boolean> {
   const authToken = process.env.TWILIO_AUTH_TOKEN
   const fromNumber = process.env.TWILIO_PHONE_NUMBER
 
-  // If Twilio is not configured, log the code for development
+  // If Twilio is not configured
   if (!accountSid || !authToken || !fromNumber) {
+    // In production, fail if Twilio is not configured
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Twilio is not configured - cannot send SMS in production')
+      return false
+    }
+    // In development, log the code for testing
     console.log(`[DEV] Phone verification code for ${phoneNumber}: ${code}`)
     return true
   }
@@ -56,6 +63,15 @@ export async function POST(request: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 3 verification requests per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.verification
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({
@@ -162,6 +178,15 @@ export async function PUT(request: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 3 verification attempts per minute (prevent brute force)
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.verification
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({

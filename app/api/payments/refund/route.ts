@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { createRefund, centsToDollars } from '@/lib/stripe'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // Calculate refund percentage based on days until booking start
 function calculateRefundPercentage(startDate: Date): number {
@@ -23,6 +24,15 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 10 refund attempts per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.payment
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({

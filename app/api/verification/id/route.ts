@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // POST - Submit ID for verification
 export async function POST(request: NextRequest) {
@@ -9,6 +10,15 @@ export async function POST(request: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 3 verification submissions per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.verification
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({

@@ -7,6 +7,7 @@ import {
   retrieveConnectAccount,
   createConnectLoginLink,
 } from '@/lib/stripe'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // GET: Get connect account status or dashboard link
 export async function GET(request: NextRequest) {
@@ -75,6 +76,15 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 10 connect account operations per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.payment
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({

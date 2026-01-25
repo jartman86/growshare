@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/lib/admin-auth'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // Get all users with pagination and filtering
 export async function GET(request: NextRequest) {
@@ -106,6 +107,15 @@ export async function PATCH(request: NextRequest) {
 
     if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 30 admin actions per minute
+    const rateLimitResult = rateLimit(
+      `admin:${admin.id}`,
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const body = await request.json()
