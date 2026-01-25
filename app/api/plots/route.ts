@@ -55,6 +55,11 @@ export async function GET(request: NextRequest) {
     const hasFencing = searchParams.get('hasFencing')
     const hasGreenhouse = searchParams.get('hasGreenhouse')
     const hasElectricity = searchParams.get('hasElectricity')
+    const sortBy = searchParams.get('sortBy') || 'newest'
+    const availableFrom = searchParams.get('availableFrom')
+    const availableTo = searchParams.get('availableTo')
+    const instantBookOnly = searchParams.get('instantBookOnly')
+    const minRating = searchParams.get('minRating')
 
     const where: any = {}
 
@@ -103,6 +108,27 @@ export async function GET(request: NextRequest) {
     if (hasFencing === 'true') where.hasFencing = true
     if (hasGreenhouse === 'true') where.hasGreenhouse = true
     if (hasElectricity === 'true') where.hasElectricity = true
+    if (instantBookOnly === 'true') where.instantBook = true
+
+    // Determine sort order
+    let orderBy: any = { createdAt: 'desc' }
+    switch (sortBy) {
+      case 'price-low':
+        orderBy = { pricePerMonth: 'asc' }
+        break
+      case 'price-high':
+        orderBy = { pricePerMonth: 'desc' }
+        break
+      case 'acreage-low':
+        orderBy = { acreage: 'asc' }
+        break
+      case 'acreage-high':
+        orderBy = { acreage: 'desc' }
+        break
+      case 'newest':
+      default:
+        orderBy = { createdAt: 'desc' }
+    }
 
     const plots = await prisma.plot.findMany({
       where,
@@ -114,6 +140,8 @@ export async function GET(request: NextRequest) {
             lastName: true,
             avatar: true,
             isVerified: true,
+            isPhoneVerified: true,
+            isIdVerified: true,
           },
         },
         amenities: true,
@@ -122,14 +150,69 @@ export async function GET(request: NextRequest) {
             rating: true,
           },
         },
+        bookings: availableFrom || availableTo ? {
+          where: {
+            status: { in: ['APPROVED', 'ACTIVE'] },
+          },
+          select: {
+            startDate: true,
+            endDate: true,
+          },
+        } : false,
+        blockedDates: availableFrom || availableTo ? {
+          select: {
+            startDate: true,
+            endDate: true,
+          },
+        } : false,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy,
     })
 
+    // Filter plots by availability if date range specified
+    let filteredPlots = plots
+
+    if (availableFrom || availableTo) {
+      const fromDate = availableFrom ? new Date(availableFrom) : null
+      const toDate = availableTo ? new Date(availableTo) : null
+
+      filteredPlots = plots.filter((plot: any) => {
+        // Check if any booking conflicts with the requested dates
+        const hasBookingConflict = (plot.bookings || []).some((booking: any) => {
+          const bookingStart = new Date(booking.startDate)
+          const bookingEnd = new Date(booking.endDate)
+
+          if (fromDate && toDate) {
+            return !(toDate < bookingStart || fromDate > bookingEnd)
+          } else if (fromDate) {
+            return fromDate >= bookingStart && fromDate <= bookingEnd
+          } else if (toDate) {
+            return toDate >= bookingStart && toDate <= bookingEnd
+          }
+          return false
+        })
+
+        // Check if any blocked date conflicts with the requested dates
+        const hasBlockedConflict = (plot.blockedDates || []).some((blocked: any) => {
+          const blockedStart = new Date(blocked.startDate)
+          const blockedEnd = new Date(blocked.endDate)
+
+          if (fromDate && toDate) {
+            return !(toDate < blockedStart || fromDate > blockedEnd)
+          } else if (fromDate) {
+            return fromDate >= blockedStart && fromDate <= blockedEnd
+          } else if (toDate) {
+            return toDate >= blockedStart && toDate <= blockedEnd
+          }
+          return false
+        })
+
+        return !hasBookingConflict && !hasBlockedConflict
+      })
+    }
+
     // Transform to PlotMarker format with calculated average ratings
-    const plotMarkers = plots.map((plot: any) => {
+    let plotMarkers = filteredPlots.map((plot: any) => {
       const ratings = plot.reviews.map((r: any) => r.rating)
       const averageRating = ratings.length > 0
         ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
@@ -151,11 +234,31 @@ export async function GET(request: NextRequest) {
         hasIrrigation: plot.hasIrrigation,
         hasFencing: plot.hasFencing,
         hasGreenhouse: plot.hasGreenhouse,
+        instantBook: plot.instantBook,
         averageRating,
+        reviewCount: plot.reviews.length,
         ownerName: `${plot.owner.firstName} ${plot.owner.lastName}`,
         ownerAvatar: plot.owner.avatar || undefined,
+        ownerVerified: plot.owner.isVerified && (plot.owner.isPhoneVerified || plot.owner.isIdVerified),
       }
     })
+
+    // Filter by minimum rating (post-query since it's calculated)
+    if (minRating) {
+      const minRatingNum = parseFloat(minRating)
+      plotMarkers = plotMarkers.filter((plot: any) =>
+        plot.averageRating !== undefined && plot.averageRating >= minRatingNum
+      )
+    }
+
+    // Sort by rating if that's the selected sort (post-query since it's calculated)
+    if (sortBy === 'rating') {
+      plotMarkers = plotMarkers.sort((a: any, b: any) => {
+        const ratingA = a.averageRating ?? 0
+        const ratingB = b.averageRating ?? 0
+        return ratingB - ratingA
+      })
+    }
 
     return NextResponse.json(plotMarkers)
   } catch (error) {

@@ -103,6 +103,7 @@ model User {
   verificationRequests VerificationRequest[]
   blockedUsers      BlockedUser[] @relation("UserBlocking")
   blockedByUsers    BlockedUser[] @relation("UserBlockedBy")
+  savedSearches     SavedSearch[]
 
   @@index([clerkId])
   @@index([email])
@@ -157,6 +158,19 @@ model BlockedUser {
   @@unique([blockerId, blockedId])
   @@index([blockerId])
   @@index([blockedId])
+}
+
+model SavedSearch {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  filters     Json     // Stores all search filters
+  notifyOnNew Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ============================================
