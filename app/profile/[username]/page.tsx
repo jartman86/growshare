@@ -3,8 +3,11 @@ import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { FollowButton } from '@/components/profile/follow-button'
+import { BlockUserButton } from '@/components/profile/block-user-button'
+import { PrivateProfileView } from '@/components/profile/private-profile-view'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { canViewProfile, hasBlocked } from '@/lib/privacy'
 import {
   ArrowLeft,
   MapPin,
@@ -31,6 +34,15 @@ export default async function ProfilePage({
 }) {
   const { username } = await params
   const { userId } = await auth()
+
+  // Get current user's database ID if logged in
+  let currentUser: { id: string } | null = null
+  if (userId) {
+    currentUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { id: true },
+    })
+  }
 
   // Fetch user from database
   const user = await prisma.user.findUnique({
@@ -64,6 +76,35 @@ export default async function ProfilePage({
   }
 
   const isOwnProfile = userId && user.clerkId === userId
+
+  // Check privacy settings - skip for own profile
+  if (!isOwnProfile) {
+    const { canView, reason } = await canViewProfile(currentUser?.id || null, {
+      id: user.id,
+      profileVisibility: user.profileVisibility,
+    })
+
+    if (!canView && reason) {
+      return (
+        <>
+          <Header />
+          <main className="min-h-screen topo-lines">
+            <PrivateProfileView
+              reason={reason}
+              username={user.username || username}
+              avatar={user.avatar}
+            />
+          </main>
+          <Footer />
+        </>
+      )
+    }
+  }
+
+  // Check if current user has blocked this profile user
+  const isBlockedByViewer = currentUser && !isOwnProfile
+    ? await hasBlocked(currentUser.id, user.id)
+    : false
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -171,6 +212,11 @@ export default async function ProfilePage({
                             <Mail className="h-4 w-4" />
                             Message
                           </Link>
+                          <BlockUserButton
+                            userId={user.id}
+                            username={user.username || username}
+                            isBlocked={isBlockedByViewer}
+                          />
                         </>
                       )}
                     </div>
