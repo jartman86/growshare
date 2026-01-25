@@ -125,34 +125,34 @@ export default async function DashboardPage() {
             {/* Upcoming Section - 1 column */}
             <div className="space-y-6">
               {/* Upcoming Tasks */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6">
-                <h3 className="text-lg font-bold text-[#2d5016] mb-4">Upcoming</h3>
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-6">
+                <h3 className="text-lg font-bold text-[#2d5016] dark:text-green-400 mb-4">Upcoming</h3>
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-3 bg-[#a8dadc]/20 rounded-lg border border-[#87ceeb]/30">
-                    <div className="w-2 h-2 bg-[#457b9d] rounded-full mt-2"></div>
+                  <div className="flex items-start gap-3 p-3 bg-[#a8dadc]/20 dark:bg-blue-900/20 rounded-lg border border-[#87ceeb]/30 dark:border-blue-800">
+                    <div className="w-2 h-2 bg-[#457b9d] dark:bg-blue-400 rounded-full mt-2"></div>
                     <div>
-                      <p className="font-medium text-[#2d5016] text-sm">
+                      <p className="font-medium text-[#2d5016] dark:text-white text-sm">
                         Water tomatoes
                       </p>
-                      <p className="text-xs text-[#4a3f35]">Due tomorrow</p>
+                      <p className="text-xs text-[#4a3f35] dark:text-gray-400">Due tomorrow</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-[#aed581]/20 rounded-lg border border-[#8bc34a]/30">
-                    <div className="w-2 h-2 bg-[#4a7c2c] rounded-full mt-2"></div>
+                  <div className="flex items-start gap-3 p-3 bg-[#aed581]/20 dark:bg-green-900/20 rounded-lg border border-[#8bc34a]/30 dark:border-green-800">
+                    <div className="w-2 h-2 bg-[#4a7c2c] dark:bg-green-400 rounded-full mt-2"></div>
                     <div>
-                      <p className="font-medium text-[#2d5016] text-sm">
+                      <p className="font-medium text-[#2d5016] dark:text-white text-sm">
                         Harvest carrots
                       </p>
-                      <p className="text-xs text-[#4a3f35]">Due in 3 days</p>
+                      <p className="text-xs text-[#4a3f35] dark:text-gray-400">Due in 3 days</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-[#b19cd9]/20 rounded-lg border border-[#9c4dcc]/30">
-                    <div className="w-2 h-2 bg-[#9c4dcc] rounded-full mt-2"></div>
+                  <div className="flex items-start gap-3 p-3 bg-[#b19cd9]/20 dark:bg-purple-900/20 rounded-lg border border-[#9c4dcc]/30 dark:border-purple-800">
+                    <div className="w-2 h-2 bg-[#9c4dcc] dark:bg-purple-400 rounded-full mt-2"></div>
                     <div>
-                      <p className="font-medium text-[#2d5016] text-sm">
+                      <p className="font-medium text-[#2d5016] dark:text-white text-sm">
                         Complete Organic Practices course
                       </p>
-                      <p className="text-xs text-[#4a3f35]">70% complete</p>
+                      <p className="text-xs text-[#4a3f35] dark:text-gray-400">70% complete</p>
                     </div>
                   </div>
                 </div>
@@ -192,12 +192,12 @@ export default async function DashboardPage() {
           </div>
 
           {/* Achievements Timeline (Coming Soon) */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 shadow-md">
-            <h2 className="text-2xl font-bold text-[#2d5016] mb-4">
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-6 shadow-md">
+            <h2 className="text-2xl font-bold text-[#2d5016] dark:text-green-400 mb-4">
               Your Growing Journey
             </h2>
             <div className="relative">
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#8bc34a] to-[#4a7c2c]"></div>
+              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#8bc34a] to-[#4a7c2c] dark:from-green-500 dark:to-green-700"></div>
               <div className="space-y-6">
                 {[
                   {
@@ -237,12 +237,12 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex-1 pb-6">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-[#2d5016]">
+                        <h3 className="font-semibold text-[#2d5016] dark:text-white">
                           {milestone.title}
                         </h3>
-                        <span className="text-xs text-[#4a3f35]">{milestone.date}</span>
+                        <span className="text-xs text-[#4a3f35] dark:text-gray-400">{milestone.date}</span>
                       </div>
-                      <p className="text-sm text-[#4a3f35] mt-1">
+                      <p className="text-sm text-[#4a3f35] dark:text-gray-400 mt-1">
                         {milestone.description}
                       </p>
                     </div>

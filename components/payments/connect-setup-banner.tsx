@@ -70,10 +70,10 @@ export function ConnectSetupBanner() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-200 rounded-xl p-4 mb-6 relative">
+    <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6 relative">
       <button
         onClick={handleDismiss}
-        className="absolute top-2 right-2 p-1 text-amber-600 hover:text-amber-800 hover:bg-amber-100 rounded-full transition-colors"
+        className="absolute top-2 right-2 p-1 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-full transition-colors"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" />
@@ -81,17 +81,17 @@ export function ConnectSetupBanner() {
 
       <div className="flex items-start gap-4 pr-8">
         <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-            <CreditCard className="h-6 w-6 text-amber-600" />
+          <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <CreditCard className="h-6 w-6 text-amber-600 dark:text-amber-400" />
           </div>
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-amber-900">
+          <h3 className="text-lg font-semibold text-amber-900 dark:text-amber-400">
             {status?.hasConnectAccount
               ? 'Complete Your Payout Setup'
               : 'Set Up Payouts to Receive Earnings'}
           </h3>
-          <p className="text-amber-700 mt-1 text-sm">
+          <p className="text-amber-700 dark:text-amber-300 mt-1 text-sm">
             {status?.hasConnectAccount
               ? 'You started setting up payouts but haven\'t finished. Complete the setup to receive payments from your plot rentals.'
               : 'Connect your bank account to receive payments when renters book your plots. It only takes a few minutes.'}
