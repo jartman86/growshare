@@ -46,10 +46,10 @@ export default function NewPostPage() {
       })
 
       if (response.ok) {
-        const post = await response.json()
+        const data = await response.json()
         setMessage('Post created successfully!')
         setTimeout(() => {
-          router.push(`/profile/${post.author.username}/posts/${post.slug}`)
+          router.push(`/profile/${data.post.author.username}/posts/${data.post.slug}`)
         }, 1500)
       } else {
         const error = await response.json()
