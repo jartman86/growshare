@@ -2,15 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs'
+import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs'
 import {
   MapIcon,
   ShoppingBagIcon,
   BookOpenIcon,
   MessageSquareIcon,
-  LayoutDashboardIcon,
   Sprout,
   TrophyIcon,
   WrenchIcon,
@@ -18,76 +16,24 @@ import {
   Mail,
   Users,
   Target,
-  BookIcon,
-  List,
-  CalendarIcon,
-  BugIcon,
-  FlowerIcon,
   CalendarDays,
+  Plus,
   User as UserIcon,
-  Package,
-  Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavDropdown } from '@/components/ui/dropdown-menu'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { SearchBar } from '@/components/layout/search-bar'
 import { VerificationBanner } from '@/components/verification/verification-banner'
+import { UserMenuDropdown } from '@/components/layout/user-menu-dropdown'
 
+// Top-level standalone nav items (no dropdown)
 const standaloneNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
-  { name: 'Tools', href: '/tools', icon: WrenchIcon },
 ]
 
-const dashboardDropdownItems = [
-  {
-    label: 'Overview',
-    href: '/dashboard',
-    icon: <LayoutDashboardIcon className="h-4 w-4" />,
-    description: 'Your activity hub',
-  },
-  {
-    label: 'My Orders',
-    href: '/dashboard/orders',
-    icon: <ShoppingBagIcon className="h-4 w-4" />,
-    description: 'Track purchases',
-  },
-  {
-    label: 'Journal',
-    href: '/dashboard/journal',
-    icon: <BookIcon className="h-4 w-4" />,
-    description: 'Track your crops',
-  },
-  {
-    label: 'Challenges',
-    href: '/challenges',
-    icon: <Target className="h-4 w-4" />,
-    description: 'Compete and earn',
-  },
-  {
-    label: 'Leaderboard',
-    href: '/leaderboard',
-    icon: <TrophyIcon className="h-4 w-4" />,
-    description: 'Top growers',
-  },
-]
-
-const learningDropdownItems = [
-  {
-    label: 'Courses',
-    href: '/knowledge',
-    icon: <BookOpenIcon className="h-4 w-4" />,
-    description: 'Educational courses',
-  },
-  {
-    label: 'Resources',
-    href: '/resources',
-    icon: <Sprout className="h-4 w-4" />,
-    description: 'Plant guides & tips',
-  },
-]
-
+// Community dropdown - includes social features + gamification
 const communityDropdownItems = [
   {
     label: 'Forum',
@@ -107,35 +53,43 @@ const communityDropdownItems = [
     icon: <CalendarDays className="h-4 w-4" />,
     description: 'Upcoming events',
   },
-]
-
-const bookingsDropdownItems = [
   {
-    label: 'My Bookings',
-    href: '/my-bookings',
-    icon: <CalendarIcon className="h-4 w-4" />,
-    description: 'Your plot bookings',
+    label: 'Challenges',
+    href: '/challenges',
+    icon: <Target className="h-4 w-4" />,
+    description: 'Compete and earn',
   },
   {
-    label: 'Manage Bookings',
-    href: '/manage-bookings',
-    icon: <CalendarDays className="h-4 w-4" />,
-    description: 'Review requests',
+    label: 'Leaderboard',
+    href: '/leaderboard',
+    icon: <TrophyIcon className="h-4 w-4" />,
+    description: 'Top growers',
   },
 ]
 
-const sellDropdownItems = [
+// Learn dropdown - educational content
+const learnDropdownItems = [
   {
-    label: 'Seller Dashboard',
-    href: '/dashboard/sell',
-    icon: <ShoppingBagIcon className="h-4 w-4" />,
-    description: 'Manage your listings',
+    label: 'Courses',
+    href: '/knowledge',
+    icon: <BookOpenIcon className="h-4 w-4" />,
+    description: 'Educational courses',
   },
   {
-    label: 'Incoming Orders',
-    href: '/dashboard/sell/orders',
-    icon: <Package className="h-4 w-4" />,
-    description: 'Manage buyer orders',
+    label: 'Resources',
+    href: '/resources',
+    icon: <Sprout className="h-4 w-4" />,
+    description: 'Plant guides & tips',
+  },
+]
+
+// List dropdown - all listing/sharing actions
+const listDropdownItems = [
+  {
+    label: 'List a Plot',
+    href: '/list-plot',
+    icon: <MapIcon className="h-4 w-4" />,
+    description: 'Rent out your land',
   },
   {
     label: 'List Produce',
@@ -144,23 +98,22 @@ const sellDropdownItems = [
     description: 'Sell your harvest',
   },
   {
-    label: 'List a Plot',
-    href: '/list-plot',
-    icon: <MapIcon className="h-4 w-4" />,
-    description: 'Rent out your land',
-  },
-  {
     label: 'List a Tool',
     href: '/tools/list',
     icon: <WrenchIcon className="h-4 w-4" />,
     description: 'Share your equipment',
   },
+  {
+    label: 'Browse Tools',
+    href: '/tools',
+    icon: <WrenchIcon className="h-4 w-4" />,
+    description: 'Find equipment to rent',
+  },
 ]
 
-// Bottom mobile navigation - only most essential items (Profile is dynamic, added in component)
+// Mobile bottom navigation
 const mobileNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboardIcon },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingBagIcon },
   { name: 'Community', href: '/community', icon: MessageSquareIcon },
 ]
@@ -169,10 +122,13 @@ export function Header() {
   const pathname = usePathname()
   const { isSignedIn, user } = useUser()
   const [username, setUsername] = useState<string | null>(null)
+  const [userAvatar, setUserAvatar] = useState<string | null>(null)
+  const [firstName, setFirstName] = useState<string | null>(null)
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [showMobileListMenu, setShowMobileListMenu] = useState(false)
 
-  // Fetch user's username and role
+  // Fetch user's profile data
   useEffect(() => {
     if (isSignedIn) {
       fetch('/api/profile')
@@ -180,6 +136,12 @@ export function Header() {
         .then((data) => {
           if (data.username) {
             setUsername(data.username)
+          }
+          if (data.avatar) {
+            setUserAvatar(data.avatar)
+          }
+          if (data.firstName) {
+            setFirstName(data.firstName)
           }
           if (data.role && data.role.includes('ADMIN')) {
             setIsAdmin(true)
@@ -204,38 +166,28 @@ export function Header() {
         .catch((err) => console.error('Failed to fetch unread count:', err))
     }
 
-    // Fetch immediately on mount
     fetchUnreadCount()
-
-    // Poll every 30 seconds
     const interval = setInterval(fetchUnreadCount, 30000)
-
     return () => clearInterval(interval)
   }, [isSignedIn])
 
-  const isDashboardActive =
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/challenges') ||
-    pathname.startsWith('/leaderboard') ||
-    pathname.startsWith('/journal')
-
-  const isLearningActive =
-    pathname.startsWith('/knowledge') ||
-    pathname.startsWith('/resources')
-
+  // Active state checks
   const isCommunityActive =
     pathname.startsWith('/community') ||
     pathname.startsWith('/groups') ||
-    pathname.startsWith('/events')
+    pathname.startsWith('/events') ||
+    pathname.startsWith('/challenges') ||
+    pathname.startsWith('/leaderboard')
 
-  const isBookingsActive =
-    pathname.startsWith('/my-bookings') ||
-    pathname.startsWith('/manage-bookings')
+  const isLearnActive =
+    pathname.startsWith('/knowledge') ||
+    pathname.startsWith('/resources')
 
-  const isSellActive =
-    pathname.startsWith('/dashboard/sell') ||
+  const isListActive =
     pathname.startsWith('/list-plot') ||
-    pathname.startsWith('/tools/list')
+    pathname.startsWith('/dashboard/sell/new') ||
+    pathname.startsWith('/tools/list') ||
+    pathname === '/tools'
 
   return (
     <>
@@ -255,7 +207,7 @@ export function Header() {
 
             {/* Main Navigation - Desktop */}
             <div className="hidden lg:flex items-center space-x-1">
-              {/* Standalone Nav Items */}
+              {/* Standalone Nav Items (Explore, Marketplace) */}
               {standaloneNavItems.map((item) => {
                 const Icon = item.icon
                 const isActive = pathname.startsWith(item.href)
@@ -277,22 +229,6 @@ export function Header() {
                 )
               })}
 
-              {/* Learning Dropdown */}
-              <NavDropdown
-                trigger="Learning"
-                icon={<BookOpenIcon className="h-4 w-4" />}
-                items={learningDropdownItems}
-                isActive={isLearningActive}
-              />
-
-              {/* Dashboard Dropdown */}
-              <NavDropdown
-                trigger="Dashboard"
-                icon={<LayoutDashboardIcon className="h-4 w-4" />}
-                items={dashboardDropdownItems}
-                isActive={isDashboardActive}
-              />
-
               {/* Community Dropdown */}
               <NavDropdown
                 trigger="Community"
@@ -301,45 +237,27 @@ export function Header() {
                 isActive={isCommunityActive}
               />
 
-              {/* Bookings Dropdown */}
+              {/* Learn Dropdown */}
+              <NavDropdown
+                trigger="Learn"
+                icon={<BookOpenIcon className="h-4 w-4" />}
+                items={learnDropdownItems}
+                isActive={isLearnActive}
+              />
+
+              {/* List Dropdown (authenticated only) */}
               {isSignedIn && (
                 <NavDropdown
-                  trigger="Bookings"
-                  icon={<CalendarIcon className="h-4 w-4" />}
-                  items={bookingsDropdownItems}
-                  isActive={isBookingsActive}
+                  trigger="List"
+                  icon={<Plus className="h-4 w-4" />}
+                  items={listDropdownItems}
+                  isActive={isListActive}
                 />
-              )}
-
-              {/* Sell Dropdown */}
-              {isSignedIn && (
-                <NavDropdown
-                  trigger="Sell"
-                  icon={<ShoppingBagIcon className="h-4 w-4" />}
-                  items={sellDropdownItems}
-                  isActive={isSellActive}
-                />
-              )}
-
-              {/* Admin Link */}
-              {isSignedIn && isAdmin && (
-                <Link
-                  href="/admin"
-                  className={cn(
-                    'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
-                    pathname.startsWith('/admin')
-                      ? 'bg-[#5a7f3a] text-white shadow-sm'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                  )}
-                >
-                  <LayoutDashboardIcon className="h-4 w-4" />
-                  <span>Admin</span>
-                </Link>
               )}
             </div>
 
             {/* User Menu */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               {/* Search */}
               <div className="hidden sm:block">
                 <SearchBar />
@@ -347,6 +265,9 @@ export function Header() {
 
               {isSignedIn ? (
                 <>
+                  {/* Notifications */}
+                  <NotificationDropdown />
+
                   {/* Messages Icon */}
                   <Link
                     href="/messages"
@@ -361,45 +282,12 @@ export function Header() {
                     )}
                   </Link>
 
-                  {/* My Plots Link */}
-                  <Link
-                    href="/my-plots"
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-all"
-                    title="My Plots"
-                  >
-                    <List className="h-5 w-5 text-gray-700" />
-                  </Link>
-
-                  {/* Notification Bell */}
-                  <NotificationDropdown />
-
-                  {/* Profile Link */}
-                  {username && (
-                    <Link
-                      href={`/profile/${username}`}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-all"
-                      title="View Profile"
-                    >
-                      <UserIcon className="h-5 w-5 text-gray-700" />
-                    </Link>
-                  )}
-
-                  {/* Settings Link */}
-                  <Link
-                    href="/settings"
-                    className="p-2 rounded-lg hover:bg-gray-100 transition-all"
-                    title="Settings"
-                  >
-                    <Settings className="h-5 w-5 text-gray-700" />
-                  </Link>
-
-                  <UserButton
-                    afterSignOutUrl="/"
-                    appearance={{
-                      elements: {
-                        avatarBox: 'h-9 w-9 ring-2 ring-gray-200 hover:ring-gray-300 transition-all',
-                      },
-                    }}
+                  {/* User Menu Dropdown */}
+                  <UserMenuDropdown
+                    username={username}
+                    avatar={userAvatar}
+                    firstName={firstName}
+                    isAdmin={isAdmin}
                   />
                 </>
               ) : (
@@ -425,6 +313,7 @@ export function Header() {
       {isSignedIn && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur border-t-2 border-[#8bc34a]/30 shadow-lg">
           <div className="grid grid-cols-5 gap-1 px-2 py-2">
+            {/* Main nav items */}
             {mobileNavItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname.startsWith(item.href)
@@ -446,22 +335,65 @@ export function Header() {
               )
             })}
 
-            {/* Profile Link */}
-            {username && (
-              <Link
-                href={`/profile/${username}`}
-                className={cn(
-                  'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
-                  pathname.startsWith(`/profile/${username}`)
-                    ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                    : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
-                )}
-              >
-                <UserIcon className={cn('h-5 w-5', pathname.startsWith(`/profile/${username}`) && 'scale-110')} />
-                <span className="text-[10px]">Profile</span>
-              </Link>
-            )}
+            {/* List/Create Button */}
+            <button
+              onClick={() => setShowMobileListMenu(!showMobileListMenu)}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                showMobileListMenu
+                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
+                  : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
+              )}
+            >
+              <Plus className={cn('h-5 w-5', showMobileListMenu && 'scale-110')} />
+              <span className="text-[10px]">List</span>
+            </button>
+
+            {/* Account Button - uses same dropdown as desktop */}
+            <Link
+              href="/dashboard"
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                pathname.startsWith('/dashboard') || pathname.startsWith('/settings') || pathname.startsWith('/profile')
+                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
+                  : 'text-[#4a3f35] hover:text-[#2d5016] hover:bg-[#aed581]/20'
+              )}
+            >
+              <UserIcon className={cn('h-5 w-5', (pathname.startsWith('/dashboard') || pathname.startsWith('/settings') || pathname.startsWith('/profile')) && 'scale-110')} />
+              <span className="text-[10px]">Account</span>
+            </Link>
           </div>
+
+          {/* Mobile List Menu Popup */}
+          {showMobileListMenu && (
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 bg-black/20 z-40"
+                onClick={() => setShowMobileListMenu(false)}
+              />
+              {/* Menu */}
+              <div className="absolute bottom-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 animate-in slide-in-from-bottom-2">
+                <div className="p-4 space-y-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Create Listing</p>
+                  {listDropdownItems.slice(0, 3).map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setShowMobileListMenu(false)}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors"
+                    >
+                      <span className="text-gray-400">{item.icon}</span>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{item.label}</p>
+                        <p className="text-xs text-gray-500">{item.description}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </>
