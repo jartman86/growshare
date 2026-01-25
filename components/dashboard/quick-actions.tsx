@@ -61,7 +61,7 @@ export function QuickActions({ userRole }: QuickActionsProps) {
     },
     {
       label: 'My Bookings',
-      href: '/dashboard/bookings',
+      href: '/my-bookings',
       icon: Calendar,
       color: 'bg-teal-600 hover:bg-teal-700',
     },
