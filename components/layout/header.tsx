@@ -206,7 +206,7 @@ export function Header() {
             </Link>
 
             {/* Main Navigation - Desktop */}
-            <div className="hidden lg:flex items-center space-x-1">
+            <div className="hidden lg:flex items-center space-x-2">
               {/* Standalone Nav Items (Explore, Marketplace) */}
               {standaloneNavItems.map((item) => {
                 const Icon = item.icon
@@ -217,13 +217,13 @@ export function Header() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                      'flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-base font-medium transition-all',
                       isActive
                         ? 'bg-[#5a7f3a] text-white shadow-sm'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     )}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-5 w-5" />
                     <span>{item.name}</span>
                   </Link>
                 )
@@ -232,7 +232,7 @@ export function Header() {
               {/* Community Dropdown */}
               <NavDropdown
                 trigger="Community"
-                icon={<MessageSquareIcon className="h-4 w-4" />}
+                icon={<MessageSquareIcon className="h-5 w-5" />}
                 items={communityDropdownItems}
                 isActive={isCommunityActive}
               />
@@ -240,7 +240,7 @@ export function Header() {
               {/* Learn Dropdown */}
               <NavDropdown
                 trigger="Learn"
-                icon={<BookOpenIcon className="h-4 w-4" />}
+                icon={<BookOpenIcon className="h-5 w-5" />}
                 items={learnDropdownItems}
                 isActive={isLearnActive}
               />
@@ -249,7 +249,7 @@ export function Header() {
               {isSignedIn && (
                 <NavDropdown
                   trigger="List"
-                  icon={<Plus className="h-4 w-4" />}
+                  icon={<Plus className="h-5 w-5" />}
                   items={listDropdownItems}
                   isActive={isListActive}
                 />

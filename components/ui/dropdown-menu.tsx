@@ -28,7 +28,7 @@ export function NavDropdown({ trigger, icon, items, isActive }: NavDropdownProps
         <button
           suppressHydrationWarning
           className={`
-            flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all
+            flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-base font-medium transition-all
             ${
               isActive
                 ? 'bg-green-50 text-green-700'
