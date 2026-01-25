@@ -21,7 +21,7 @@ export async function GET() {
       totalRevenue,
       recentUsers,
       recentBookings,
-      usersByRole,
+      allUsers,
       verifiedUsers,
     ] = await Promise.all([
       prisma.user.count(),
@@ -44,18 +44,17 @@ export async function GET() {
           createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
         },
       }),
-      prisma.user.groupBy({
-        by: ['role'],
-        _count: true,
+      prisma.user.findMany({
+        select: { role: true },
       }),
       prisma.user.count({ where: { isVerified: true } }),
     ])
 
-    // Calculate role counts
+    // Calculate role counts from all users
     const roleCounts: Record<string, number> = {}
-    usersByRole.forEach((item: { role: string[]; _count: number }) => {
-      item.role.forEach((role: string) => {
-        roleCounts[role] = (roleCounts[role] || 0) + item._count
+    allUsers.forEach((user: { role: string[] }) => {
+      user.role.forEach((role: string) => {
+        roleCounts[role] = (roleCounts[role] || 0) + 1
       })
     })
 
