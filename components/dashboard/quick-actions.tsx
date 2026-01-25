@@ -80,8 +80,8 @@ export function QuickActions({ userRole }: QuickActionsProps) {
   ]
 
   return (
-    <div className="bg-white rounded-xl border p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Actions</h2>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {actions.map((action, index) => (

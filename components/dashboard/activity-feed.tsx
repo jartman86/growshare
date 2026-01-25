@@ -50,14 +50,14 @@ const activityColors: Record<string, string> = {
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {
   return (
-    <div className="bg-white rounded-xl border p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Recent Activity</h2>
 
       {activities.length === 0 ? (
         <div className="text-center py-12">
-          <TrendingUp className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <h3 className="font-semibold text-gray-900 mb-1">No activity yet</h3>
-          <p className="text-sm text-gray-600">
+          <TrendingUp className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">No activity yet</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Start farming, earn badges, and complete courses to see your activity here!
           </p>
         </div>
@@ -68,28 +68,28 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
             const colorClass = activityColors[activity.type] || 'bg-gray-100 text-gray-600'
 
             return (
-              <div key={activity.id} className="flex gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full ${colorClass} flex items-center justify-center`}>
+              <div key={activity.id} className="flex gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full ${colorClass} dark:bg-opacity-20 flex items-center justify-center`}>
                   <Icon className="h-5 w-5" />
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{activity.title}</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-white">{activity.title}</h4>
                       {activity.description && (
-                        <p className="text-sm text-gray-600 mt-0.5">{activity.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{activity.description}</p>
                       )}
                     </div>
 
                     {activity.points && activity.points > 0 && (
-                      <span className="flex-shrink-0 px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                      <span className="flex-shrink-0 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold rounded-full">
                         +{activity.points} pts
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                     {formatRelativeTime(activity.timestamp)}
                   </p>
                 </div>

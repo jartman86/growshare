@@ -14,38 +14,38 @@ export function BadgeShowcase({ earnedBadges }: BadgeShowcaseProps) {
   const locked = allBadges.filter(([key]) => !earnedBadges.includes(key))
 
   return (
-    <div className="bg-white rounded-xl border p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Your Badges</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Badges</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {earned.length} of {allBadges.length} earned
           </p>
         </div>
         <div className="text-right">
-          <div className="text-3xl font-bold text-green-600">{earned.length}</div>
-          <div className="text-xs text-gray-500">Total Badges</div>
+          <div className="text-3xl font-bold text-green-600 dark:text-green-400">{earned.length}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">Total Badges</div>
         </div>
       </div>
 
       {/* Earned Badges */}
       {earned.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Earned</h3>
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Earned</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {earned.map(([key, badge]) => (
               <div
                 key={key}
-                className="group relative bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-4 border-2 border-yellow-300 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+                className="group relative bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg p-4 border-2 border-yellow-300 dark:border-yellow-700 shadow-sm hover:shadow-lg transition-all cursor-pointer"
               >
                 <div className="text-4xl mb-2">{badge.icon}</div>
-                <h4 className="font-semibold text-gray-900 text-sm mb-1">{badge.name}</h4>
-                <p className="text-xs text-gray-600 line-clamp-2">{badge.description}</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">{badge.name}</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{badge.description}</p>
                 <div className="mt-2 flex items-center gap-1">
-                  <span className="text-xs font-semibold text-yellow-700">
+                  <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-400">
                     +{badge.points} pts
                   </span>
-                  <span className="text-xs px-2 py-0.5 bg-yellow-200 text-yellow-800 rounded-full">
+                  <span className="text-xs px-2 py-0.5 bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 rounded-full">
                     {badge.tier}
                   </span>
                 </div>
@@ -69,23 +69,23 @@ export function BadgeShowcase({ earnedBadges }: BadgeShowcaseProps) {
       {/* Locked Badges */}
       {locked.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
             Available ({locked.length})
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {locked.slice(0, 8).map(([key, badge]) => (
               <div
                 key={key}
-                className="group relative bg-gray-50 rounded-lg p-4 border-2 border-gray-200 opacity-60 hover:opacity-100 transition-all cursor-pointer"
+                className="group relative bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border-2 border-gray-200 dark:border-gray-600 opacity-60 hover:opacity-100 transition-all cursor-pointer"
               >
                 <div className="relative">
                   <div className="text-4xl mb-2 grayscale">{badge.icon}</div>
                   <Lock className="absolute top-0 right-0 h-4 w-4 text-gray-400" />
                 </div>
-                <h4 className="font-semibold text-gray-700 text-sm mb-1">{badge.name}</h4>
-                <p className="text-xs text-gray-500 line-clamp-2">{badge.description}</p>
+                <h4 className="font-semibold text-gray-700 dark:text-gray-300 text-sm mb-1">{badge.name}</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{badge.description}</p>
                 <div className="mt-2">
-                  <span className="text-xs text-gray-500">+{badge.points} pts</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">+{badge.points} pts</span>
                 </div>
 
                 {/* Tooltip */}

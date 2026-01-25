@@ -100,10 +100,10 @@ export function SearchBar() {
             setIsOpen(true)
             setTimeout(() => inputRef.current?.focus(), 100)
           }}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-all"
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
           title="Search"
         >
-          <Search className="h-5 w-5 text-gray-700" />
+          <Search className="h-5 w-5 text-gray-700 dark:text-white" />
         </button>
       )}
 
@@ -118,7 +118,7 @@ export function SearchBar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search..."
-              className="w-full pl-10 pr-10 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-green-500 focus:ring-0 bg-white shadow-lg"
+              className="w-full pl-10 pr-10 py-2 text-sm border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:border-green-500 focus:ring-0 bg-white dark:bg-gray-800 dark:text-white shadow-lg"
             />
             <button
               type="button"
@@ -134,7 +134,7 @@ export function SearchBar() {
 
           {/* Dropdown Results */}
           {(results.length > 0 || loading) && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border max-h-80 overflow-y-auto z-50">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border dark:border-gray-700 max-h-80 overflow-y-auto z-50">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
@@ -148,17 +148,17 @@ export function SearchBar() {
                         key={`${result.type}-${result.id}`}
                         href={result.url}
                         onClick={handleResultClick}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b dark:border-gray-700 last:border-b-0"
                       >
-                        <div className="p-1.5 bg-gray-100 rounded">
-                          <Icon className="h-4 w-4 text-gray-600" />
+                        <div className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded">
+                          <Icon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                             {result.title}
                           </p>
                           {result.subtitle && (
-                            <p className="text-xs text-gray-500 truncate">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                               {result.subtitle}
                             </p>
                           )}
@@ -169,7 +169,7 @@ export function SearchBar() {
                   <Link
                     href={`/search?q=${encodeURIComponent(query)}`}
                     onClick={handleResultClick}
-                    className="block px-4 py-3 text-sm text-center text-green-600 hover:bg-green-50 font-medium"
+                    className="block px-4 py-3 text-sm text-center text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700 font-medium"
                   >
                     View all results for "{query}"
                   </Link>

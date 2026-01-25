@@ -267,3 +267,99 @@ html {
 .animate-pulse-subtle {
   animation: pulse-subtle 2s ease-in-out infinite;
 }
+
+/* Global dark mode overrides for common Tailwind classes */
+/* These ensure consistent dark mode across all pages */
+
+/* Background colors */
+.dark .bg-gray-50 {
+  background-color: #111111 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1a1a1a !important;
+}
+
+.dark .bg-white {
+  background-color: #1f1f1f !important;
+}
+
+/* Text colors */
+.dark .text-gray-900 {
+  color: #fafafa !important;
+}
+
+.dark .text-gray-800 {
+  color: #e5e5e5 !important;
+}
+
+.dark .text-gray-700 {
+  color: #d4d4d4 !important;
+}
+
+.dark .text-gray-600 {
+  color: #a3a3a3 !important;
+}
+
+.dark .text-gray-500 {
+  color: #737373 !important;
+}
+
+/* Border colors */
+.dark .border-gray-200 {
+  border-color: #333333 !important;
+}
+
+.dark .border-gray-100 {
+  border-color: #2a2a2a !important;
+}
+
+.dark .border {
+  border-color: #333333;
+}
+
+/* Card and panel backgrounds */
+.dark .bg-green-50 {
+  background-color: rgba(74, 124, 44, 0.15) !important;
+}
+
+.dark .bg-blue-50 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+.dark .bg-yellow-50 {
+  background-color: rgba(234, 179, 8, 0.15) !important;
+}
+
+.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Hover states */
+.dark .hover\:bg-gray-50:hover {
+  background-color: #2a2a2a !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #333333 !important;
+}
+
+/* Input and form elements */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #1f1f1f;
+  border-color: #333333;
+  color: #fafafa;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #737373;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #4a7c2c;
+}

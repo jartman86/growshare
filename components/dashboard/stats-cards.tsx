@@ -77,20 +77,20 @@ export function StatsCards({ stats, userRole }: StatsCardsProps) {
       {cards.map((card, index) => (
         <div
           key={index}
-          className="bg-white rounded-xl border p-6 hover:shadow-lg transition-shadow"
+          className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-6 hover:shadow-lg transition-shadow"
         >
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">{card.label}</p>
-              <p className="text-3xl font-bold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{card.label}</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">
                 {card.value}
                 {card.suffix && (
-                  <span className="text-lg text-gray-500">{card.suffix}</span>
+                  <span className="text-lg text-gray-500 dark:text-gray-400">{card.suffix}</span>
                 )}
               </p>
             </div>
 
-            <div className={`${card.bgColor} ${card.color} p-3 rounded-lg`}>
+            <div className={`${card.bgColor} dark:bg-opacity-20 ${card.color} p-3 rounded-lg`}>
               <card.icon className="h-6 w-6" />
             </div>
           </div>
