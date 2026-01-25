@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils'
 import { NavDropdown } from '@/components/ui/dropdown-menu'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { SearchBar } from '@/components/layout/search-bar'
+import { VerificationBanner } from '@/components/verification/verification-banner'
 
 const standaloneNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
@@ -225,6 +226,7 @@ export function Header() {
 
   return (
     <>
+      {isSignedIn && <VerificationBanner />}
       <header className="sticky top-0 z-50 w-full border-b-2 border-[#8bc34a]/30 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-md">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-2">
