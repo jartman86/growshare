@@ -179,6 +179,48 @@ export function FilterSidebar({ filters, onFiltersChange, plotCount }: FilterSid
             )}
           </div>
 
+          {/* Availability Dates */}
+          <div className="mb-6 pb-6 border-b">
+            <button
+              onClick={() => toggleSection('availability')}
+              className="w-full flex items-center justify-between mb-3"
+            >
+              <h3 className="text-sm font-semibold text-gray-900">Availability</h3>
+              {expandedSections.availability ? (
+                <ChevronUp className="h-4 w-4 text-gray-500" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              )}
+            </button>
+
+            {expandedSections.availability && (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Available From</label>
+                  <input
+                    type="date"
+                    value={filters.availableFrom || ''}
+                    onChange={(e) => updateFilter('availableFrom', e.target.value || undefined)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-600 mb-1 block">Available To</label>
+                  <input
+                    type="date"
+                    value={filters.availableTo || ''}
+                    min={filters.availableFrom || undefined}
+                    onChange={(e) => updateFilter('availableTo', e.target.value || undefined)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">
+                  Find plots available during your desired time period
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Features */}
           <div className="mb-6 pb-6 border-b">
             <button

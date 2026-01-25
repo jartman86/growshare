@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
 export async function GET(request: NextRequest) {
   try {
@@ -86,17 +86,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const currentUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
-    })
+    // Require verified email to create marketplace listings
+    const currentUser = await ensureVerifiedUser()
 
     if (!currentUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -203,6 +197,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(listing, { status: 201 })
   } catch (error) {
+    if (error instanceof EmailNotVerifiedError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 403 }
+      )
+    }
     console.error('Error creating marketplace listing:', error)
     return NextResponse.json(
       { error: 'Failed to create listing' },

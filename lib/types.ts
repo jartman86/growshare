@@ -34,4 +34,6 @@ export interface MapFilters {
   usdaZones?: string[]
   status?: ('ACTIVE' | 'RENTED' | 'INACTIVE')[]
   searchLocation?: string
+  availableFrom?: string
+  availableTo?: string
 }

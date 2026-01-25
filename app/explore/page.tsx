@@ -37,6 +37,8 @@ export default function ExplorePage() {
         if (filters.hasGreenhouse) params.append('hasGreenhouse', 'true')
         if (filters.hasElectricity) params.append('hasElectricity', 'true')
         if (filters.status?.length) params.append('status', filters.status.join(','))
+        if (filters.availableFrom) params.append('availableFrom', filters.availableFrom)
+        if (filters.availableTo) params.append('availableTo', filters.availableTo)
 
         const response = await fetch(`/api/plots?${params.toString()}`)
         if (!response.ok) throw new Error('Failed to fetch plots')
