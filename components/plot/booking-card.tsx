@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Calendar, Users, X, CheckCircle, AlertCircle } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { AvailabilityCalendar } from './availability-calendar'
 
 interface BookingCardProps {
   plotId: string
@@ -14,6 +15,7 @@ interface BookingCardProps {
   reviewCount?: number
   plotTitle: string
   instantBook?: boolean
+  minimumLease?: number
 }
 
 export function BookingCard({
@@ -25,20 +27,48 @@ export function BookingCard({
   reviewCount = 0,
   plotTitle,
   instantBook = false,
+  minimumLease = 3,
 }: BookingCardProps) {
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [selectedStart, setSelectedStart] = useState<Date | null>(null)
+  const [selectedEnd, setSelectedEnd] = useState<Date | null>(null)
+  const [calculatedMonths, setCalculatedMonths] = useState(0)
+  const [calculatedTotal, setCalculatedTotal] = useState(0)
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  const handleDateSelect = (start: Date | null, end: Date | null) => {
+    setSelectedStart(start)
+    setSelectedEnd(end)
+    if (start) {
+      setStartDate(start.toISOString().split('T')[0])
+    }
+    if (end) {
+      setEndDate(end.toISOString().split('T')[0])
+    }
+  }
+
+  const handlePriceCalculated = (months: number, total: number) => {
+    setCalculatedMonths(months)
+    setCalculatedTotal(total)
+  }
+
   const handleRequestBooking = () => {
     setIsModalOpen(true)
     setError(null)
     setSuccess(false)
+    setSelectedStart(null)
+    setSelectedEnd(null)
+    setStartDate('')
+    setEndDate('')
+    setCalculatedMonths(0)
+    setCalculatedTotal(0)
+    setMessage('')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -152,8 +182,8 @@ export function BookingCard({
 
       {/* Booking Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 my-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 {instantBook ? 'Book Instantly' : 'Request to Book'}
@@ -192,41 +222,49 @@ export function BookingCard({
                   )}
                 </div>
 
-                {/* Date Range */}
+                {/* Availability Calendar */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Dates
                   </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      required
-                      disabled={isLoading}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100"
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <AvailabilityCalendar
+                      plotId={plotId}
+                      selectedStart={selectedStart}
+                      selectedEnd={selectedEnd}
+                      onDateSelect={handleDateSelect}
+                      onPriceCalculated={handlePriceCalculated}
+                      pricePerMonth={pricePerMonth}
+                      minimumLease={minimumLease}
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      min={startDate || new Date().toISOString().split('T')[0]}
-                      required
-                      disabled={isLoading}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100"
-                    />
-                  </div>
+                  {selectedStart && selectedEnd && (
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Selected dates:</span>
+                        <span className="font-medium text-gray-900">
+                          {selectedStart.toLocaleDateString()} - {selectedEnd.toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm mt-1">
+                        <span className="text-gray-600">Duration:</span>
+                        <span className="font-medium text-gray-900">
+                          {calculatedMonths} {calculatedMonths === 1 ? 'month' : 'months'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm mt-1 pt-2 border-t border-green-200">
+                        <span className="font-medium text-gray-900">Estimated total:</span>
+                        <span className="font-bold text-green-700">
+                          {formatCurrency(calculatedTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {!selectedStart && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Click on a date to select your start date, then click another date for your end date.
+                    </p>
+                  )}
                 </div>
 
                 {/* Message */}
@@ -255,7 +293,7 @@ export function BookingCard({
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || !selectedStart || !selectedEnd}
                   className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Processing...' : (instantBook ? 'Confirm Booking' : 'Send Request')}

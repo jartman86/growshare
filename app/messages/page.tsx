@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { ConversationList } from '@/components/messages/conversation-list'
 import { ChatInterface } from '@/components/messages/chat-interface'
 import { NewMessageModal } from '@/components/messages/new-message-modal'
-import { Plus, MessageSquare, Loader2 } from 'lucide-react'
+import { Plus, MessageSquare, Loader2, Wifi, WifiOff } from 'lucide-react'
+
+const POLL_INTERVAL = 5000 // 5 seconds
 
 interface User {
   id: string
@@ -61,6 +63,67 @@ function MessagesPageContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string>('')
+  const [isConnected, setIsConnected] = useState(true)
+  const [lastPollTime, setLastPollTime] = useState<Date | null>(null)
+  const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const selectedUserIdRef = useRef<string | null>(null)
+
+  // Keep track of selected user for polling
+  useEffect(() => {
+    selectedUserIdRef.current = selectedConversation?.userId || null
+  }, [selectedConversation])
+
+  // Polling for new messages
+  const pollMessages = useCallback(async () => {
+    if (!selectedUserIdRef.current) return
+
+    try {
+      const response = await fetch(`/api/messages?userId=${selectedUserIdRef.current}`)
+      if (!response.ok) throw new Error('Failed to fetch')
+
+      const data = await response.json()
+      setMessages(data)
+      setIsConnected(true)
+      setLastPollTime(new Date())
+    } catch (error) {
+      console.error('Polling error:', error)
+      setIsConnected(false)
+    }
+  }, [])
+
+  // Polling for conversation list updates
+  const pollConversations = useCallback(async () => {
+    try {
+      const response = await fetch('/api/messages')
+      if (!response.ok) throw new Error('Failed to fetch')
+
+      const data = await response.json()
+      setConversations(data)
+      setIsConnected(true)
+    } catch (error) {
+      console.error('Polling error:', error)
+      setIsConnected(false)
+    }
+  }, [])
+
+  // Set up polling interval
+  useEffect(() => {
+    const poll = async () => {
+      await Promise.all([pollConversations(), pollMessages()])
+      pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL)
+    }
+
+    // Start polling after initial load
+    if (!isLoading) {
+      pollTimeoutRef.current = setTimeout(poll, POLL_INTERVAL)
+    }
+
+    return () => {
+      if (pollTimeoutRef.current) {
+        clearTimeout(pollTimeoutRef.current)
+      }
+    }
+  }, [isLoading, pollConversations, pollMessages])
 
   useEffect(() => {
     fetchConversations()
@@ -274,6 +337,28 @@ function MessagesPageContent() {
               <div className="flex items-center gap-3">
                 <MessageSquare className="h-8 w-8 drop-shadow-md" />
                 <h1 className="text-3xl font-bold drop-shadow-lg">Messages</h1>
+                {/* Connection Status */}
+                <div
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                    isConnected
+                      ? 'bg-green-500/20 text-green-100'
+                      : 'bg-red-500/20 text-red-100'
+                  }`}
+                  title={
+                    isConnected
+                      ? `Connected • Last updated ${lastPollTime?.toLocaleTimeString() || 'now'}`
+                      : 'Connection lost • Retrying...'
+                  }
+                >
+                  {isConnected ? (
+                    <Wifi className="h-3 w-3" />
+                  ) : (
+                    <WifiOff className="h-3 w-3" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {isConnected ? 'Live' : 'Offline'}
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setShowNewMessageModal(true)}

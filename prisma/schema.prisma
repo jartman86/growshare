@@ -200,11 +200,25 @@ model Plot {
   amenities         PlotAmenity[]
   soilTests         SoilTest[]
   reviews           Review[]
+  blockedDates      PlotBlockedDate[]
 
   @@index([ownerId])
   @@index([status])
   @@index([city, state])
   @@index([latitude, longitude])
+}
+
+model PlotBlockedDate {
+  id          String   @id @default(cuid())
+  plotId      String
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?  // e.g., "maintenance", "personal use", "seasonal closure"
+  createdAt   DateTime @default(now())
+
+  @@index([plotId])
+  @@index([startDate, endDate])
 }
 
 model PlotAmenity {
