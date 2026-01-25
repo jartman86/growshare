@@ -25,6 +25,8 @@ import {
   FlowerIcon,
   CalendarDays,
   User as UserIcon,
+  Package,
+  Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavDropdown } from '@/components/ui/dropdown-menu'
@@ -43,6 +45,12 @@ const dashboardDropdownItems = [
     href: '/dashboard',
     icon: <LayoutDashboardIcon className="h-4 w-4" />,
     description: 'Your activity hub',
+  },
+  {
+    label: 'My Orders',
+    href: '/dashboard/orders',
+    icon: <ShoppingBagIcon className="h-4 w-4" />,
+    description: 'Track purchases',
   },
   {
     label: 'Journal',
@@ -115,6 +123,39 @@ const bookingsDropdownItems = [
   },
 ]
 
+const sellDropdownItems = [
+  {
+    label: 'Seller Dashboard',
+    href: '/dashboard/sell',
+    icon: <ShoppingBagIcon className="h-4 w-4" />,
+    description: 'Manage your listings',
+  },
+  {
+    label: 'Incoming Orders',
+    href: '/dashboard/sell/orders',
+    icon: <Package className="h-4 w-4" />,
+    description: 'Manage buyer orders',
+  },
+  {
+    label: 'List Produce',
+    href: '/dashboard/sell/new',
+    icon: <Sprout className="h-4 w-4" />,
+    description: 'Sell your harvest',
+  },
+  {
+    label: 'List a Plot',
+    href: '/list-plot',
+    icon: <MapIcon className="h-4 w-4" />,
+    description: 'Rent out your land',
+  },
+  {
+    label: 'List a Tool',
+    href: '/tools/list',
+    icon: <WrenchIcon className="h-4 w-4" />,
+    description: 'Share your equipment',
+  },
+]
+
 // Bottom mobile navigation - only most essential items (Profile is dynamic, added in component)
 const mobileNavItems = [
   { name: 'Explore', href: '/explore', icon: MapIcon },
@@ -128,19 +169,23 @@ export function Header() {
   const { isSignedIn, user } = useUser()
   const [username, setUsername] = useState<string | null>(null)
   const [unreadMessagesCount, setUnreadMessagesCount] = useState(0)
+  const [isAdmin, setIsAdmin] = useState(false)
 
-  // Fetch user's username and unread message count
+  // Fetch user's username, role, and unread message count
   useEffect(() => {
     if (isSignedIn) {
-      // Fetch username
+      // Fetch username and role
       fetch('/api/profile')
         .then((res) => res.json())
         .then((data) => {
           if (data.username) {
             setUsername(data.username)
           }
+          if (data.roles && data.roles.includes('ADMIN')) {
+            setIsAdmin(true)
+          }
         })
-        .catch((err) => console.error('Failed to fetch username:', err))
+        .catch((err) => console.error('Failed to fetch profile:', err))
 
       // Fetch unread message count
       fetch('/api/messages/unread-count')
@@ -172,6 +217,11 @@ export function Header() {
   const isBookingsActive =
     pathname.startsWith('/my-bookings') ||
     pathname.startsWith('/manage-bookings')
+
+  const isSellActive =
+    pathname.startsWith('/dashboard/sell') ||
+    pathname.startsWith('/list-plot') ||
+    pathname.startsWith('/tools/list')
 
   return (
     <>
@@ -245,6 +295,32 @@ export function Header() {
                   isActive={isBookingsActive}
                 />
               )}
+
+              {/* Sell Dropdown */}
+              {isSignedIn && (
+                <NavDropdown
+                  trigger="Sell"
+                  icon={<ShoppingBagIcon className="h-4 w-4" />}
+                  items={sellDropdownItems}
+                  isActive={isSellActive}
+                />
+              )}
+
+              {/* Admin Link */}
+              {isSignedIn && isAdmin && (
+                <Link
+                  href="/admin"
+                  className={cn(
+                    'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                    pathname.startsWith('/admin')
+                      ? 'bg-[#5a7f3a] text-white shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                  )}
+                >
+                  <LayoutDashboardIcon className="h-4 w-4" />
+                  <span>Admin</span>
+                </Link>
+              )}
             </div>
 
             {/* User Menu */}
@@ -292,6 +368,15 @@ export function Header() {
                       <UserIcon className="h-5 w-5 text-gray-700" />
                     </Link>
                   )}
+
+                  {/* Settings Link */}
+                  <Link
+                    href="/settings"
+                    className="p-2 rounded-lg hover:bg-gray-100 transition-all"
+                    title="Settings"
+                  >
+                    <Settings className="h-5 w-5 text-gray-700" />
+                  </Link>
 
                   <UserButton
                     afterSignOutUrl="/"
