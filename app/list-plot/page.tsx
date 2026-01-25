@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ListingForm } from '@/components/list-plot/listing-form'
@@ -10,16 +11,24 @@ export default function ListPlotPage() {
 
       <main className="min-h-screen topo-lines">
         {/* Hero Section */}
-        <div className="garden-gradient-vibrant topo-dense text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2d5016]/20 to-transparent"></div>
-          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="flex items-center gap-3 mb-4">
-              <MapPin className="h-10 w-10 drop-shadow-md" />
-              <h1 className="text-4xl font-bold drop-shadow-lg">List Your Land</h1>
+        <div className="text-white relative overflow-hidden h-[280px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80"
+            alt="Beautiful farmland ready for growing"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 h-full flex items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <MapPin className="h-10 w-10 drop-shadow-md" />
+                <h1 className="text-4xl font-bold drop-shadow-lg">List Your Land</h1>
+              </div>
+              <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
+                Share your land with growers and earn passive income while stewarding your property
+              </p>
             </div>
-            <p className="text-[#f4e4c1] text-lg drop-shadow-md font-medium">
-              Share your land with growers and earn passive income while stewarding your property
-            </p>
           </div>
         </div>
 

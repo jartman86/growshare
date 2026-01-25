@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { type ToolCategory, type ToolCondition } from '@/lib/tools-data'
@@ -134,10 +135,17 @@ export default function ListToolPage() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-600 to-amber-600 text-white">
-          <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="text-white relative overflow-hidden h-[300px]">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
+          <Image
+            src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80"
+            alt="Garden tools and equipment"
+            fill
+            className="object-cover"
+          />
+          <div className="relative z-20 mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
             <Link
               href="/tools"
               className="inline-flex items-center gap-2 text-white hover:text-orange-100 mb-6"
@@ -146,9 +154,9 @@ export default function ListToolPage() {
               Back to Tools
             </Link>
             <div className="text-center">
-              <Wrench className="mx-auto h-16 w-16 mb-4" />
-              <h1 className="text-4xl font-bold mb-4">List Your Tool</h1>
-              <p className="text-xl text-orange-100 max-w-2xl mx-auto">
+              <Wrench className="mx-auto h-16 w-16 mb-4 drop-shadow-md" />
+              <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">List Your Tool</h1>
+              <p className="text-xl text-[#f4e4c1] max-w-2xl mx-auto drop-shadow-md font-medium">
                 Share your tools with the community and help fellow gardeners while earning points
               </p>
             </div>
