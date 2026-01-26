@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { Header } from '@/components/layout/header'
@@ -10,118 +10,63 @@ import { Mail, CheckCircle, Loader2, RefreshCw, AlertCircle } from 'lucide-react
 function VerifyEmailContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/dashboard'
+  const redirect = searchParams?.get('redirect') || '/dashboard'
   const { user, isLoaded } = useUser()
   const { signOut } = useClerk()
-  const [resending, setResending] = useState(false)
-  const [resendSuccess, setResendSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [verificationCode, setVerificationCode] = useState('')
-  const [verifying, setVerifying] = useState(false)
-  const [codeSent, setCodeSent] = useState(false)
-
-  // Check verification status periodically
-  useEffect(() => {
-    if (!isLoaded || !user) return
-
-    const checkVerification = () => {
-      // Check if email is verified now
-      const primaryEmail = user.emailAddresses.find(
-        (email) => email.id === user.primaryEmailAddressId
-      )
-
-      if (primaryEmail?.verification?.status === 'verified') {
-        // Redirect to intended destination
-        router.push(redirect)
-      }
-    }
-
-    // Check immediately
-    checkVerification()
-
-    // Check every 5 seconds
-    const interval = setInterval(async () => {
-      try {
-        await user.reload()
-        checkVerification()
-      } catch (err) {
-        console.error('Error reloading user:', err)
-      }
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [isLoaded, user, router, redirect])
-
-  const handleSendCode = async () => {
-    if (!user) return
-
-    setResending(true)
-    setError(null)
-    setResendSuccess(false)
-
-    try {
-      const primaryEmail = user.emailAddresses.find(
-        (email) => email.id === user.primaryEmailAddressId
-      )
-
-      if (primaryEmail) {
-        await primaryEmail.prepareVerification({
-          strategy: 'email_code',
-        })
-        setCodeSent(true)
-        setResendSuccess(true)
-      }
-    } catch (err: any) {
-      console.error('Error sending verification code:', err)
-      setError(err?.errors?.[0]?.message || 'Failed to send verification code. Please try again.')
-    } finally {
-      setResending(false)
-    }
-  }
-
-  const handleVerifyCode = async () => {
-    if (!user || !verificationCode) return
-
-    setVerifying(true)
-    setError(null)
-
-    try {
-      const primaryEmail = user.emailAddresses.find(
-        (email) => email.id === user.primaryEmailAddressId
-      )
-
-      if (primaryEmail) {
-        await primaryEmail.attemptVerification({
-          code: verificationCode,
-        })
-        // Reload user to get updated verification status
-        await user.reload()
-        router.push(redirect)
-      }
-    } catch (err: any) {
-      console.error('Error verifying code:', err)
-      setError(err?.errors?.[0]?.message || 'Invalid verification code. Please try again.')
-    } finally {
-      setVerifying(false)
-    }
-  }
 
   const handleSignOut = async () => {
-    await signOut()
-    router.push('/')
+    try {
+      await signOut()
+      router.push('/')
+    } catch (err) {
+      console.error('Sign out error:', err)
+    }
   }
 
+  const handleContinue = () => {
+    router.push(redirect)
+  }
+
+  // Loading state
   if (!isLoaded) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#5a7f3a]" />
+      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30">
+        <Loader2 className="h-8 w-8 animate-spin text-[#4a7c2c]" />
       </main>
     )
   }
 
-  const primaryEmail = user?.emailAddresses.find(
-    (email) => email.id === user?.primaryEmailAddressId
-  )
+  // Not signed in
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-xl shadow-lg border-2 border-[#8bc34a]/30 p-8 text-center">
+            <div className="mx-auto w-16 h-16 bg-[#aed581]/30 rounded-full flex items-center justify-center mb-6">
+              <AlertCircle className="h-8 w-8 text-[#4a7c2c]" />
+            </div>
+            <h1 className="text-2xl font-bold text-[#2d5016] mb-2">
+              Not Signed In
+            </h1>
+            <p className="text-[#4a3f35] mb-6">
+              Please sign in to verify your email address.
+            </p>
+            <button
+              onClick={() => router.push('/sign-in')}
+              className="w-full px-4 py-3 bg-[#4a7c2c] text-white rounded-lg font-semibold hover:bg-[#3d6924] transition-colors"
+            >
+              Go to Sign In
+            </button>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  const emailAddress = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || 'your email'
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 flex items-center justify-center py-12 px-4">
@@ -137,24 +82,22 @@ function VerifyEmailContent() {
             Verify Your Email
           </h1>
           <p className="text-[#4a3f35] mb-6">
-            {codeSent
-              ? 'Enter the verification code sent to:'
-              : 'Click the button below to receive a verification code at:'}
+            Please check your email inbox for a verification link from Clerk.
           </p>
 
           {/* Email */}
           <div className="bg-[#f4e4c1]/50 border border-[#8bc34a]/30 rounded-lg px-4 py-3 mb-6">
             <p className="font-medium text-[#2d5016]">
-              {primaryEmail?.emailAddress || user?.primaryEmailAddress?.emailAddress || 'Loading...'}
+              {emailAddress}
             </p>
           </div>
 
           {/* Success Message */}
-          {resendSuccess && (
+          {success && (
             <div className="flex items-center gap-2 p-3 bg-[#aed581]/20 border border-[#8bc34a]/50 rounded-lg mb-6">
               <CheckCircle className="h-5 w-5 text-[#4a7c2c] flex-shrink-0" />
               <span className="text-sm text-[#2d5016]">
-                Verification code sent! Check your inbox.
+                Check your inbox for the verification email!
               </span>
             </div>
           )}
@@ -167,76 +110,25 @@ function VerifyEmailContent() {
             </div>
           )}
 
-          {/* Code Input (shown after code is sent) */}
-          {codeSent && (
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-[#2d5016] mb-2 text-left">
-                Verification Code
-              </label>
-              <input
-                type="text"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                placeholder="Enter 6-digit code"
-                className="w-full px-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-[#4a7c2c] text-center text-lg tracking-widest font-mono"
-                maxLength={6}
-              />
-            </div>
-          )}
+          {/* Instructions */}
+          <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+            <h3 className="font-semibold text-[#2d5016] mb-2">To verify your email:</h3>
+            <ol className="text-sm text-[#4a3f35] space-y-2 list-decimal list-inside">
+              <li>Check your email inbox (and spam folder)</li>
+              <li>Click the verification link from Clerk</li>
+              <li>Return here and click "Continue"</li>
+            </ol>
+          </div>
 
           {/* Actions */}
           <div className="space-y-3">
-            {codeSent ? (
-              <>
-                <button
-                  onClick={handleVerifyCode}
-                  disabled={verifying || verificationCode.length < 6}
-                  className="w-full px-4 py-3 bg-[#4a7c2c] text-white rounded-lg font-semibold hover:bg-[#3d6924] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  {verifying ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <CheckCircle className="h-5 w-5" />
-                  )}
-                  {verifying ? 'Verifying...' : 'Verify Email'}
-                </button>
-                <button
-                  onClick={handleSendCode}
-                  disabled={resending}
-                  className="w-full px-4 py-3 border-2 border-[#8bc34a] text-[#4a7c2c] rounded-lg font-semibold hover:bg-[#aed581]/20 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  {resending ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <RefreshCw className="h-5 w-5" />
-                  )}
-                  {resending ? 'Sending...' : 'Resend Code'}
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={handleSendCode}
-                disabled={resending}
-                className="w-full px-4 py-3 bg-[#4a7c2c] text-white rounded-lg font-semibold hover:bg-[#3d6924] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-              >
-                {resending ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Mail className="h-5 w-5" />
-                )}
-                {resending ? 'Sending...' : 'Send Verification Code'}
-              </button>
-            )}
-
-            <p className="text-sm text-[#4a3f35]">
-              Already verified?{' '}
-              <button
-                onClick={() => router.push(redirect)}
-                className="text-[#4a7c2c] hover:underline font-medium"
-              >
-                Continue to dashboard
-              </button>
-            </p>
+            <button
+              onClick={handleContinue}
+              className="w-full px-4 py-3 bg-[#4a7c2c] text-white rounded-lg font-semibold hover:bg-[#3d6924] transition-colors flex items-center justify-center gap-2"
+            >
+              <CheckCircle className="h-5 w-5" />
+              I've Verified - Continue
+            </button>
 
             <div className="pt-4 border-t border-[#8bc34a]/20">
               <button
@@ -251,7 +143,7 @@ function VerifyEmailContent() {
           {/* Help Text */}
           <div className="mt-6 text-sm text-[#4a3f35]">
             <p>
-              Didn't receive the code? Check your spam folder or{' '}
+              Didn't receive the email? Check your spam folder or{' '}
               <a
                 href="mailto:support@growshare.com"
                 className="text-[#4a7c2c] hover:underline font-medium"
@@ -272,8 +164,8 @@ export default function VerifyEmailPage() {
     <>
       <Header />
       <Suspense fallback={
-        <main className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#5a7f3a]" />
+        <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30">
+          <Loader2 className="h-8 w-8 animate-spin text-[#4a7c2c]" />
         </main>
       }>
         <VerifyEmailContent />
