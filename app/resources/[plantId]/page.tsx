@@ -23,6 +23,7 @@ import {
   Utensils,
   Package,
   Globe,
+  ExternalLink,
 } from 'lucide-react'
 
 async function getPlantData(plantId: string) {
@@ -486,26 +487,46 @@ export default async function PlantGuidePage({
                     ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800'
                     : 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
                 }`}>
-                  <h3 className={`font-semibold mb-2 ${
+                  <h3 className={`font-semibold mb-3 ${
                     isApiPlant ? 'text-purple-900 dark:text-purple-300' : 'text-blue-900 dark:text-blue-300'
                   }`}>
-                    {isApiPlant ? '🌐 Data Source' : '📊 Data Sources'}
+                    🔗 External Resources
                   </h3>
-                  <p className={`text-sm mb-2 ${
-                    isApiPlant ? 'text-purple-800 dark:text-purple-400' : 'text-blue-800 dark:text-blue-400'
-                  }`}>
+                  <div className="space-y-2">
+                    <a
+                      href={`https://plants.usda.gov/home/basicSearchResults?resultId=1&q=${encodeURIComponent(guide.scientificName)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400 hover:underline"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      USDA Plants Database
+                    </a>
+                    <a
+                      href={`https://openfarm.cc/en/crops?filter=${encodeURIComponent(guide.commonName)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400 hover:underline"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      OpenFarm Community
+                    </a>
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(guide.scientificName)}+growing+guide`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400 hover:underline"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      Search Growing Guides
+                    </a>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
                     {isApiPlant
-                      ? 'Information from Perenual Plant API'
-                      : 'Information compiled from:'
+                      ? 'Plant data from Perenual API'
+                      : 'Data compiled from multiple sources'
                     }
                   </p>
-                  {!isApiPlant && (
-                    <ul className="text-xs text-blue-800 dark:text-blue-400 space-y-1">
-                      <li>• USDA Plants Database</li>
-                      <li>• OpenFarm Community</li>
-                      <li>• Extension Services</li>
-                    </ul>
-                  )}
                 </div>
               </div>
             </div>
