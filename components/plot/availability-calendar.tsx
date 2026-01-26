@@ -304,6 +304,7 @@ export function AvailabilityCalendar({
       days.push(
         <button
           key={day}
+          type="button"
           onClick={() => handleDateClick(date)}
           disabled={unavailable && !isOwner}
           className={`h-10 rounded-lg text-sm font-medium transition-colors ${bgColor} ${textColor} ${
@@ -346,6 +347,7 @@ export function AvailabilityCalendar({
         <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
         <p className="text-gray-600 mb-4">{error}</p>
         <button
+          type="button"
           onClick={() => fetchAvailability(true)}
           className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
         >
@@ -366,6 +368,7 @@ export function AvailabilityCalendar({
             <span>{error}</span>
           </div>
           <button
+            type="button"
             onClick={() => fetchAvailability(true)}
             className="flex items-center gap-1 px-2 py-1 text-red-700 hover:bg-red-100 rounded transition-colors"
           >
@@ -378,6 +381,7 @@ export function AvailabilityCalendar({
       {/* Header */}
       <div className="flex items-center justify-between">
         <button
+          type="button"
           onClick={() =>
             setCurrentMonth(
               new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
@@ -391,6 +395,7 @@ export function AvailabilityCalendar({
           {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </h3>
         <button
+          type="button"
           onClick={() =>
             setCurrentMonth(
               new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
