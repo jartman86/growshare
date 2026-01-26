@@ -17,10 +17,13 @@ import {
   CreditCard,
   RefreshCw,
   RotateCcw,
+  AlertTriangle,
+  FileText,
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { ReviewModal } from '@/components/plot/review-modal'
 import { BookingPaymentModal } from '@/components/payments/booking-payment-modal'
+import { DisputeModal } from '@/components/bookings/dispute-modal'
 
 interface PaymentIntent {
   status: string
@@ -42,6 +45,10 @@ interface Booking {
   paidAt?: string
   hasReviewed?: boolean
   paymentIntent?: PaymentIntent
+  dispute?: {
+    id: string
+    status: string
+  } | null
   plot: {
     id: string
     title: string
@@ -67,6 +74,7 @@ export default function MyBookingsPage() {
   const [reviewingBooking, setReviewingBooking] = useState<Booking | null>(null)
   const [payingBooking, setPayingBooking] = useState<Booking | null>(null)
   const [cancelConfirmBooking, setCancelConfirmBooking] = useState<Booking | null>(null)
+  const [disputeBooking, setDisputeBooking] = useState<Booking | null>(null)
   const [refundInfo, setRefundInfo] = useState<{
     eligible: boolean
     refundPercentage: number
@@ -441,6 +449,33 @@ export default function MyBookingsPage() {
                         </button>
                       )}
 
+                      {/* Dispute buttons */}
+                      {booking.dispute ? (
+                        <button
+                          onClick={() => router.push(`/bookings/${booking.id}/dispute`)}
+                          className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors ${
+                            booking.dispute.status === 'RESOLVED'
+                              ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                              : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                          }`}
+                        >
+                          <FileText className="h-4 w-4" />
+                          {booking.dispute.status === 'RESOLVED'
+                            ? 'View Resolution'
+                            : 'View Dispute'}
+                        </button>
+                      ) : (
+                        (booking.status === 'ACTIVE' || booking.status === 'COMPLETED') && (
+                          <button
+                            onClick={() => setDisputeBooking(booking)}
+                            className="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors flex items-center gap-2"
+                          >
+                            <AlertTriangle className="h-4 w-4" />
+                            File Dispute
+                          </button>
+                        )
+                      )}
+
                       {(booking.status === 'PENDING' ||
                         booking.status === 'APPROVED') && (
                         <button
@@ -484,6 +519,21 @@ export default function MyBookingsPage() {
           onSuccess={() => {
             fetchBookings()
             setPayingBooking(null)
+          }}
+        />
+      )}
+
+      {/* Dispute Modal */}
+      {disputeBooking && (
+        <DisputeModal
+          bookingId={disputeBooking.id}
+          plotTitle={disputeBooking.plot.title}
+          totalAmount={disputeBooking.totalAmount}
+          onClose={() => setDisputeBooking(null)}
+          onSuccess={() => {
+            fetchBookings()
+            setDisputeBooking(null)
+            router.push(`/bookings/${disputeBooking.id}/dispute`)
           }}
         />
       )}

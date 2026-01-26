@@ -267,6 +267,12 @@ export async function GET(request: NextRequest) {
               metadata: true,
             },
           },
+          dispute: {
+            select: {
+              id: true,
+              status: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',
@@ -302,6 +308,12 @@ export async function GET(request: NextRequest) {
               status: true,
               failureMessage: true,
               metadata: true,
+            },
+          },
+          dispute: {
+            select: {
+              id: true,
+              status: true,
             },
           },
         },
