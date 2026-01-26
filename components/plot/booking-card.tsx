@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Calendar, Users, X, CheckCircle, AlertCircle, Mail } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { useRouter, usePathname } from 'next/navigation'
@@ -18,6 +18,7 @@ interface BookingCardProps {
   plotTitle: string
   instantBook?: boolean
   minimumLease?: number
+  autoOpen?: boolean
 }
 
 export function BookingCard({
@@ -30,6 +31,7 @@ export function BookingCard({
   plotTitle,
   instantBook = false,
   minimumLease = 3,
+  autoOpen = false,
 }: BookingCardProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -46,6 +48,13 @@ export function BookingCard({
   const [error, setError] = useState<string | null>(null)
   const [requiresVerification, setRequiresVerification] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  // Auto-open modal when returning from email verification
+  useEffect(() => {
+    if (autoOpen && isSignedIn) {
+      setIsModalOpen(true)
+    }
+  }, [autoOpen, isSignedIn])
 
   const handleDateSelect = (start: Date | null, end: Date | null) => {
     setSelectedStart(start)
@@ -315,7 +324,7 @@ export function BookingCard({
                       </p>
                       {requiresVerification && (
                         <Link
-                          href={`/verify-email?redirect=${encodeURIComponent(pathname)}`}
+                          href={`/verify-email?redirect=${encodeURIComponent(pathname + '?booking=true')}`}
                           className="inline-flex items-center gap-1.5 mt-2 text-sm font-medium text-green-400 hover:text-green-300 underline"
                         >
                           <Mail className="h-4 w-4" />

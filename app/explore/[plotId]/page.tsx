@@ -99,10 +99,13 @@ async function getPlot(plotId: string) {
 
 export default async function PlotDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ plotId: string }>
+  searchParams: Promise<{ booking?: string }>
 }) {
   const { plotId } = await params
+  const { booking } = await searchParams
   const { userId } = await auth()
 
   const plot = await getPlot(plotId)
@@ -376,6 +379,7 @@ export default async function PlotDetailPage({
                 reviewCount={reviewCount}
                 plotTitle={plot.title}
                 instantBook={plot.instantBook}
+                autoOpen={booking === 'true'}
               />
             </div>
           </div>
