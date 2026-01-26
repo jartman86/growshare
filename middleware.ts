@@ -31,19 +31,15 @@ const isPublicRoute = createRouteMatcher([
   '/tools/((?!list|my-rentals).*)',
 ])
 
-// Routes that require email verification
+// Routes that require email verification (checked via Clerk session claims)
+// Note: Session claims may be stale after email verification until user re-signs in
+// For this reason, we only block routes where unverified access is truly problematic
+// Post-action pages like /my-bookings are OK since the action APIs verify email
 const requiresVerification = createRouteMatcher([
-  '/dashboard(.*)',
   '/list-plot(.*)',
   '/tools/list(.*)',
-  '/tools/my-rentals(.*)',
-  '/my-bookings(.*)',
-  '/settings(.*)',
-  '/messages(.*)',
-  '/bookings(.*)',
   '/instructor(.*)',
   '/admin(.*)',
-  '/onboarding(.*)',
 ])
 
 export default clerkMiddleware(async (auth, request) => {

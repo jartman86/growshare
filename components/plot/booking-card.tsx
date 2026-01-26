@@ -158,10 +158,12 @@ export function BookingCard({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('[BOOKING] handleSubmit called')
     setIsLoading(true)
     setError(null)
 
     try {
+      console.log('[BOOKING] Fetching /api/bookings...')
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
@@ -175,10 +177,13 @@ export function BookingCard({
         }),
       })
 
+      console.log('[BOOKING] Response status:', response.status, 'redirected:', response.redirected, 'url:', response.url)
       const data = await response.json()
+      console.log('[BOOKING] Response data:', data)
 
       if (!response.ok) {
         if (data.requiresVerification) {
+          console.log('[BOOKING] Setting requiresVerification to true')
           setRequiresVerification(true)
           setError(data.error || 'Please verify your email address')
           return
@@ -197,8 +202,10 @@ export function BookingCard({
         router.push('/my-bookings')
       }, 2000)
     } catch (err) {
+      console.log('[BOOKING] Error caught:', err)
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
+      console.log('[BOOKING] Finally block, setting isLoading to false')
       setIsLoading(false)
     }
   }
