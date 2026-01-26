@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { notFound, useParams, useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_TOOLS, calculateRentalCost } from '@/lib/tools-data'
-import { getReviewsForTarget, getReviewSummary, sortReviews, filterReviewsByRating } from '@/lib/reviews-data'
 import { StarRating } from '@/components/reviews/star-rating'
 import { ReviewCard } from '@/components/reviews/review-card'
 import { ReviewForm } from '@/components/reviews/review-form'
+import type { Review } from '@/lib/reviews-data'
 import {
   ArrowLeft,
   Star,
@@ -28,7 +28,40 @@ import {
   Package,
   Edit,
   Filter,
+  Loader2,
 } from 'lucide-react'
+
+interface ApiReview {
+  id: string
+  rating: number
+  title?: string
+  content: string
+  createdAt: string
+  response?: string
+  respondedAt?: string
+  author: {
+    id: string
+    firstName: string
+    lastName: string
+    avatar?: string
+    isVerified?: boolean
+  }
+  toolRental?: {
+    id: string
+    tool: {
+      id: string
+      name: string
+    }
+  }
+}
+
+interface ReviewSummary {
+  averageRating: number
+  totalReviews: number
+  ratingDistribution: { 1: number; 2: number; 3: number; 4: number; 5: number }
+  verifiedRentalCount: number
+  verifiedPurchaseCount: number
+}
 
 export default function ToolDetailPage() {
   const params = useParams()
@@ -42,16 +75,93 @@ export default function ToolDetailPage() {
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [sortBy, setSortBy] = useState<'recent' | 'helpful' | 'rating_high' | 'rating_low'>('recent')
   const [filterRating, setFilterRating] = useState<number | undefined>(undefined)
+  const [apiReviews, setApiReviews] = useState<ApiReview[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Transform API reviews to the format expected by ReviewCard
+  const transformReview = (apiReview: ApiReview): Review => ({
+    id: apiReview.id,
+    targetType: 'tool',
+    targetId: toolId,
+    targetName: tool?.name || '',
+    reviewerId: apiReview.author.id,
+    reviewerName: `${apiReview.author.firstName} ${apiReview.author.lastName}`,
+    reviewerAvatar: apiReview.author.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${apiReview.author.firstName}`,
+    rating: apiReview.rating,
+    title: apiReview.title || '',
+    content: apiReview.content,
+    verifiedRental: true, // All tool reviews are from verified rentals
+    helpfulCount: 0,
+    notHelpfulCount: 0,
+    replyCount: 0,
+    createdAt: new Date(apiReview.createdAt),
+    isEdited: false,
+    ownerResponse: apiReview.response ? {
+      content: apiReview.response,
+      respondedAt: new Date(apiReview.respondedAt || apiReview.createdAt),
+      responderName: tool?.ownerName || 'Owner',
+    } : undefined,
+  })
+
+  // Fetch reviews from API
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        const response = await fetch(`/api/reviews?toolId=${toolId}`)
+        if (response.ok) {
+          const data = await response.json()
+          setApiReviews(data)
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error)
+      } finally {
+        setLoadingReviews(false)
+      }
+    }
+    fetchReviews()
+  }, [toolId])
 
   if (!tool) {
     notFound()
   }
 
-  // Get reviews for this tool
-  const allReviews = getReviewsForTarget('tool', tool.id)
-  const reviewSummary = getReviewSummary(allReviews)
-  const filteredReviews = filterReviewsByRating(allReviews, filterRating)
-  const sortedReviews = sortReviews(filteredReviews, sortBy)
+  // Transform reviews for display
+  const reviews = apiReviews.map(transformReview)
+
+  // Calculate review summary from fetched reviews
+  const reviewSummary: ReviewSummary = {
+    averageRating: reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0,
+    totalReviews: reviews.length,
+    ratingDistribution: {
+      1: reviews.filter(r => r.rating === 1).length,
+      2: reviews.filter(r => r.rating === 2).length,
+      3: reviews.filter(r => r.rating === 3).length,
+      4: reviews.filter(r => r.rating === 4).length,
+      5: reviews.filter(r => r.rating === 5).length,
+    },
+    verifiedRentalCount: reviews.length, // All reviews are from verified rentals
+    verifiedPurchaseCount: 0,
+  }
+
+  // Filter and sort reviews
+  const filteredReviews = filterRating
+    ? reviews.filter(r => r.rating === filterRating)
+    : reviews
+  const sortedReviews = [...filteredReviews].sort((a, b) => {
+    switch (sortBy) {
+      case 'rating_high':
+        return b.rating - a.rating
+      case 'rating_low':
+        return a.rating - b.rating
+      case 'recent':
+      default:
+        return b.createdAt.getTime() - a.createdAt.getTime()
+    }
+  })
 
   const weekCost = tool.weeklyRate || calculateRentalCost(tool, 7)
   const monthCost = calculateRentalCost(tool, 30)
@@ -64,12 +174,37 @@ export default function ToolDetailPage() {
     callback()
   }
 
-  const handleSubmitReview = (reviewData: any) => {
-    // TODO: Submit review to backend
-    console.log('Review submitted:', reviewData)
-    setShowReviewForm(false)
-    // Show success message
-    alert('Review submitted successfully!')
+  const handleSubmitReview = async (reviewData: { rating: number; title: string; content: string }) => {
+    setSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toolId,
+          rating: reviewData.rating,
+          title: reviewData.title,
+          content: reviewData.content,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setSubmitError(data.error || 'Failed to submit review')
+        return
+      }
+
+      // Add the new review to the list
+      setApiReviews(prev => [data, ...prev])
+      setShowReviewForm(false)
+    } catch {
+      setSubmitError('Failed to submit review. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -267,17 +402,36 @@ export default function ToolDetailPage() {
                 {/* Review Form */}
                 {showReviewForm && (
                   <div className="mb-8">
+                    {submitError && (
+                      <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                        <p className="text-red-800">{submitError}</p>
+                      </div>
+                    )}
                     <ReviewForm
                       targetName={tool.name}
                       targetType="tool"
                       onSubmit={handleSubmitReview}
-                      onCancel={() => setShowReviewForm(false)}
+                      onCancel={() => {
+                        setShowReviewForm(false)
+                        setSubmitError(null)
+                      }}
                       isVerified={false}
                     />
+                    {submitting && (
+                      <div className="mt-4 flex items-center justify-center gap-2 text-gray-600">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>Submitting review...</span>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {reviewSummary.totalReviews > 0 ? (
+                {loadingReviews ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                  </div>
+                ) : reviewSummary.totalReviews > 0 ? (
                   <>
                     {/* Review Summary */}
                     <div className="mb-8 p-6 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200">
