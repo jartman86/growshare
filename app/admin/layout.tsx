@@ -6,6 +6,7 @@ import {
   Settings,
   ArrowLeft,
   Shield,
+  Lightbulb,
 } from 'lucide-react'
 
 export default function AdminLayout({
@@ -70,6 +71,13 @@ export default function AdminLayout({
             >
               <Flag className="h-5 w-5" />
               <span className="font-medium">Moderation</span>
+            </Link>
+            <Link
+              href="/admin/community-tips"
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Lightbulb className="h-5 w-5" />
+              <span className="font-medium">Community Tips</span>
             </Link>
             <Link
               href="/admin/settings"
