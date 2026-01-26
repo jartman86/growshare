@@ -301,22 +301,22 @@ export function BookingCard({
                 {error && (
                   <div className={`flex items-start gap-2 p-3 border rounded-lg ${
                     requiresVerification
-                      ? 'bg-amber-50 border-amber-200'
+                      ? 'bg-[#f4e4c1] border-[#8bc34a]/50'
                       : 'bg-red-50 border-red-200'
                   }`}>
                     {requiresVerification ? (
-                      <Mail className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <Mail className="h-5 w-5 text-[#4a7c2c] flex-shrink-0 mt-0.5" />
                     ) : (
                       <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1">
-                      <p className={`text-sm ${requiresVerification ? 'text-amber-800' : 'text-red-800'}`}>
+                      <p className={`text-sm ${requiresVerification ? 'text-[#4a3f35]' : 'text-red-800'}`}>
                         {error}
                       </p>
                       {requiresVerification && (
                         <Link
                           href={`/verify-email?redirect=${encodeURIComponent(pathname)}`}
-                          className="inline-flex items-center gap-1.5 mt-2 text-sm font-medium text-amber-700 hover:text-amber-900 underline"
+                          className="inline-flex items-center gap-1.5 mt-2 text-sm font-medium text-[#2d5016] hover:text-[#4a7c2c] underline"
                         >
                           <Mail className="h-4 w-4" />
                           Verify your email address

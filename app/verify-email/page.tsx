@@ -16,6 +16,9 @@ export default function VerifyEmailPage() {
   const [resending, setResending] = useState(false)
   const [resendSuccess, setResendSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [verifying, setVerifying] = useState(false)
+  const [codeSent, setCodeSent] = useState(false)
 
   // Check verification status periodically
   useEffect(() => {
@@ -45,7 +48,7 @@ export default function VerifyEmailPage() {
     return () => clearInterval(interval)
   }, [isLoaded, user, router, redirect])
 
-  const handleResendVerification = async () => {
+  const handleSendCode = async () => {
     if (!user) return
 
     setResending(true)
@@ -59,15 +62,43 @@ export default function VerifyEmailPage() {
 
       if (primaryEmail) {
         await primaryEmail.prepareVerification({
-          strategy: 'email_link',
-          redirectUrl: `${window.location.origin}/verify-email?redirect=${encodeURIComponent(redirect)}`,
+          strategy: 'email_code',
         })
+        setCodeSent(true)
         setResendSuccess(true)
       }
-    } catch (err) {
-      setError('Failed to resend verification email. Please try again.')
+    } catch (err: any) {
+      console.error('Error sending verification code:', err)
+      setError(err?.errors?.[0]?.message || 'Failed to send verification code. Please try again.')
     } finally {
       setResending(false)
+    }
+  }
+
+  const handleVerifyCode = async () => {
+    if (!user || !verificationCode) return
+
+    setVerifying(true)
+    setError(null)
+
+    try {
+      const primaryEmail = user.emailAddresses.find(
+        (email) => email.id === user.primaryEmailAddressId
+      )
+
+      if (primaryEmail) {
+        await primaryEmail.attemptVerification({
+          code: verificationCode,
+        })
+        // Reload user to get updated verification status
+        await user.reload()
+        router.push(redirect)
+      }
+    } catch (err: any) {
+      console.error('Error verifying code:', err)
+      setError(err?.errors?.[0]?.message || 'Invalid verification code. Please try again.')
+    } finally {
+      setVerifying(false)
     }
   }
 
@@ -95,36 +126,37 @@ export default function VerifyEmailPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+      <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+          <div className="bg-white rounded-xl shadow-lg border-2 border-[#8bc34a]/30 p-8 text-center">
             {/* Icon */}
-            <div className="mx-auto w-16 h-16 bg-[#5a7f3a]/10 rounded-full flex items-center justify-center mb-6">
-              <Mail className="h-8 w-8 text-[#5a7f3a]" />
+            <div className="mx-auto w-16 h-16 bg-[#aed581]/30 rounded-full flex items-center justify-center mb-6">
+              <Mail className="h-8 w-8 text-[#4a7c2c]" />
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-[#2d5016] mb-2">
               Verify Your Email
             </h1>
-            <p className="text-gray-600 mb-6">
-              To continue, please verify your email address. We sent a verification
-              link to:
+            <p className="text-[#4a3f35] mb-6">
+              {codeSent
+                ? 'Enter the verification code sent to:'
+                : 'Click the button below to receive a verification code at:'}
             </p>
 
             {/* Email */}
-            <div className="bg-gray-100 rounded-lg px-4 py-3 mb-6">
-              <p className="font-medium text-gray-900">
+            <div className="bg-[#f4e4c1]/50 border border-[#8bc34a]/30 rounded-lg px-4 py-3 mb-6">
+              <p className="font-medium text-[#2d5016]">
                 {primaryEmail?.emailAddress || user?.primaryEmailAddress?.emailAddress}
               </p>
             </div>
 
             {/* Success Message */}
             {resendSuccess && (
-              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg mb-6">
-                <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                <span className="text-sm text-green-800">
-                  Verification email sent! Check your inbox.
+              <div className="flex items-center gap-2 p-3 bg-[#aed581]/20 border border-[#8bc34a]/50 rounded-lg mb-6">
+                <CheckCircle className="h-5 w-5 text-[#4a7c2c] flex-shrink-0" />
+                <span className="text-sm text-[#2d5016]">
+                  Verification code sent! Check your inbox.
                 </span>
               </div>
             )}
@@ -137,35 +169,81 @@ export default function VerifyEmailPage() {
               </div>
             )}
 
+            {/* Code Input (shown after code is sent) */}
+            {codeSent && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-[#2d5016] mb-2 text-left">
+                  Verification Code
+                </label>
+                <input
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  placeholder="Enter 6-digit code"
+                  className="w-full px-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-[#4a7c2c] text-center text-lg tracking-widest font-mono"
+                  maxLength={6}
+                />
+              </div>
+            )}
+
             {/* Actions */}
             <div className="space-y-3">
-              <button
-                onClick={handleResendVerification}
-                disabled={resending}
-                className="w-full px-4 py-3 bg-[#5a7f3a] text-white rounded-lg font-semibold hover:bg-[#4a6f2a] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-              >
-                {resending ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-5 w-5" />
-                )}
-                {resending ? 'Sending...' : 'Resend Verification Email'}
-              </button>
+              {codeSent ? (
+                <>
+                  <button
+                    onClick={handleVerifyCode}
+                    disabled={verifying || verificationCode.length < 6}
+                    className="w-full px-4 py-3 bg-[#4a7c2c] text-white rounded-lg font-semibold hover:bg-[#3d6924] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {verifying ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <CheckCircle className="h-5 w-5" />
+                    )}
+                    {verifying ? 'Verifying...' : 'Verify Email'}
+                  </button>
+                  <button
+                    onClick={handleSendCode}
+                    disabled={resending}
+                    className="w-full px-4 py-3 border-2 border-[#8bc34a] text-[#4a7c2c] rounded-lg font-semibold hover:bg-[#aed581]/20 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {resending ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-5 w-5" />
+                    )}
+                    {resending ? 'Sending...' : 'Resend Code'}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleSendCode}
+                  disabled={resending}
+                  className="w-full px-4 py-3 bg-[#4a7c2c] text-white rounded-lg font-semibold hover:bg-[#3d6924] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  {resending ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Mail className="h-5 w-5" />
+                  )}
+                  {resending ? 'Sending...' : 'Send Verification Code'}
+                </button>
+              )}
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[#4a3f35]">
                 Already verified?{' '}
                 <button
                   onClick={() => router.push(redirect)}
-                  className="text-[#5a7f3a] hover:underline"
+                  className="text-[#4a7c2c] hover:underline font-medium"
                 >
                   Continue to dashboard
                 </button>
               </p>
 
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t border-[#8bc34a]/20">
                 <button
                   onClick={handleSignOut}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-[#4a3f35] hover:text-[#2d5016]"
                 >
                   Sign out and use a different account
                 </button>
@@ -173,12 +251,12 @@ export default function VerifyEmailPage() {
             </div>
 
             {/* Help Text */}
-            <div className="mt-6 text-sm text-gray-500">
+            <div className="mt-6 text-sm text-[#4a3f35]">
               <p>
-                Didn't receive the email? Check your spam folder or{' '}
+                Didn't receive the code? Check your spam folder or{' '}
                 <a
                   href="mailto:support@growshare.com"
-                  className="text-[#5a7f3a] hover:underline"
+                  className="text-[#4a7c2c] hover:underline font-medium"
                 >
                   contact support
                 </a>
