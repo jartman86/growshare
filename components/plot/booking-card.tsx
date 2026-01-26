@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, Users, X, CheckCircle, AlertCircle } from 'lucide-react'
+import { Calendar, Users, X, CheckCircle, AlertCircle, Mail } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { AvailabilityCalendar } from './availability-calendar'
 
 interface BookingCardProps {
@@ -30,6 +31,7 @@ export function BookingCard({
   minimumLease = 3,
 }: BookingCardProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -40,6 +42,7 @@ export function BookingCard({
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [requiresVerification, setRequiresVerification] = useState(false)
   const [success, setSuccess] = useState(false)
 
   const handleDateSelect = (start: Date | null, end: Date | null) => {
@@ -61,6 +64,7 @@ export function BookingCard({
   const handleRequestBooking = () => {
     setIsModalOpen(true)
     setError(null)
+    setRequiresVerification(false)
     setSuccess(false)
     setSelectedStart(null)
     setSelectedEnd(null)
@@ -93,6 +97,11 @@ export function BookingCard({
       const data = await response.json()
 
       if (!response.ok) {
+        if (data.requiresVerification) {
+          setRequiresVerification(true)
+          setError(data.error || 'Please verify your email address')
+          return
+        }
         throw new Error(data.error || 'Failed to create booking')
       }
 
@@ -284,9 +293,30 @@ export function BookingCard({
 
                 {/* Error Message */}
                 {error && (
-                  <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-800">{error}</p>
+                  <div className={`flex items-start gap-2 p-3 border rounded-lg ${
+                    requiresVerification
+                      ? 'bg-amber-50 border-amber-200'
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    {requiresVerification ? (
+                      <Mail className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    )}
+                    <div className="flex-1">
+                      <p className={`text-sm ${requiresVerification ? 'text-amber-800' : 'text-red-800'}`}>
+                        {error}
+                      </p>
+                      {requiresVerification && (
+                        <Link
+                          href={`/verify-email?redirect=${encodeURIComponent(pathname)}`}
+                          className="inline-flex items-center gap-1.5 mt-2 text-sm font-medium text-amber-700 hover:text-amber-900 underline"
+                        >
+                          <Mail className="h-4 w-4" />
+                          Verify your email address
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 )}
 
