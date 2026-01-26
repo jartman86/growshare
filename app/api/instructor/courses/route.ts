@@ -43,6 +43,7 @@ export async function GET() {
 
     // Calculate totals
     const totalStudents = courses.reduce((sum, course) => sum + course._count.progress, 0)
+    const totalViews = courses.reduce((sum, course) => sum + course.viewCount, 0)
 
     const purchases = await prisma.coursePurchase.findMany({
       where: {
@@ -58,7 +59,7 @@ export async function GET() {
       courses,
       totalStudents,
       totalEarnings,
-      totalViews: 0, // TODO: Add view tracking
+      totalViews,
     })
   } catch (error) {
     console.error('Error fetching instructor courses:', error)

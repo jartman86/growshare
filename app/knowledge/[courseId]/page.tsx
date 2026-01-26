@@ -4,6 +4,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CourseCategory } from '@/lib/course-data'
 import { EnrollButton } from '@/components/knowledge/enroll-button'
+import { CourseViewTracker } from '@/components/knowledge/course-view-tracker'
 import { prisma } from '@/lib/prisma'
 import {
   ArrowLeft,
@@ -16,6 +17,7 @@ import {
   Play,
   FileText,
   Trophy,
+  Eye,
 } from 'lucide-react'
 
 export default async function CourseDetailPage({
@@ -71,6 +73,7 @@ export default async function CourseDetailPage({
     image: dbCourse.thumbnailUrl || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
     lessons: dbCourse.modules.length,
     enrolled: dbCourse._count.progress,
+    viewCount: dbCourse.viewCount,
     rating: 4.5,
     reviews: 0,
     price: dbCourse.accessType === 'FREE' ? 0 : dbCourse.price || 0,
@@ -91,6 +94,7 @@ export default async function CourseDetailPage({
   return (
     <>
       <Header />
+      <CourseViewTracker courseId={course.id} />
 
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}
@@ -150,6 +154,10 @@ export default async function CourseDetailPage({
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-[#5a7f3a] dark:text-green-400" />
                     <span>{course.enrolled.toLocaleString()} enrolled</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-[#5a7f3a] dark:text-green-400" />
+                    <span>{course.viewCount.toLocaleString()} views</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="h-5 w-5 text-[#5a7f3a] dark:text-green-400" />
