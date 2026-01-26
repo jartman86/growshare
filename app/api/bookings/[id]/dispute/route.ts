@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db'
 import { ensureUser } from '@/lib/ensure-user'
 
 interface RouteParams {
-  params: Promise<{ bookingId: string }>
+  params: Promise<{ id: string }>
 }
 
 // Create a dispute for a booking
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { bookingId } = await params
+    const { id: bookingId } = await params
     const body = await request.json()
     const { reason, description, evidence, requestedAmount } = body
 
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { bookingId } = await params
+    const { id: bookingId } = await params
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
@@ -207,7 +207,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { bookingId } = await params
+    const { id: bookingId } = await params
     const body = await request.json()
     const { message, resolution, resolutionNotes, resolvedAmount, status } = body
 

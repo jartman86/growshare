@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
           image: plant.default_image?.regular_url || plant.default_image?.thumbnail || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
           category: plant.cycle || 'Other',
           difficulty: 'Moderate' as const,
-          sunlight: plant.sunlight?.join(', ') || 'Full Sun',
+          sunlight: Array.isArray(plant.sunlight) ? plant.sunlight.join(', ') : (plant.sunlight || 'Full Sun'),
           water: plant.watering || 'Average',
           source: 'perenual',
           perenualId: plant.id,
