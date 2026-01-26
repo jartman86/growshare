@@ -6,11 +6,70 @@ import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_PLANT_GUIDES } from '@/lib/resources-data'
-import { Calendar, ArrowLeft, Leaf, Thermometer, Info } from 'lucide-react'
+import { Calendar, ArrowLeft, Leaf, Thermometer, Info, MapPin, Snowflake, Sun, Loader2, AlertCircle } from 'lucide-react'
+
+interface FrostData {
+  zipCode: string
+  location: {
+    city: string
+    state: string
+  }
+  weatherStation: {
+    name: string
+    distanceKm: number
+  }
+  frostDates: {
+    lastSpringFrost: string | null
+    firstFallFrost: string | null
+    frostFreeWindow: number | null
+    springFrostRange: {
+      early: string | null
+      typical: string | null
+      late: string | null
+    }
+    fallFrostRange: {
+      early: string | null
+      typical: string | null
+      late: string | null
+    }
+  }
+  dataSource: string
+  noFrostZone: boolean
+}
 
 export default function PlantingCalendarPage() {
   const [selectedZone, setSelectedZone] = useState('7')
   const [selectedMonth, setSelectedMonth] = useState('All')
+  const [zipCode, setZipCode] = useState('')
+  const [frostData, setFrostData] = useState<FrostData | null>(null)
+  const [frostLoading, setFrostLoading] = useState(false)
+  const [frostError, setFrostError] = useState<string | null>(null)
+
+  const fetchFrostDates = async () => {
+    if (!zipCode || zipCode.length !== 5) {
+      setFrostError('Please enter a valid 5-digit zip code')
+      return
+    }
+
+    setFrostLoading(true)
+    setFrostError(null)
+
+    try {
+      const response = await fetch(`/api/frost-dates/${zipCode}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch frost dates')
+      }
+
+      setFrostData(data)
+    } catch (error) {
+      setFrostError(error instanceof Error ? error.message : 'Failed to fetch frost dates')
+      setFrostData(null)
+    } finally {
+      setFrostLoading(false)
+    }
+  }
 
   const zones = ['3', '4', '5', '6', '7', '8', '9', '10']
   const months = ['All', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -143,6 +202,143 @@ export default function PlantingCalendarPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Frost Date Lookup */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-6 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Snowflake className="h-5 w-5 text-blue-500" />
+              Frost Date Lookup
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Enter your zip code to get personalized frost dates based on NOAA climate data.
+            </p>
+
+            <div className="flex gap-3">
+              <div className="relative flex-1 max-w-xs">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                  onKeyDown={(e) => e.key === 'Enter' && fetchFrostDates()}
+                  placeholder="Enter zip code"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+              <button
+                onClick={fetchFrostDates}
+                disabled={frostLoading || zipCode.length !== 5}
+                className="px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              >
+                {frostLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  'Get Frost Dates'
+                )}
+              </button>
+            </div>
+
+            {frostError && (
+              <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-red-800 dark:text-red-300">{frostError}</p>
+              </div>
+            )}
+
+            {frostData && (
+              <div className="mt-6 space-y-4">
+                {/* Location Header */}
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {frostData.location.city}, {frostData.location.state}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Data from {frostData.weatherStation.name} ({frostData.weatherStation.distanceKm.toFixed(1)} km away)
+                    </p>
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                    {frostData.dataSource}
+                  </span>
+                </div>
+
+                {frostData.noFrostZone ? (
+                  <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <Sun className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-yellow-800 dark:text-yellow-300">
+                        <p className="font-semibold mb-1">Year-Round Growing Zone!</p>
+                        <p>Your area rarely experiences frost. You can plant warm-season crops year-round, though some cool-season crops may struggle in summer heat.</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {/* Last Spring Frost */}
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
+                          <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <span className="text-sm font-medium text-green-800 dark:text-green-300">Last Spring Frost</span>
+                      </div>
+                      <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                        {frostData.frostDates.lastSpringFrost || 'N/A'}
+                      </p>
+                      {frostData.frostDates.springFrostRange.early && (
+                        <p className="text-xs text-green-700 dark:text-green-400 mt-1">
+                          Range: {frostData.frostDates.springFrostRange.early} – {frostData.frostDates.springFrostRange.late}
+                        </p>
+                      )}
+                      <p className="text-xs text-green-600 dark:text-green-500 mt-2">
+                        Plant warm-season crops after this date
+                      </p>
+                    </div>
+
+                    {/* First Fall Frost */}
+                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 bg-orange-100 dark:bg-orange-800 rounded-lg">
+                          <Snowflake className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                        </div>
+                        <span className="text-sm font-medium text-orange-800 dark:text-orange-300">First Fall Frost</span>
+                      </div>
+                      <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                        {frostData.frostDates.firstFallFrost || 'N/A'}
+                      </p>
+                      {frostData.frostDates.fallFrostRange.early && (
+                        <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">
+                          Range: {frostData.frostDates.fallFrostRange.early} – {frostData.frostDates.fallFrostRange.late}
+                        </p>
+                      )}
+                      <p className="text-xs text-orange-600 dark:text-orange-500 mt-2">
+                        Harvest tender crops before this date
+                      </p>
+                    </div>
+
+                    {/* Growing Season */}
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
+                          <Sun className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <span className="text-sm font-medium text-purple-800 dark:text-purple-300">Growing Season</span>
+                      </div>
+                      <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                        {frostData.frostDates.frostFreeWindow ? `${frostData.frostDates.frostFreeWindow} days` : 'N/A'}
+                      </p>
+                      <p className="text-xs text-purple-600 dark:text-purple-500 mt-2">
+                        Frost-free window for outdoor growing
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Seasonal Calendar */}
