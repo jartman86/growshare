@@ -137,6 +137,10 @@ model User {
   communityTips         CommunityTip[]
   communityTipVotes     CommunityTipVote[]
 
+  // Community Events
+  organizedEvents       CommunityEvent[]      @relation("EventOrganizer")
+  eventRSVPs            CommunityEventRSVP[]  @relation("EventRSVP")
+
   // Content Moderation
   reportsFiled          Report[]          @relation("ReportedBy")
   reportsReceived       Report[]          @relation("ReportedUser")
@@ -626,6 +630,8 @@ enum ActivityType {
   ACHIEVEMENT_UNLOCKED
   TIP_SUBMITTED
   TIP_APPROVED
+  EVENT_CREATED
+  EVENT_RSVP
 }
 
 model UserActivity {
@@ -970,6 +976,94 @@ model EventAttendee {
   @@unique([eventId, userId])
   @@index([eventId])
   @@index([userId])
+}
+
+// ============================================
+// COMMUNITY EVENTS
+// ============================================
+
+enum CommunityEventCategory {
+  WORKSHOP
+  SEED_SWAP
+  FARMERS_MARKET
+  VOLUNTEER_DAY
+  MEETUP
+  TOUR
+  CLASS
+  HARVEST_FESTIVAL
+  OTHER
+}
+
+model CommunityEvent {
+  id            String                 @id @default(cuid())
+  organizerId   String
+  organizer     User                   @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+
+  title         String
+  description   String
+  category      CommunityEventCategory
+  image         String?
+
+  // Timing
+  startDate     DateTime
+  endDate       DateTime?
+  timezone      String                 @default("America/Los_Angeles")
+
+  // Location
+  location      String                 // Venue name
+  address       String
+  city          String
+  state         String
+  latitude      Float?
+  longitude     Float?
+  isVirtual     Boolean                @default(false)
+  virtualLink   String?
+
+  // Capacity & Pricing
+  capacity      Int?
+  price         Float                  @default(0) // 0 = free
+
+  // Additional Info
+  tags          String[]
+  requirements  String[]
+  whatToBring   String[]
+
+  // Status
+  isFeatured    Boolean                @default(false)
+  isPublished   Boolean                @default(true)
+  isCancelled   Boolean                @default(false)
+
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  // Relations
+  attendees     CommunityEventRSVP[]
+
+  @@index([organizerId])
+  @@index([startDate])
+  @@index([category])
+  @@index([city, state])
+}
+
+model CommunityEventRSVP {
+  id            String          @id @default(cuid())
+  eventId       String
+  event         CommunityEvent  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User            @relation("EventRSVP", fields: [userId], references: [id], onDelete: Cascade)
+
+  status        RSVPStatus      @default(GOING)
+  registeredAt  DateTime        @default(now())
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+enum RSVPStatus {
+  GOING
+  INTERESTED
+  CANCELLED
 }
 
 // ============================================

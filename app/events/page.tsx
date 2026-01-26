@@ -22,6 +22,8 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
+  GraduationCap,
+  Sprout,
 } from 'lucide-react'
 
 interface CourseEvent {
@@ -51,6 +53,36 @@ interface CourseEvent {
   spotsLeft: number | null
 }
 
+interface CommunityEvent {
+  id: string
+  title: string
+  description: string
+  category: string
+  image: string | null
+  startDate: string
+  endDate: string | null
+  timezone: string
+  location: string
+  address: string
+  city: string
+  state: string
+  isVirtual: boolean
+  virtualLink: string | null
+  capacity: number | null
+  price: number
+  tags: string[]
+  organizer: {
+    id: string
+    firstName: string | null
+    lastName: string | null
+    avatar: string | null
+    username: string | null
+  }
+  attendeeCount: number
+  spotsLeft: number | null
+  userRSVP: string | null
+}
+
 const EVENT_TYPE_LABELS: Record<string, string> = {
   LIVE_SESSION: 'Live Session',
   WEBINAR: 'Webinar',
@@ -69,8 +101,34 @@ const EVENT_TYPE_COLORS: Record<string, string> = {
   DEADLINE: 'bg-red-100 text-red-700 border-red-200',
 }
 
+const COMMUNITY_CATEGORY_LABELS: Record<string, string> = {
+  WORKSHOP: 'Workshop',
+  SEED_SWAP: 'Seed Swap',
+  FARMERS_MARKET: 'Farmers Market',
+  VOLUNTEER_DAY: 'Volunteer Day',
+  MEETUP: 'Meetup',
+  TOUR: 'Tour',
+  CLASS: 'Class',
+  HARVEST_FESTIVAL: 'Harvest Festival',
+  OTHER: 'Other',
+}
+
+const COMMUNITY_CATEGORY_COLORS: Record<string, string> = {
+  WORKSHOP: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  SEED_SWAP: 'bg-lime-100 text-lime-700 border-lime-200',
+  FARMERS_MARKET: 'bg-orange-100 text-orange-700 border-orange-200',
+  VOLUNTEER_DAY: 'bg-cyan-100 text-cyan-700 border-cyan-200',
+  MEETUP: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  TOUR: 'bg-violet-100 text-violet-700 border-violet-200',
+  CLASS: 'bg-blue-100 text-blue-700 border-blue-200',
+  HARVEST_FESTIVAL: 'bg-amber-100 text-amber-700 border-amber-200',
+  OTHER: 'bg-gray-100 text-gray-700 border-gray-200',
+}
+
 export default function EventsPage() {
-  const [events, setEvents] = useState<CourseEvent[]>([])
+  const [eventTab, setEventTab] = useState<'community' | 'course'>('community')
+  const [courseEvents, setCourseEvents] = useState<CourseEvent[]>([])
+  const [communityEvents, setCommunityEvents] = useState<CommunityEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string>('All')
@@ -83,21 +141,31 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/events')
-      if (response.ok) {
-        const data = await response.json()
-        setEvents(data.events || [])
+      const [courseRes, communityRes] = await Promise.all([
+        fetch('/api/events'),
+        fetch('/api/community-events?upcoming=true'),
+      ])
+
+      if (courseRes.ok) {
+        const data = await courseRes.json()
+        setCourseEvents(data.events || [])
       }
-    } catch (error) {
-      console.error('Error fetching events:', error)
+
+      if (communityRes.ok) {
+        const data = await communityRes.json()
+        setCommunityEvents(data || [])
+      }
+    } catch {
+      // Error silently handled
     } finally {
       setLoading(false)
     }
   }
 
-  const eventTypes = ['All', 'LIVE_SESSION', 'WEBINAR', 'QA_SESSION', 'OFFICE_HOURS']
+  const courseEventTypes = ['All', 'LIVE_SESSION', 'WEBINAR', 'QA_SESSION', 'OFFICE_HOURS']
+  const communityCategories = ['All', 'WORKSHOP', 'SEED_SWAP', 'FARMERS_MARKET', 'VOLUNTEER_DAY', 'MEETUP', 'TOUR']
 
-  const filteredEvents = events.filter((event) => {
+  const filteredCourseEvents = courseEvents.filter((event) => {
     const matchesSearch =
       searchQuery === '' ||
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -108,9 +176,26 @@ export default function EventsPage() {
     return matchesSearch && matchesType
   })
 
+  const filteredCommunityEvents = communityEvents.filter((event) => {
+    const matchesSearch =
+      searchQuery === '' ||
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const matchesType = selectedType === 'All' || event.category === selectedType
+
+    return matchesSearch && matchesType
+  })
+
   const hasActiveFilters = selectedType !== 'All' || searchQuery !== ''
 
   const clearFilters = () => {
+    setSelectedType('All')
+    setSearchQuery('')
+  }
+
+  const handleTabChange = (tab: 'community' | 'course') => {
+    setEventTab(tab)
     setSelectedType('All')
     setSearchQuery('')
   }
@@ -135,14 +220,25 @@ export default function EventsPage() {
   }
 
   const getEventsForDay = (day: number) => {
-    return filteredEvents.filter((event) => {
-      const eventDate = new Date(event.startTime)
-      return (
-        eventDate.getDate() === day &&
-        eventDate.getMonth() === currentMonth.getMonth() &&
-        eventDate.getFullYear() === currentMonth.getFullYear()
-      )
-    })
+    if (eventTab === 'course') {
+      return filteredCourseEvents.filter((event) => {
+        const eventDate = new Date(event.startTime)
+        return (
+          eventDate.getDate() === day &&
+          eventDate.getMonth() === currentMonth.getMonth() &&
+          eventDate.getFullYear() === currentMonth.getFullYear()
+        )
+      })
+    } else {
+      return filteredCommunityEvents.filter((event) => {
+        const eventDate = new Date(event.startDate)
+        return (
+          eventDate.getDate() === day &&
+          eventDate.getMonth() === currentMonth.getMonth() &&
+          eventDate.getFullYear() === currentMonth.getFullYear()
+        )
+      })
+    }
   }
 
   const prevMonth = () => {
@@ -203,18 +299,60 @@ export default function EventsPage() {
 
               {/* Create Event Button */}
               <Link
-                href="/instructor/events"
+                href={eventTab === 'community' ? '/events/new' : '/instructor/events'}
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
               >
                 <Plus className="h-5 w-5" />
-                Create Event
+                {eventTab === 'community' ? 'Create Community Event' : 'Create Course Event'}
               </Link>
             </div>
 
             {/* Main Content */}
             <div className="lg:col-span-3">
+              {/* Event Type Tabs */}
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-2 mb-6 shadow-md">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleTabChange('community')}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                      eventTab === 'community'
+                        ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <Sprout className="h-5 w-5" />
+                    Community Events
+                    {communityEvents.length > 0 && (
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${
+                        eventTab === 'community' ? 'bg-white/20' : 'bg-gray-200 dark:bg-gray-600'
+                      }`}>
+                        {communityEvents.length}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleTabChange('course')}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                      eventTab === 'course'
+                        ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <GraduationCap className="h-5 w-5" />
+                    Course Events
+                    {courseEvents.length > 0 && (
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${
+                        eventTab === 'course' ? 'bg-white/20' : 'bg-gray-200 dark:bg-gray-600'
+                      }`}>
+                        {courseEvents.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {/* Search & Filters */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-6 mb-6 shadow-md">
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-6 mb-6 shadow-md">
                 {/* Search Bar & View Toggle */}
                 <div className="flex gap-4 mb-4">
                   <div className="relative flex-1">
@@ -224,18 +362,18 @@ export default function EventsPage() {
                       placeholder="Search events..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-[#8bc34a]/30 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#4a7c2c] focus:border-transparent bg-white dark:bg-gray-700 dark:text-white"
                     />
                   </div>
 
                   {/* View Toggle */}
-                  <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                  <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
                         viewMode === 'grid'
-                          ? 'bg-white text-green-700 shadow-sm'
-                          : 'text-gray-600 hover:text-gray-900'
+                          ? 'bg-white dark:bg-gray-600 text-green-700 dark:text-green-400 shadow-sm'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                       }`}
                     >
                       <LayoutGrid className="h-4 w-4" />
@@ -245,8 +383,8 @@ export default function EventsPage() {
                       onClick={() => setViewMode('calendar')}
                       className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
                         viewMode === 'calendar'
-                          ? 'bg-white text-green-700 shadow-sm'
-                          : 'text-gray-600 hover:text-gray-900'
+                          ? 'bg-white dark:bg-gray-600 text-green-700 dark:text-green-400 shadow-sm'
+                          : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                       }`}
                     >
                       <CalendarDays className="h-4 w-4" />
@@ -257,24 +395,28 @@ export default function EventsPage() {
 
                 {/* Type Filters */}
                 <div className="flex flex-wrap gap-2">
-                  {eventTypes.map((type) => (
+                  {(eventTab === 'course' ? courseEventTypes : communityCategories).map((type) => (
                     <button
                       key={type}
                       onClick={() => setSelectedType(type)}
                       className={`px-4 py-2 rounded-full text-sm font-medium transition-all shadow-sm ${
                         selectedType === type
                           ? 'bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white shadow-md'
-                          : 'bg-[#aed581]/20 text-[#4a3f35] hover:bg-[#aed581]/40 border border-[#8bc34a]/30'
+                          : 'bg-[#aed581]/20 dark:bg-gray-700 text-[#4a3f35] dark:text-gray-300 hover:bg-[#aed581]/40 dark:hover:bg-gray-600 border border-[#8bc34a]/30 dark:border-gray-600'
                       }`}
                     >
-                      {type === 'All' ? 'All Events' : EVENT_TYPE_LABELS[type] || type}
+                      {type === 'All'
+                        ? 'All Events'
+                        : eventTab === 'course'
+                          ? (EVENT_TYPE_LABELS[type] || type)
+                          : (COMMUNITY_CATEGORY_LABELS[type] || type)}
                     </button>
                   ))}
 
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}
-                      className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900"
+                      className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     >
                       <X className="h-4 w-4" />
                       Clear
@@ -291,18 +433,18 @@ export default function EventsPage() {
               )}
 
               {/* Grid View */}
-              {!loading && viewMode === 'grid' && (
+              {!loading && viewMode === 'grid' && eventTab === 'course' && (
                 <>
-                  {filteredEvents.length > 0 ? (
+                  {filteredCourseEvents.length > 0 ? (
                     <>
-                      <p className="text-gray-600 mb-4">
-                        {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        {filteredCourseEvents.length} event{filteredCourseEvents.length !== 1 ? 's' : ''} found
                       </p>
                       <div className="grid gap-6 md:grid-cols-2">
-                        {filteredEvents.map((event) => (
+                        {filteredCourseEvents.map((event) => (
                           <div
                             key={event.id}
-                            className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+                            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow"
                           >
                             <div className="p-6">
                               <div className="flex items-start justify-between mb-3">
@@ -318,17 +460,17 @@ export default function EventsPage() {
                                 )}
                               </div>
 
-                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                 {event.title}
                               </h3>
 
                               {event.description && (
-                                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                                   {event.description}
                                 </p>
                               )}
 
-                              <div className="space-y-2 text-sm text-gray-500 mb-4">
+                              <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
                                 <div className="flex items-center gap-2">
                                   <CalendarDays className="h-4 w-4" />
                                   {formatEventDate(event.startTime)}
@@ -345,8 +487,8 @@ export default function EventsPage() {
                                 )}
                               </div>
 
-                              <div className="flex items-center justify-between pt-4 border-t">
-                                <div className="text-sm text-gray-500">
+                              <div className="flex items-center justify-between pt-4 border-t dark:border-gray-700">
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
                                   {event._count.attendees} registered
                                   {event.spotsLeft !== null && (
                                     <span className="ml-1">
@@ -355,7 +497,7 @@ export default function EventsPage() {
                                   )}
                                 </div>
                                 <Link
-                                  href={`/events/${event.id}`}
+                                  href={`/events/${event.id}?type=course`}
                                   className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
                                 >
                                   {event.isRegistered ? 'View Details' : 'Register'}
@@ -367,13 +509,13 @@ export default function EventsPage() {
                       </div>
                     </>
                   ) : (
-                    <div className="bg-white/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 p-12 text-center shadow-md">
-                      <Calendar className="h-12 w-12 text-[#4a7c2c] mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-[#2d5016] mb-2">No events found</h3>
-                      <p className="text-[#4a3f35] mb-6">
+                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-12 text-center shadow-md">
+                      <GraduationCap className="h-12 w-12 text-[#4a7c2c] dark:text-green-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-[#2d5016] dark:text-white mb-2">No course events found</h3>
+                      <p className="text-[#4a3f35] dark:text-gray-400 mb-6">
                         {hasActiveFilters
                           ? 'Try adjusting your filters'
-                          : 'No upcoming events scheduled yet'}
+                          : 'No upcoming course events scheduled yet'}
                       </p>
                       {hasActiveFilters && (
                         <button
@@ -388,18 +530,138 @@ export default function EventsPage() {
                 </>
               )}
 
+              {/* Community Events Grid View */}
+              {!loading && viewMode === 'grid' && eventTab === 'community' && (
+                <>
+                  {filteredCommunityEvents.length > 0 ? (
+                    <>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">
+                        {filteredCommunityEvents.length} event{filteredCommunityEvents.length !== 1 ? 's' : ''} found
+                      </p>
+                      <div className="grid gap-6 md:grid-cols-2">
+                        {filteredCommunityEvents.map((event) => (
+                          <div
+                            key={event.id}
+                            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow"
+                          >
+                            {event.image && (
+                              <div className="relative h-40 w-full">
+                                <Image
+                                  src={event.image}
+                                  alt={event.title}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="p-6">
+                              <div className="flex items-start justify-between mb-3">
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                                    COMMUNITY_CATEGORY_COLORS[event.category] || 'bg-gray-100 text-gray-700'
+                                  }`}
+                                >
+                                  {COMMUNITY_CATEGORY_LABELS[event.category] || event.category}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  {event.isVirtual && (
+                                    <Video className="h-5 w-5 text-blue-600" />
+                                  )}
+                                  {event.price > 0 && (
+                                    <span className="text-sm font-semibold text-green-600">
+                                      ${event.price}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                {event.title}
+                              </h3>
+
+                              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                                {event.description}
+                              </p>
+
+                              <div className="space-y-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                <div className="flex items-center gap-2">
+                                  <CalendarDays className="h-4 w-4" />
+                                  {formatEventDate(event.startDate)}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <MapPin className="h-4 w-4" />
+                                  {event.city}, {event.state}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-4 w-4" />
+                                  {event.organizer.firstName} {event.organizer.lastName}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-4 border-t dark:border-gray-700">
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                  {event.attendeeCount} going
+                                  {event.spotsLeft !== null && (
+                                    <span className="ml-1">
+                                      ({event.spotsLeft} spots left)
+                                    </span>
+                                  )}
+                                </div>
+                                <Link
+                                  href={`/events/${event.id}?type=community`}
+                                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+                                >
+                                  {event.userRSVP === 'GOING' ? 'View Details' : 'RSVP'}
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-12 text-center shadow-md">
+                      <Sprout className="h-12 w-12 text-[#4a7c2c] dark:text-green-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-[#2d5016] dark:text-white mb-2">No community events found</h3>
+                      <p className="text-[#4a3f35] dark:text-gray-400 mb-6">
+                        {hasActiveFilters
+                          ? 'Try adjusting your filters'
+                          : 'No upcoming community events scheduled yet'}
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        {hasActiveFilters && (
+                          <button
+                            onClick={clearFilters}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
+                          >
+                            Clear Filters
+                          </button>
+                        )}
+                        <Link
+                          href="/events/new"
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6ba03f] to-[#4a7c2c] text-white rounded-lg font-semibold hover:from-[#4a7c2c] hover:to-[#2d5016] transition-all shadow-lg hover:shadow-xl"
+                        >
+                          <Plus className="h-5 w-5" />
+                          Create Event
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
               {/* Calendar View */}
               {!loading && viewMode === 'calendar' && (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {/* Calendar Header */}
-                  <div className="flex items-center justify-between p-4 border-b">
+                  <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
                     <button
                       onClick={prevMonth}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     >
-                      <ChevronLeft className="h-5 w-5" />
+                      <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     </button>
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {currentMonth.toLocaleDateString('en-US', {
                         month: 'long',
                         year: 'numeric',
@@ -407,9 +669,9 @@ export default function EventsPage() {
                     </h2>
                     <button
                       onClick={nextMonth}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     >
-                      <ChevronRight className="h-5 w-5" />
+                      <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     </button>
                   </div>
 
@@ -420,7 +682,7 @@ export default function EventsPage() {
                       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                         <div
                           key={day}
-                          className="text-center text-sm font-medium text-gray-500 py-2"
+                          className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2"
                         >
                           {day}
                         </div>
@@ -442,36 +704,40 @@ export default function EventsPage() {
                             key={index}
                             className={`min-h-[100px] border rounded-lg p-2 ${
                               day
-                                ? 'bg-white hover:bg-gray-50'
-                                : 'bg-gray-50'
-                            } ${isToday ? 'border-green-500 border-2' : 'border-gray-200'}`}
+                                ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                                : 'bg-gray-50 dark:bg-gray-900'
+                            } ${isToday ? 'border-green-500 border-2' : 'border-gray-200 dark:border-gray-700'}`}
                           >
                             {day && (
                               <>
                                 <span
                                   className={`text-sm font-medium ${
                                     isToday
-                                      ? 'text-green-600'
-                                      : 'text-gray-700'
+                                      ? 'text-green-600 dark:text-green-400'
+                                      : 'text-gray-700 dark:text-gray-300'
                                   }`}
                                 >
                                   {day}
                                 </span>
                                 <div className="mt-1 space-y-1">
-                                  {dayEvents.slice(0, 2).map((event) => (
-                                    <Link
-                                      key={event.id}
-                                      href={`/events/${event.id}`}
-                                      className={`block text-xs p-1 rounded truncate ${
-                                        EVENT_TYPE_COLORS[event.type] ||
-                                        'bg-gray-100 text-gray-700'
-                                      }`}
-                                    >
-                                      {event.title}
-                                    </Link>
-                                  ))}
+                                  {dayEvents.slice(0, 2).map((event: CourseEvent | CommunityEvent) => {
+                                    const isCourseEvent = 'type' in event
+                                    const colorClasses = isCourseEvent
+                                      ? (EVENT_TYPE_COLORS[(event as CourseEvent).type] || 'bg-gray-100 text-gray-700')
+                                      : (COMMUNITY_CATEGORY_COLORS[(event as CommunityEvent).category] || 'bg-gray-100 text-gray-700')
+
+                                    return (
+                                      <Link
+                                        key={event.id}
+                                        href={`/events/${event.id}?type=${isCourseEvent ? 'course' : 'community'}`}
+                                        className={`block text-xs p-1 rounded truncate ${colorClasses}`}
+                                      >
+                                        {event.title}
+                                      </Link>
+                                    )
+                                  })}
                                   {dayEvents.length > 2 && (
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
                                       +{dayEvents.length - 2} more
                                     </span>
                                   )}
