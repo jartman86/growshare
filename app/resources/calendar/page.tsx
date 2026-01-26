@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_PLANT_GUIDES } from '@/lib/resources-data'
-import { Calendar, ArrowLeft, Leaf, Thermometer, Info, MapPin, Snowflake, Sun, Loader2, AlertCircle } from 'lucide-react'
+import { Calendar, ArrowLeft, Leaf, Thermometer, Info, MapPin, Snowflake, Sun, Loader2, AlertCircle, Sprout, Clock } from 'lucide-react'
 
 interface FrostData {
   zipCode: string
@@ -18,6 +18,11 @@ interface FrostData {
     name: string
     distanceKm: number
   }
+  hardinessZone: {
+    zone: string
+    zoneNumber: number
+    temperatureRange: string
+  } | null
   frostDates: {
     lastSpringFrost: string | null
     firstFallFrost: string | null
@@ -32,9 +37,31 @@ interface FrostData {
       typical: string | null
       late: string | null
     }
+    lastSpringFrostRaw: string | null
+    firstFallFrostRaw: string | null
   }
   dataSource: string
   noFrostZone: boolean
+}
+
+// Calculate a planting date based on frost date and offset
+function calculatePlantingDate(frostDateRaw: string | null, weeksOffset: number, isAfterFrost: boolean): string | null {
+  if (!frostDateRaw) return null
+
+  const [month, day] = frostDateRaw.split('/').map(Number)
+  const currentYear = new Date().getFullYear()
+  const frostDate = new Date(currentYear, month - 1, day)
+
+  const offsetDays = weeksOffset * 7
+  const plantingDate = new Date(frostDate)
+
+  if (isAfterFrost) {
+    plantingDate.setDate(plantingDate.getDate() + offsetDays)
+  } else {
+    plantingDate.setDate(plantingDate.getDate() - offsetDays)
+  }
+
+  return plantingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
 export default function PlantingCalendarPage() {
@@ -45,17 +72,28 @@ export default function PlantingCalendarPage() {
   const [frostLoading, setFrostLoading] = useState(false)
   const [frostError, setFrostError] = useState<string | null>(null)
 
-  const fetchFrostDates = async () => {
-    if (!zipCode || zipCode.length !== 5) {
-      setFrostError('Please enter a valid 5-digit zip code')
-      return
+  // Load saved zip code from localStorage on mount
+  useEffect(() => {
+    const savedZip = localStorage.getItem('growshare_zipCode')
+    if (savedZip) {
+      setZipCode(savedZip)
     }
+  }, [])
 
+  // Auto-fetch frost data when zip code is loaded from storage
+  useEffect(() => {
+    const savedZip = localStorage.getItem('growshare_zipCode')
+    if (savedZip && savedZip.length === 5 && !frostData && !frostLoading) {
+      fetchFrostDatesForZip(savedZip)
+    }
+  }, [])
+
+  const fetchFrostDatesForZip = async (zip: string) => {
     setFrostLoading(true)
     setFrostError(null)
 
     try {
-      const response = await fetch(`/api/frost-dates/${zipCode}`)
+      const response = await fetch(`/api/frost-dates/${zip}`)
       const data = await response.json()
 
       if (!response.ok) {
@@ -63,12 +101,31 @@ export default function PlantingCalendarPage() {
       }
 
       setFrostData(data)
+
+      // Auto-set zone if available
+      if (data.hardinessZone?.zoneNumber) {
+        const zoneNum = data.hardinessZone.zoneNumber
+        // Clamp to available zones (3-10)
+        const clampedZone = Math.max(3, Math.min(10, zoneNum)).toString()
+        setSelectedZone(clampedZone)
+      }
+
+      // Save zip code to localStorage
+      localStorage.setItem('growshare_zipCode', zip)
     } catch (error) {
       setFrostError(error instanceof Error ? error.message : 'Failed to fetch frost dates')
       setFrostData(null)
     } finally {
       setFrostLoading(false)
     }
+  }
+
+  const fetchFrostDates = async () => {
+    if (!zipCode || zipCode.length !== 5) {
+      setFrostError('Please enter a valid 5-digit zip code')
+      return
+    }
+    await fetchFrostDatesForZip(zipCode)
   }
 
   const zones = ['3', '4', '5', '6', '7', '8', '9', '10']
@@ -254,11 +311,17 @@ export default function PlantingCalendarPage() {
                 {/* Location Header */}
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                       {frostData.location.city}, {frostData.location.state}
+                      {frostData.hardinessZone && (
+                        <span className="text-sm font-medium px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded">
+                          Zone {frostData.hardinessZone.zone}
+                        </span>
+                      )}
                     </h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       Data from {frostData.weatherStation.name} ({frostData.weatherStation.distanceKm.toFixed(1)} km away)
+                      {frostData.hardinessZone && ` • Avg min temp: ${frostData.hardinessZone.temperatureRange}°F`}
                     </p>
                   </div>
                   <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
@@ -334,6 +397,56 @@ export default function PlantingCalendarPage() {
                       <p className="text-xs text-purple-600 dark:text-purple-500 mt-2">
                         Frost-free window for outdoor growing
                       </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Planting Date Calculator */}
+                {!frostData.noFrostZone && frostData.frostDates.lastSpringFrostRaw && (
+                  <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                      <Sprout className="h-5 w-5 text-emerald-600" />
+                      Recommended Planting Dates for {frostData.location.city}
+                    </h4>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {/* Warm-season crops */}
+                      <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Tomatoes, Peppers, Squash</p>
+                        <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-1">
+                          <Clock className="h-4 w-4 text-emerald-600" />
+                          {calculatePlantingDate(frostData.frostDates.lastSpringFrostRaw, 2, true)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">2 weeks after last frost</p>
+                      </div>
+                      {/* Cool-season spring */}
+                      <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Lettuce, Peas, Spinach</p>
+                        <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-1">
+                          <Clock className="h-4 w-4 text-emerald-600" />
+                          {calculatePlantingDate(frostData.frostDates.lastSpringFrostRaw, 4, false)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">4 weeks before last frost</p>
+                      </div>
+                      {/* Seeds indoors */}
+                      <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Start Seeds Indoors</p>
+                        <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-1">
+                          <Clock className="h-4 w-4 text-emerald-600" />
+                          {calculatePlantingDate(frostData.frostDates.lastSpringFrostRaw, 8, false)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">8 weeks before last frost</p>
+                      </div>
+                      {/* Fall planting */}
+                      {frostData.frostDates.firstFallFrostRaw && (
+                        <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Fall Crops (Broccoli, Kale)</p>
+                          <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-1">
+                            <Clock className="h-4 w-4 text-orange-600" />
+                            {calculatePlantingDate(frostData.frostDates.firstFallFrostRaw, 10, false)}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">10 weeks before first frost</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

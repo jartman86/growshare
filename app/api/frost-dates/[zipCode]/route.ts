@@ -17,6 +17,11 @@ export interface FrostDateResponse {
     name: string
     distanceKm: number
   }
+  hardinessZone: {
+    zone: string // e.g., "5a", "10b"
+    zoneNumber: number // e.g., 5, 10
+    temperatureRange: string // e.g., "-20 to -15"
+  } | null
   frostDates: {
     lastSpringFrost: string | null // Date when frost risk ends (50% probability)
     firstFallFrost: string | null // Date when frost risk begins (50% probability)
@@ -31,6 +36,9 @@ export interface FrostDateResponse {
       typical: string | null // 50% probability
       late: string | null // 90% probability (latest safe date)
     }
+    // Raw dates for calculations (MM/DD format)
+    lastSpringFrostRaw: string | null
+    firstFallFrostRaw: string | null
   }
   dataSource: string
   noFrostZone: boolean
@@ -85,25 +93,47 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Fetch from the frost date API
-    const response = await fetch(`https://apis.joelgrant.dev/api/v1/frost/${zipCode}`, {
-      headers: {
-        'Accept': 'application/json',
-      },
-      next: { revalidate: 86400 } // Cache for 24 hours
-    })
+    // Fetch frost dates and hardiness zone in parallel
+    const [frostResponse, zoneResponse] = await Promise.all([
+      fetch(`https://apis.joelgrant.dev/api/v1/frost/${zipCode}`, {
+        headers: { 'Accept': 'application/json' },
+        next: { revalidate: 86400 }
+      }),
+      fetch(`https://phzmapi.org/${zipCode}.json`, {
+        headers: { 'Accept': 'application/json' },
+        next: { revalidate: 86400 }
+      }).catch(() => null) // Zone lookup is optional
+    ])
 
-    if (!response.ok) {
-      if (response.status === 404) {
+    if (!frostResponse.ok) {
+      if (frostResponse.status === 404) {
         return NextResponse.json(
           { error: 'Zip code not found. Please enter a valid US zip code.' },
           { status: 404 }
         )
       }
-      throw new Error(`API returned ${response.status}`)
+      throw new Error(`API returned ${frostResponse.status}`)
     }
 
-    const data = await response.json()
+    const data = await frostResponse.json()
+
+    // Parse hardiness zone if available
+    let hardinessZone: FrostDateResponse['hardinessZone'] = null
+    if (zoneResponse?.ok) {
+      try {
+        const zoneData = await zoneResponse.json()
+        if (zoneData.zone) {
+          const zoneNumber = parseInt(zoneData.zone.replace(/[ab]/g, ''))
+          hardinessZone = {
+            zone: zoneData.zone,
+            zoneNumber: isNaN(zoneNumber) ? 0 : zoneNumber,
+            temperatureRange: zoneData.temperature_range || '',
+          }
+        }
+      } catch {
+        // Zone data not available for this zip
+      }
+    }
 
     // Check if this is a no-frost zone
     const lastSpring50 = data.data?.frost_dates?.last_frost_32f?.['50%']
@@ -125,6 +155,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         name: data.data?.weather_station?.name || 'Unknown Station',
         distanceKm: data.data?.weather_station?.distance_km || 0,
       },
+      hardinessZone,
       frostDates: {
         lastSpringFrost: formatFrostDate(lastSpring50),
         firstFallFrost: formatFrostDate(firstFall50),
@@ -139,6 +170,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           typical: formatFrostDate(firstFall50),
           late: formatFrostDate(data.data?.frost_dates?.first_frost_32f?.['90%']),
         },
+        lastSpringFrostRaw: lastSpring50 && lastSpring50 !== '-9999.0' ? lastSpring50 : null,
+        firstFallFrostRaw: firstFall50 && firstFall50 !== '-9999.0' ? firstFall50 : null,
       },
       dataSource: data.meta?.data_source || 'NOAA Climate Normals',
       noFrostZone,
