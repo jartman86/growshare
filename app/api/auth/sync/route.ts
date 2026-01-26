@@ -29,11 +29,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Could not fetch user data' }, { status: 500 })
     }
 
+    // Validate email exists
+    const primaryEmail = clerkUser.emailAddresses?.[0]?.emailAddress
+    if (!primaryEmail) {
+      return NextResponse.json({ error: 'No email address found' }, { status: 400 })
+    }
+
     // Generate username from Clerk username or email
     let username = clerkUser.username
     if (!username) {
       // Generate from email (part before @)
-      const emailPrefix = clerkUser.emailAddresses[0].emailAddress.split('@')[0]
+      const emailPrefix = primaryEmail.split('@')[0]
       username = emailPrefix.toLowerCase().replace(/[^a-z0-9]/g, '')
     }
 
@@ -49,7 +55,7 @@ export async function GET() {
     const user = await prisma.user.create({
       data: {
         clerkId: userId,
-        email: clerkUser.emailAddresses[0].emailAddress,
+        email: primaryEmail,
         username: finalUsername,
         firstName: clerkUser.firstName || '',
         lastName: clerkUser.lastName || '',
@@ -59,8 +65,6 @@ export async function GET() {
         level: 1,
       },
     })
-
-    console.log('Created user in database:', user.id)
 
     // Award welcome badge
     const welcomeBadge = await prisma.badge.findFirst({

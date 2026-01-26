@@ -223,7 +223,7 @@ function AdminUsersContent() {
       )}
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border shadow-sm overflow-hidden overflow-x-auto">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-gray-400" />

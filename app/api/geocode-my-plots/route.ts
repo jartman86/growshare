@@ -65,8 +65,6 @@ async function geocodePlots() {
       },
     })
 
-    console.log(`Found ${plots.length} plots to geocode`)
-
     let updated = 0
     let failed = 0
     let skipped = 0
@@ -75,7 +73,6 @@ async function geocodePlots() {
       // Skip if plot already has valid coordinates (not default fallback)
       if (plot.latitude && plot.longitude &&
           !(plot.latitude === 39.8283 && plot.longitude === -98.5795)) {
-        console.log(`Plot ${plot.id} already has coordinates, skipping`)
         skipped++
         continue
       }
@@ -91,10 +88,8 @@ async function geocodePlots() {
           },
         })
         updated++
-        console.log(`Updated plot ${plot.id}: ${coords.latitude}, ${coords.longitude}`)
       } else {
         failed++
-        console.log(`Failed to geocode plot ${plot.id}`)
       }
 
       // Add a small delay to respect rate limits

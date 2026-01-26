@@ -143,9 +143,6 @@ export function ListingForm() {
         throw new Error(errorData.error || 'Failed to create plot listing')
       }
 
-      const createdPlot = await response.json()
-      console.log('Plot created successfully:', createdPlot)
-
       // Redirect to success page
       router.push('/list-plot/success')
     } catch (err) {

@@ -378,14 +378,11 @@ export async function POST(request: NextRequest) {
     let longitude = body.longitude
 
     if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-      console.log('Geocoding address:', body.address, body.city, body.state, body.zipCode)
       const coords = await geocodeAddress(body.address, body.city, body.state, body.zipCode)
       if (coords) {
         latitude = coords.latitude
         longitude = coords.longitude
-        console.log('Geocoded successfully:', latitude, longitude)
       } else {
-        console.log('Geocoding failed, using default coordinates')
         // Use a default coordinate (center of US) if geocoding fails
         latitude = 39.8283
         longitude = -98.5795

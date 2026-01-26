@@ -4,7 +4,6 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    console.log('[MY-PLOTS] Running simplified query - timestamp:', new Date().toISOString())
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

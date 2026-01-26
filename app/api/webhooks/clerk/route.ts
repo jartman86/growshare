@@ -52,12 +52,21 @@ export async function POST(req: Request) {
   if (eventType === 'user.created') {
     const { id, email_addresses, username, first_name, last_name, image_url } = evt.data
 
+    // Validate email exists
+    const primaryEmail = email_addresses?.[0]
+    if (!primaryEmail?.email_address) {
+      return new Response(JSON.stringify({ error: 'No email address found' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
     try {
       // Generate username from Clerk username or email
       let baseUsername = username
       if (!baseUsername) {
         // Generate from email (part before @)
-        const emailPrefix = email_addresses[0].email_address.split('@')[0]
+        const emailPrefix = primaryEmail.email_address.split('@')[0]
         baseUsername = emailPrefix.toLowerCase().replace(/[^a-z0-9]/g, '')
       }
 
@@ -70,14 +79,13 @@ export async function POST(req: Request) {
       }
 
       // Check email verification status from Clerk
-      const primaryEmail = email_addresses[0]
       const isEmailVerified = primaryEmail.verification?.status === 'verified'
 
       // Create user in database
       const user = await prisma.user.create({
         data: {
           clerkId: id,
-          email: email_addresses[0].email_address,
+          email: primaryEmail.email_address,
           username: finalUsername,
           firstName: first_name || '',
           lastName: last_name || '',
@@ -89,8 +97,6 @@ export async function POST(req: Request) {
           verifiedAt: isEmailVerified ? new Date() : null,
         },
       })
-
-      console.log('Created user in database:', user.id)
 
       // Award welcome badge
       const welcomeBadge = await prisma.badge.findFirst({
@@ -139,9 +145,17 @@ export async function POST(req: Request) {
   if (eventType === 'user.updated') {
     const { id, email_addresses, first_name, last_name, image_url } = evt.data
 
+    // Validate email exists
+    const primaryEmail = email_addresses?.[0]
+    if (!primaryEmail?.email_address) {
+      return new Response(JSON.stringify({ error: 'No email address found' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
     try {
       // Check email verification status from Clerk
-      const primaryEmail = email_addresses[0]
       const isEmailVerified = primaryEmail.verification?.status === 'verified'
 
       // Get current user to check if verification status changed
@@ -158,7 +172,7 @@ export async function POST(req: Request) {
         isVerified?: boolean
         verifiedAt?: Date
       } = {
-        email: email_addresses[0].email_address,
+        email: primaryEmail.email_address,
         firstName: first_name || undefined,
         lastName: last_name || undefined,
         avatar: image_url || undefined,
@@ -174,8 +188,6 @@ export async function POST(req: Request) {
         where: { clerkId: id },
         data: updateData,
       })
-
-      console.log('Updated user in database:', id, isEmailVerified ? '(verified)' : '')
 
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
@@ -197,8 +209,6 @@ export async function POST(req: Request) {
       await prisma.user.delete({
         where: { clerkId: id },
       })
-
-      console.log('Deleted user from database:', id)
 
       return new Response(JSON.stringify({ success: true }), {
         status: 200,

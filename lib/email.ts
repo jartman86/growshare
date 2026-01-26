@@ -19,7 +19,6 @@ interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   if (!process.env.SENDGRID_API_KEY) {
-    console.log('SendGrid not configured, skipping email:', options.subject)
     return false
   }
 
@@ -34,7 +33,6 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       html: options.html,
       text: options.text || options.html.replace(/<[^>]*>/g, ''),
     })
-    console.log(`Email sent to ${options.to}: ${options.subject}`)
     return true
   } catch (error) {
     console.error('Error sending email:', error)

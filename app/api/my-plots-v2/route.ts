@@ -3,8 +3,6 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
-  console.log('[MY-PLOTS-V2] New simplified endpoint - NO includes')
-
   try {
     const { userId } = await auth()
     if (!userId) {
@@ -25,7 +23,6 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     })
 
-    console.log(`[MY-PLOTS-V2] Found ${plots.length} plots`)
     return NextResponse.json(plots)
   } catch (error) {
     console.error('[MY-PLOTS-V2] Error:', error)

@@ -1,4 +1,8 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   Users,
@@ -7,29 +11,60 @@ import {
   ArrowLeft,
   Shield,
   Lightbulb,
+  Menu,
+  X,
 } from 'lucide-react'
+
+const navItems = [
+  { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+  { href: '/admin/users', icon: Users, label: 'Users' },
+  { href: '/admin/verifications', icon: Shield, label: 'Verifications' },
+  { href: '/admin/moderation', icon: Flag, label: 'Moderation' },
+  { href: '/admin/community-tips', icon: Lightbulb, label: 'Community Tips' },
+  { href: '/admin/settings', icon: Settings, label: 'Settings' },
+]
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isActive = (href: string, exact?: boolean) => {
+    if (exact) return pathname === href
+    return pathname.startsWith(href)
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Admin Header */}
-      <header className="bg-white border-b shadow-sm">
+      <header className="bg-white border-b shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
               <Link
                 href="/"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
-                <span className="text-sm">Back to site</span>
+                <span className="text-sm hidden sm:inline">Back to site</span>
               </Link>
-              <div className="h-6 w-px bg-gray-300" />
-              <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
+              <div className="h-6 w-px bg-gray-300 hidden sm:block" />
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">Admin</h1>
             </div>
             <div className="flex items-center gap-3">
               <div className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
@@ -40,57 +75,49 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex relative">
+        {/* Mobile sidebar overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r min-h-[calc(100vh-4rem)] p-4">
-          <nav className="space-y-1">
-            <Link
-              href="/admin"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <LayoutDashboard className="h-5 w-5" />
-              <span className="font-medium">Dashboard</span>
-            </Link>
-            <Link
-              href="/admin/users"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Users className="h-5 w-5" />
-              <span className="font-medium">Users</span>
-            </Link>
-            <Link
-              href="/admin/verifications"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Shield className="h-5 w-5" />
-              <span className="font-medium">Verifications</span>
-            </Link>
-            <Link
-              href="/admin/moderation"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Flag className="h-5 w-5" />
-              <span className="font-medium">Moderation</span>
-            </Link>
-            <Link
-              href="/admin/community-tips"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Lightbulb className="h-5 w-5" />
-              <span className="font-medium">Community Tips</span>
-            </Link>
-            <Link
-              href="/admin/settings"
-              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Settings className="h-5 w-5" />
-              <span className="font-medium">Settings</span>
-            </Link>
+        <aside
+          className={`
+            fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r
+            transform transition-transform duration-200 ease-in-out
+            lg:transform-none lg:min-h-[calc(100vh-4rem)] pt-16 lg:pt-0
+            ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        >
+          <nav className="p-4 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const active = isActive(item.href, item.exact)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    active
+                      ? 'bg-green-50 text-green-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              )
+            })}
           </nav>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">{children}</main>
       </div>
     </div>
   )

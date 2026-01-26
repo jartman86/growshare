@@ -57,11 +57,7 @@ export function HarvestModal({ isOpen, onClose, cropName, entryId }: HarvestModa
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // In production, this would update the database
-    console.log('Recording harvest:', {
-      entryId,
-      ...formData,
-    })
+    // TODO: In production, this would update the database
 
     // Close modal and reset
     setIsSubmitting(false)

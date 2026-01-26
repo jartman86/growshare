@@ -39,10 +39,16 @@ export async function ensureUser() {
     return null
   }
 
+  // Validate email exists
+  const primaryEmail = clerkUser.emailAddresses?.[0]
+  if (!primaryEmail?.emailAddress) {
+    return null
+  }
+
   // Generate username from Clerk username or email
   let baseUsername = clerkUser.username
   if (!baseUsername) {
-    const emailPrefix = clerkUser.emailAddresses[0].emailAddress.split('@')[0]
+    const emailPrefix = primaryEmail.emailAddress.split('@')[0]
     baseUsername = emailPrefix.toLowerCase().replace(/[^a-z0-9]/g, '')
   }
 
@@ -55,7 +61,6 @@ export async function ensureUser() {
   }
 
   // Check email verification status from Clerk
-  const primaryEmail = clerkUser.emailAddresses[0]
   const isEmailVerified = primaryEmail.verification?.status === 'verified'
 
   // Create user in database
@@ -63,7 +68,7 @@ export async function ensureUser() {
     user = await prisma.user.create({
       data: {
         clerkId: userId,
-        email: clerkUser.emailAddresses[0].emailAddress,
+        email: primaryEmail.emailAddress,
         username: finalUsername,
         firstName: clerkUser.firstName || '',
         lastName: clerkUser.lastName || '',
@@ -75,8 +80,6 @@ export async function ensureUser() {
         verifiedAt: isEmailVerified ? new Date() : null,
       },
     })
-
-    console.log('Auto-synced user to database:', user.id)
 
     // Award welcome badge
     const welcomeBadge = await prisma.badge.findFirst({

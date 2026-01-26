@@ -171,14 +171,11 @@ export async function PATCH(
     let longitude = body.longitude
 
     if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-      console.log('Geocoding address for update:', body.address, body.city, body.state, body.zipCode)
       const coords = await geocodeAddress(body.address, body.city, body.state, body.zipCode)
       if (coords) {
         latitude = coords.latitude
         longitude = coords.longitude
-        console.log('Geocoded successfully:', latitude, longitude)
       } else {
-        console.log('Geocoding failed, keeping existing coordinates')
         // Keep existing coordinates if geocoding fails
         latitude = plot.latitude
         longitude = plot.longitude

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   description: "Transform land into opportunity. Connect landowners with growers, build community, and grow food together.",
   keywords: ["agriculture", "land rental", "farming", "community garden", "sustainable agriculture", "local food"],
   authors: [{ name: "GrowShare" }],
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/growshare-logo.png",
     shortcut: "/growshare-logo.png",
@@ -28,6 +29,14 @@ export const metadata: Metadata = {
     title: "GrowShare - Agricultural Engagement Ecosystem",
     description: "Connect landowners with growers and build thriving food communities",
     images: ["/growshare-logo.png"],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "GrowShare",
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 

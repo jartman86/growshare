@@ -72,7 +72,6 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
       }
 
       const createdJournal = await response.json()
-      console.log('Journal created successfully:', createdJournal)
 
       // Call the onSubmit callback with the created entry
       onSubmit(createdJournal)

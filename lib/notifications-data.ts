@@ -336,13 +336,13 @@ export function getNotificationsByType(
 }
 
 export function markAsRead(notificationId: string): void {
-  // Would update backend here
-  console.log(`Marked notification ${notificationId} as read`)
+  // TODO: Would update backend here
+  void notificationId
 }
 
 export function markAllAsRead(userId: string): void {
-  // Would update backend here
-  console.log(`Marked all notifications for ${userId} as read`)
+  // TODO: Would update backend here
+  void userId
 }
 
 export function getRecentActivity(limit: number = 10): ActivityFeedItem[] {

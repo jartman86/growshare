@@ -106,8 +106,7 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // In production, this would save to database
-    console.log('Saving journal entry:', formData)
+    // TODO: In production, this would save to database
 
     // Redirect to journal list
     router.push('/dashboard/journal')

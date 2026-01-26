@@ -1,7 +1,7 @@
 # GrowShare - Claude Session Context
 
-**Last Updated:** January 25, 2026
-**Project Status:** Pre-Launch (Nearly Complete)
+**Last Updated:** January 26, 2026
+**Project Status:** Pre-Launch (Feature Complete, Needs Polish)
 
 ---
 
@@ -25,6 +25,7 @@ GrowShare is an agricultural engagement ecosystem combining:
 - **Email:** SendGrid (8 templates)
 - **SMS:** Twilio (phone verification)
 - **Theme:** Dark mode with class-based toggle
+- **PWA:** Manifest configured, installable on mobile
 
 ---
 
@@ -52,17 +53,82 @@ GrowShare is an agricultural engagement ecosystem combining:
 | Email Service | ✅ | ✅ | 8 templates via SendGrid |
 | Saved Searches | ✅ | ✅ | Save/load filter configurations |
 | Privacy Controls | ✅ | ✅ | Block users, profile visibility |
+| Admin Dashboard | ✅ | ✅ | Users, verifications, moderation, tips |
+| Community Tips | ✅ | ✅ | User-submitted tips for resources |
+| Resources Section | ✅ | ✅ | Planting calendar, pests, companion guide |
+| PWA Support | ✅ | ✅ | Manifest, mobile-optimized |
 
-### NOT YET IMPLEMENTED
-| Feature | Priority | Notes |
-|---------|----------|-------|
-| Admin Dashboard | P1 | User management, moderation |
-| Events System | P2 | RSVP, calendar integration |
-| Course Content | P2 | Video lessons, progress tracking |
-| Leaderboards | P3 | Weekly/monthly rankings |
-| Challenge System | P3 | Seasonal challenges |
-| PWA Support | P3 | Offline, install prompt |
-| Real-time Messaging | P3 | WebSocket (polling works now) |
+### PARTIALLY IMPLEMENTED
+| Feature | Status | Remaining Work |
+|---------|--------|----------------|
+| Events System | UI only | Needs database integration |
+| Courses | UI only | Video content viewer, progress tracking |
+| Leaderboards | UI only | Needs live data integration |
+| Challenges | UI only | Participation tracking |
+
+---
+
+## Punch List - Remaining Work
+
+### HIGH PRIORITY - Sample Data to Replace with Database
+
+These files contain `SAMPLE_*` exports that need to be replaced with database queries:
+
+| File | Export | Database Model Exists |
+|------|--------|----------------------|
+| `lib/sample-data.ts` | SAMPLE_PLOTS | ✅ Plot |
+| `lib/marketplace-data.ts` | SAMPLE_PRODUCTS | ✅ MarketplaceListing |
+| `lib/tools-data.ts` | SAMPLE_TOOLS | ✅ Tool |
+| `lib/reviews-data.ts` | SAMPLE_REVIEWS | ✅ Review |
+| `lib/community-data.ts` | SAMPLE_TOPICS, SAMPLE_REPLIES | ✅ ForumTopic, ForumReply |
+| `lib/resources-data.ts` | SAMPLE_PLANT_GUIDES, SAMPLE_PESTS_DISEASES | ❌ Need PlantGuide model |
+| `lib/challenges-data.ts` | SAMPLE_CHALLENGES | ✅ Challenge |
+| `lib/profile-data.ts` | SAMPLE_USERS | ✅ User |
+| `lib/notifications-data.ts` | SAMPLE_NOTIFICATIONS | ✅ Notification |
+| `lib/events-data.ts` | SAMPLE_EVENTS | ✅ Event |
+| `lib/groups-data.ts` | SAMPLE_LOCAL_GROUPS | ✅ Group |
+| `lib/messages-data.ts` | SAMPLE_MESSAGES | ✅ Message |
+| `lib/journal-data.ts` | SAMPLE_JOURNAL_ENTRIES | ✅ JournalEntry |
+| `lib/course-data.ts` | SAMPLE_COURSES | ✅ Course |
+
+### MEDIUM PRIORITY - Missing Features
+
+| Feature | File(s) | Notes |
+|---------|---------|-------|
+| Tool reviews not saving | `app/tools/[toolId]/page.tsx:68` | Submit review to backend |
+| Course view tracking | `app/api/instructor/courses/route.ts:61` | Add view tracking |
+| Dispute filing UI | - | End users can't file disputes |
+| Certificate verification endpoint | - | No verification API |
+| In-app notification settings | - | Only email preferences exist |
+| Community groups full CRUD | `components/groups/group-card.tsx:117` | Handle join group |
+| Challenge participation tracking | - | No tracking for user progress |
+| Instructor earnings dashboard | - | No earnings view |
+| Marketplace order fulfillment UI | - | Mark orders fulfilled |
+
+### LOWER PRIORITY - Nice to Have
+
+| Feature | Notes |
+|---------|-------|
+| Dashboard upcoming tasks | Currently shows sample data |
+| Dashboard achievements display | Shows placeholder data |
+| Dashboard streak tracking | Not implemented |
+| Course content viewer improvements | Basic video embed only |
+| Event calendar visualization | List view only |
+| Soil test tracking UI | Schema exists, no UI |
+| Weather API integration with journal | No weather data |
+
+### Schema Models Without UI
+
+These Prisma models exist but have no management UI:
+
+| Model | Missing UI |
+|-------|------------|
+| PlotBlockedDate | No date blocking calendar |
+| PlotAmenity | No amenity management |
+| BlockedUser | No "My Blocked Users" page |
+| SavedSearch | No save search button on explore |
+| GroupPost | No group post creation |
+| CourseEvent | Events not shown to students |
 
 ---
 
@@ -74,7 +140,9 @@ app/api/
 ├── auth/              # me, sync, update-username
 ├── bookings/          # CRUD + lease generation
 ├── cloudinary/        # Upload signatures
+├── community-tips/    # User-submitted tips CRUD + voting
 ├── forum/             # Topics, replies, votes
+├── frost-dates/       # ZIP code frost date lookup
 ├── journals/          # Crop journal CRUD
 ├── marketplace/       # Listings + orders
 ├── messages/          # Conversations
@@ -91,12 +159,24 @@ app/api/
 └── webhooks/          # Clerk + Stripe webhooks
 ```
 
+### Admin Dashboard
+```
+app/admin/
+├── page.tsx           # Dashboard overview
+├── users/             # User management
+├── verifications/     # ID/phone verification review
+├── moderation/        # Content moderation queue
+├── community-tips/    # Approve/reject user tips
+└── settings/          # Admin settings
+```
+
 ### Core Libraries
 - `lib/stripe.ts` - Stripe SDK wrapper (customers, payments, Connect, refunds)
 - `lib/cloudinary.ts` - Upload signatures and deletion
 - `lib/email.ts` - SendGrid with 8 templates
 - `lib/prisma.ts` - Database client
 - `lib/theme-context.tsx` - Dark mode state
+- `lib/ensure-user.ts` - Auth helper with auto-sync
 
 ### Key Components
 - `components/ui/image-upload.tsx` - Drag-drop photo upload
@@ -104,6 +184,8 @@ app/api/
 - `components/map/map.tsx` - Mapbox plot display
 - `components/layout/header.tsx` - Main nav with search
 - `components/layout/footer.tsx` - Site footer
+- `components/resources/community-tips-section.tsx` - Tips display with voting
+- `components/resources/tip-submission-form.tsx` - Submit new tips
 
 ---
 
@@ -164,12 +246,12 @@ className="dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
 
 ### API Patterns
 ```typescript
-// Auth check
-const { userId } = await auth()
-if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+// Auth check with auto-sync
+const user = await ensureUser()
+if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-// Get/create user
-const user = await ensureUser(userId)
+// Verified user required
+const user = await ensureVerifiedUser()
 
 // Response
 return NextResponse.json(data)
@@ -179,6 +261,14 @@ return NextResponse.json(data)
 
 ## Recent Work (January 2026)
 
+### January 26, 2026 - Codebase Audit & Optimization
+- **Critical fixes:** Added null checks for email array access in auth routes
+- **Code cleanup:** Removed 20+ debug console.log statements
+- **Mobile optimization:** Added PWA manifest, responsive admin layout
+- **Community tips:** Full feature with user submissions and admin moderation
+- **Resources section:** Planting calendar, pest/disease guide, companion planting
+
+### January 25, 2026
 - Dark mode implementation (full coverage)
 - Hero image replacements (solid colors → photos)
 - Settings page theme toggle
