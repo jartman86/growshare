@@ -282,6 +282,7 @@ export function BookingCard({
                 {instantBook ? 'Book Instantly' : 'Request to Book'}
               </h2>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
                 className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
                 disabled={isLoading}
