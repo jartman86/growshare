@@ -3,6 +3,7 @@
 import { useState, useEffect, use, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { useUser } from '@clerk/nextjs'
@@ -146,7 +147,9 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
 
   return (
     <>
-      <Header />
+      <div className="print:hidden">
+        <Header />
+      </div>
 
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
         <div className="mx-auto max-w-4xl px-4">
@@ -179,15 +182,20 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
 
           {/* Certificate */}
           <div
+            id="certificate"
             ref={certificateRef}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden print:shadow-none"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden print:shadow-none print:rounded-none"
           >
             {/* Certificate Header */}
-            <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-8 text-center text-white">
+            <div className="bg-gradient-to-r from-green-800 to-green-900 p-8 text-center text-white">
               <div className="flex justify-center mb-4">
-                <div className="p-4 bg-white/20 rounded-full">
-                  <Award className="h-12 w-12" />
-                </div>
+                <Image
+                  src="/growshare-logo.png"
+                  alt="GrowShare"
+                  width={300}
+                  height={120}
+                  className="h-32 w-auto"
+                />
               </div>
               <h1 className="text-3xl font-bold mb-2">Certificate of Completion</h1>
               <p className="text-green-100">GrowShare Knowledge Hub</p>
@@ -273,25 +281,34 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
       {/* Print styles */}
       <style jsx global>{`
         @media print {
-          body * {
-            visibility: hidden;
+          body {
+            background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
-          .print\\:hidden {
+          header, footer, .print\\:hidden {
             display: none !important;
           }
-          ${certificateRef.current ? `#${certificateRef.current.id}` : ''}, ${certificateRef.current ? `#${certificateRef.current.id}` : ''} * {
-            visibility: visible;
+          main {
+            padding: 0 !important;
+            min-height: auto !important;
+            background: white !important;
           }
-          ${certificateRef.current ? `#${certificateRef.current.id}` : ''} {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
+          #certificate {
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+          }
+          #certificate * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
         }
       `}</style>
 
-      <Footer />
+      <div className="print:hidden">
+        <Footer />
+      </div>
     </>
   )
 }
