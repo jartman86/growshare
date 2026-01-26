@@ -6,12 +6,23 @@ import { ensureUser } from '@/lib/ensure-user'
 // GET /api/community-tips - List approved tips, optionally filtered by category
 export async function GET(request: NextRequest) {
   try {
+    const { userId: clerkId } = await auth()
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
     const status = searchParams.get('status') || 'APPROVED'
     const limit = parseInt(searchParams.get('limit') || '50')
     const plantName = searchParams.get('plantName')
     const pestName = searchParams.get('pestName')
+
+    // Get current user if logged in
+    let currentUserId: string | null = null
+    if (clerkId) {
+      const user = await prisma.user.findUnique({
+        where: { clerkId },
+        select: { id: true },
+      })
+      currentUserId = user?.id || null
+    }
 
     // Build where clause
     const where: Record<string, unknown> = {
@@ -47,6 +58,10 @@ export async function GET(request: NextRequest) {
             avatar: true,
           },
         },
+        votes: currentUserId ? {
+          where: { userId: currentUserId },
+          select: { value: true },
+        } : false,
         _count: {
           select: { votes: true },
         },
@@ -58,7 +73,16 @@ export async function GET(request: NextRequest) {
       take: limit,
     })
 
-    return NextResponse.json(tips)
+    // Transform to include userVote field
+    const tipsWithVotes = tips.map(tip => ({
+      ...tip,
+      userVote: tip.votes && Array.isArray(tip.votes) && tip.votes.length > 0
+        ? tip.votes[0].value
+        : null,
+      votes: undefined, // Remove the votes array from response
+    }))
+
+    return NextResponse.json(tipsWithVotes)
   } catch (error) {
     console.error('Error fetching community tips:', error)
     return NextResponse.json(
