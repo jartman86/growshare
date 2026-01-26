@@ -119,6 +119,7 @@ export async function ensureUser() {
 
 /**
  * Ensures the authenticated user exists and has a verified email.
+ * Checks Clerk's current verification status and syncs to database.
  * Throws EmailNotVerifiedError if email is not verified.
  * Returns the database user or null if not authenticated.
  */
@@ -129,7 +130,32 @@ export async function ensureVerifiedUser() {
     return null
   }
 
-  if (!user.isVerified) {
+  // Always check Clerk's current verification status
+  const clerkUser = await currentUser()
+  if (!clerkUser) {
+    return null
+  }
+
+  const primaryEmail = clerkUser.emailAddresses.find(
+    (email) => email.id === clerkUser.primaryEmailAddressId
+  ) || clerkUser.emailAddresses[0]
+
+  const isEmailVerified = primaryEmail?.verification?.status === 'verified'
+
+  // If Clerk says verified but database doesn't, sync it
+  if (isEmailVerified && !user.isVerified) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        verifiedAt: new Date(),
+      },
+    })
+    user.isVerified = true
+    user.verifiedAt = new Date()
+  }
+
+  if (!isEmailVerified) {
     throw new EmailNotVerifiedError()
   }
 

@@ -49,27 +49,93 @@ export function BookingCard({
   const [requiresVerification, setRequiresVerification] = useState(false)
   const [success, setSuccess] = useState(false)
 
+  // Storage key for persisting booking dates
+  const storageKey = `booking-dates-${plotId}`
+
   // Auto-open modal when returning from email verification
   useEffect(() => {
     if (autoOpen && isSignedIn) {
+      // Restore saved dates from localStorage
+      const savedDates = localStorage.getItem(storageKey)
+      if (savedDates) {
+        try {
+          const { start, end, message: savedMessage, months, total } = JSON.parse(savedDates)
+          if (start) {
+            const startDate = new Date(start)
+            setSelectedStart(startDate)
+            setStartDate(start)
+          }
+          if (end) {
+            const endDate = new Date(end)
+            setSelectedEnd(endDate)
+            setEndDate(end)
+          }
+          if (savedMessage) {
+            setMessage(savedMessage)
+          }
+          if (months !== undefined) {
+            setCalculatedMonths(months)
+          }
+          if (total !== undefined) {
+            setCalculatedTotal(total)
+          }
+        } catch (e) {
+          console.error('Failed to restore booking dates:', e)
+        }
+      }
       setIsModalOpen(true)
     }
-  }, [autoOpen, isSignedIn])
+  }, [autoOpen, isSignedIn, storageKey])
 
   const handleDateSelect = (start: Date | null, end: Date | null) => {
     setSelectedStart(start)
     setSelectedEnd(end)
+    const startStr = start ? start.toISOString().split('T')[0] : ''
+    const endStr = end ? end.toISOString().split('T')[0] : ''
     if (start) {
-      setStartDate(start.toISOString().split('T')[0])
+      setStartDate(startStr)
     }
     if (end) {
-      setEndDate(end.toISOString().split('T')[0])
+      setEndDate(endStr)
     }
+    // Save to localStorage for persistence through verification
+    localStorage.setItem(storageKey, JSON.stringify({
+      start: startStr,
+      end: endStr,
+      message,
+    }))
   }
 
   const handlePriceCalculated = (months: number, total: number) => {
     setCalculatedMonths(months)
     setCalculatedTotal(total)
+    // Update localStorage with price info
+    const savedDates = localStorage.getItem(storageKey)
+    if (savedDates) {
+      try {
+        const data = JSON.parse(savedDates)
+        data.months = months
+        data.total = total
+        localStorage.setItem(storageKey, JSON.stringify(data))
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+  }
+
+  const handleMessageChange = (newMessage: string) => {
+    setMessage(newMessage)
+    // Update localStorage with new message
+    const savedDates = localStorage.getItem(storageKey)
+    if (savedDates) {
+      try {
+        const data = JSON.parse(savedDates)
+        data.message = newMessage
+        localStorage.setItem(storageKey, JSON.stringify(data))
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
   }
 
   const handleRequestBooking = () => {
@@ -121,6 +187,9 @@ export function BookingCard({
       }
 
       setSuccess(true)
+
+      // Clear saved booking dates from localStorage
+      localStorage.removeItem(storageKey)
 
       // Close modal and redirect after a short delay
       setTimeout(() => {
@@ -299,7 +368,7 @@ export function BookingCard({
                   <textarea
                     rows={4}
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(e) => handleMessageChange(e.target.value)}
                     placeholder="Tell the owner about yourself and your farming plans..."
                     disabled={isLoading}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none disabled:bg-gray-100"
