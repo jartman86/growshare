@@ -50,8 +50,11 @@ export default clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
     const { userId, sessionClaims } = await auth.protect()
 
-    // Check email verification for protected routes that require it
-    if (requiresVerification(request)) {
+    // Skip email verification redirect for API routes - let them return JSON errors
+    const isApiRoute = request.nextUrl.pathname.startsWith('/api/')
+
+    // Check email verification for protected routes that require it (page routes only)
+    if (!isApiRoute && requiresVerification(request)) {
       // Check if user's primary email is verified
       // sessionClaims contains the user's email verification status
       const primaryEmailVerified = sessionClaims?.email_verified
