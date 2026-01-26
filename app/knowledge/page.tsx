@@ -86,8 +86,8 @@ export default function KnowledgeHubPage() {
     price: course.accessType === 'FREE' ? 0 : course.price || 0,
     certification: course.isCertification,
     points: 250,
-    tags: [],
-    skills: [],
+    tags: [] as string[],
+    skills: [] as string[],
   }))
 
   const filteredCourses = allCourses.filter((course) => {

@@ -57,8 +57,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Check if rental is completed
-    const isCompleted = rental.status === 'COMPLETED' || rental.status === 'RETURNED' || rental.endDate < new Date()
+    // Check if rental is completed (either status is COMPLETED or rental period has ended)
+    const isCompleted = rental.status === 'COMPLETED' || rental.endDate < new Date()
 
     if (!isCompleted) {
       return NextResponse.json(

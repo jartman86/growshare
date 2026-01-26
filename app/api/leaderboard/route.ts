@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
           createdAt: true,
           _count: {
             select: {
-              badges: true,
+              userBadges: true,
               cropJournals: true,
               posts: true,
             },
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
         avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`,
         totalPoints: user.totalPoints,
         level: user.level,
-        achievementCount: user._count.badges,
+        achievementCount: user._count.userBadges,
         activityCount: user._count.cropJournals + user._count.posts,
         joinedAt: user.createdAt.toISOString(),
       }))
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         _count: {
           select: {
-            badges: true,
+            userBadges: true,
             cropJournals: true,
             posts: true,
           },
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
           totalPoints: activity._sum.points || 0, // Points in this timeframe
           allTimePoints: user.totalPoints,
           level: user.level,
-          achievementCount: user._count.badges,
+          achievementCount: user._count.userBadges,
           activityCount: user._count.cropJournals + user._count.posts,
           joinedAt: user.createdAt.toISOString(),
         }

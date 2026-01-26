@@ -46,14 +46,14 @@ export async function GET(
       images: entry.images,
       weatherData: entry.weatherData,
       weatherLocation: entry.weatherLocation,
-      harvestAmount: entry.harvests.reduce((sum, h) => sum + (h.weight || 0), 0),
-      harvests: entry.harvests.map(h => ({
+      harvestAmount: entry.harvests.reduce((sum: number, h: { quantity: number }) => sum + (h.quantity || 0), 0),
+      harvests: entry.harvests.map((h: { id: string; quantity: number; quality: string | null; notes: string | null; harvestDate: Date }) => ({
         id: h.id,
-        weight: h.weight,
+        weight: h.quantity,
         quantity: h.quantity,
         quality: h.quality,
         notes: h.notes,
-        harvestedAt: h.harvestedAt?.toISOString(),
+        harvestedAt: h.harvestDate?.toISOString(),
       })),
       createdAt: entry.createdAt.toISOString(),
       updatedAt: entry.updatedAt.toISOString(),

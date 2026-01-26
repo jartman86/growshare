@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform to match the expected format
-    const formattedEntries = entries.map((entry) => {
-      const totalHarvest = entry.harvests.reduce((sum, h) => sum + (h.weight || 0), 0)
+    const formattedEntries = entries.map((entry: any) => {
+      const totalHarvest = entry.harvests.reduce((sum: number, h: { quantity: number }) => sum + (h.quantity || 0), 0)
       return {
         id: entry.id,
         cropName: entry.cropName,
@@ -59,10 +59,10 @@ export async function GET(request: NextRequest) {
     // Calculate stats
     const stats = {
       total: entries.length,
-      growing: entries.filter((e) => e.stage === 'GROWING').length,
-      harvested: entries.filter((e) => e.stage === 'HARVESTING' || e.stage === 'COMPLETED').length,
-      totalHarvest: entries.reduce((sum, e) =>
-        sum + e.harvests.reduce((h, harvest) => h + (harvest.weight || 0), 0), 0
+      growing: entries.filter((e: any) => e.stage === 'GROWING').length,
+      harvested: entries.filter((e: any) => e.stage === 'HARVESTING' || e.stage === 'COMPLETED').length,
+      totalHarvest: entries.reduce((sum: number, e: any) =>
+        sum + e.harvests.reduce((h: number, harvest: { quantity: number }) => h + (harvest.quantity || 0), 0), 0
       ),
     }
 

@@ -1,11 +1,28 @@
 'use client'
 
 import Link from 'next/link'
-import { JournalEntry } from '@/lib/journal-data'
 import { Calendar, Sprout, TrendingUp, CheckCircle } from 'lucide-react'
 
+interface JournalEntryDisplay {
+  id: string
+  cropName: string
+  cropType: string
+  variety?: string | null
+  status: string
+  plantedDate?: string | null
+  expectedHarvestDate?: string | null
+  plantCount?: number | null
+  areaUsed?: number | null
+  notes: string
+  images: string[]
+  harvestAmount?: number
+  harvestCount?: number
+  createdAt: string
+  updatedAt: string
+}
+
 interface EntryCardProps {
-  entry: JournalEntry
+  entry: JournalEntryDisplay
 }
 
 const statusConfig = {
@@ -37,20 +54,21 @@ const statusConfig = {
 }
 
 export function EntryCard({ entry }: EntryCardProps) {
-  const config = statusConfig[entry.status]
+  const config = statusConfig[entry.status as keyof typeof statusConfig] || statusConfig.PLANNING
   const StatusIcon = config.icon
 
-  const formatDate = (date: Date) => {
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return 'Not set'
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
-    }).format(date)
+    }).format(new Date(dateStr))
   }
 
-  const daysGrowing = Math.floor(
-    (new Date().getTime() - entry.plantingDate.getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysGrowing = entry.plantedDate
+    ? Math.floor((new Date().getTime() - new Date(entry.plantedDate).getTime()) / (1000 * 60 * 60 * 24))
+    : 0
 
   return (
     <Link href={`/dashboard/journal/${entry.id}`}>
@@ -75,19 +93,23 @@ export function EntryCard({ entry }: EntryCardProps) {
           {/* Crop Name */}
           <h3 className="text-xl font-bold text-gray-900 mb-1">{entry.cropName}</h3>
 
-          {/* Crop Type & Plot */}
+          {/* Crop Type & Variety */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
             <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
               {entry.cropType}
             </span>
-            <span>•</span>
-            <span className="truncate">{entry.plotName}</span>
+            {entry.variety && (
+              <>
+                <span>•</span>
+                <span className="truncate">{entry.variety}</span>
+              </>
+            )}
           </div>
 
           {/* Growth Stage */}
           <div className="flex items-center gap-2 mb-3">
             <StatusIcon className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-700 font-medium">{entry.growthStage}</span>
+            <span className="text-sm text-gray-700 font-medium">{config.label}</span>
           </div>
 
           {/* Notes Preview */}
@@ -98,7 +120,7 @@ export function EntryCard({ entry }: EntryCardProps) {
             <div>
               <p className="text-xs text-gray-500">Planted</p>
               <p className="text-sm font-semibold text-gray-900">
-                {formatDate(entry.plantingDate)}
+                {formatDate(entry.plantedDate)}
               </p>
             </div>
             <div>
@@ -108,12 +130,12 @@ export function EntryCard({ entry }: EntryCardProps) {
           </div>
 
           {/* Harvest Info */}
-          {entry.harvestAmount && (
+          {entry.harvestAmount && entry.harvestAmount > 0 && (
             <div className="mt-3 pt-3 border-t">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Total Harvest</span>
                 <span className="text-lg font-bold text-green-600">
-                  {entry.harvestAmount} {entry.harvestUnit}
+                  {entry.harvestAmount} lbs
                 </span>
               </div>
             </div>
