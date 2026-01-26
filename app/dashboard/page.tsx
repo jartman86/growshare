@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -197,67 +198,24 @@ export default async function DashboardPage() {
             <BadgeShowcase earnedBadges={earnedBadges} />
           </div>
 
-          {/* Achievements Timeline (Coming Soon) */}
-          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-6 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-[#2d5016] dark:text-green-400">
-                Your Growing Journey
-              </h2>
-              <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full">Coming Soon</span>
-            </div>
-            <div className="relative">
-              <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#8bc34a] to-[#4a7c2c] dark:from-green-500 dark:to-green-700"></div>
-              <div className="space-y-6">
-                {[
-                  {
-                    icon: '🌱',
-                    title: 'Started Your Journey',
-                    date: '3 months ago',
-                    description: 'Signed up and created your GrowShare profile',
-                  },
-                  {
-                    icon: '📍',
-                    title: 'Rented First Plot',
-                    date: '2 months ago',
-                    description: '5-acre organic farm in Asheville, NC',
-                  },
-                  {
-                    icon: '🎓',
-                    title: 'First Certification',
-                    date: '1 month ago',
-                    description: 'Completed Soil Health Fundamentals',
-                  },
-                  {
-                    icon: '🥕',
-                    title: 'First Harvest',
-                    date: '2 weeks ago',
-                    description: 'Harvested 25 lbs of fresh tomatoes',
-                  },
-                  {
-                    icon: '💯',
-                    title: '100 Pound Milestone',
-                    date: 'Today',
-                    description: 'Total harvest reached 100 lbs!',
-                  },
-                ].map((milestone, index) => (
-                  <div key={index} className="relative flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] rounded-full flex items-center justify-center text-white font-bold z-10 shadow-md">
-                      {milestone.icon}
-                    </div>
-                    <div className="flex-1 pb-6">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-[#2d5016] dark:text-white">
-                          {milestone.title}
-                        </h3>
-                        <span className="text-xs text-[#4a3f35] dark:text-gray-400">{milestone.date}</span>
-                      </div>
-                      <p className="text-sm text-[#4a3f35] dark:text-gray-400 mt-1">
-                        {milestone.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+          {/* View All Achievements CTA */}
+          <div className="bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl p-6 shadow-lg">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="text-white text-center md:text-left">
+                <h2 className="text-2xl font-bold">Track Your Full Journey</h2>
+                <p className="text-emerald-100 mt-1">
+                  View all badges, milestones, streaks, and achievements in one place
+                </p>
               </div>
+              <Link
+                href="/dashboard/achievements"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-lg font-semibold hover:bg-emerald-50 transition-colors shadow-md"
+              >
+                View Achievements
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </div>
           </div>
         </div>

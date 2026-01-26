@@ -71,7 +71,8 @@ async function shouldSendNotification(userId: string, type: NotificationType): P
     if (!preferences) return true
 
     // Check the specific preference
-    return (preferences as Record<string, boolean>)[preferenceKey] ?? true
+    const prefValue = preferences[preferenceKey as keyof typeof preferences]
+    return typeof prefValue === 'boolean' ? prefValue : true
   } catch {
     // On error, default to sending
     return true

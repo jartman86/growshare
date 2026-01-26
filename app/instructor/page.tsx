@@ -221,7 +221,7 @@ export default function InstructorDashboardPage() {
               </Card>
             </Link>
 
-            <Link href="/instructor/analytics" className="block">
+            <Link href="/instructor/earnings" className="block">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-4">
@@ -229,9 +229,9 @@ export default function InstructorDashboardPage() {
                       <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Analytics</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">Earnings</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        View detailed performance metrics
+                        Track revenue and payouts
                       </p>
                     </div>
                   </div>

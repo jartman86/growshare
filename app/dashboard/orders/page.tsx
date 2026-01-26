@@ -110,7 +110,7 @@ export default function MyOrdersPage() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   filter === f
                     ? 'bg-green-600 text-white'
-                    : 'bg-white border text-gray-700 hover:bg-gray-50'
+                    : 'bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -123,10 +123,10 @@ export default function MyOrdersPage() {
               <Loader2 className="h-8 w-8 animate-spin text-green-600" />
             </div>
           ) : filteredOrders.length === 0 ? (
-            <div className="bg-white rounded-xl border p-12 text-center">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-12 text-center">
               <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">No orders yet</h2>
-              <p className="text-gray-600 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No orders yet</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
                 When you purchase from the marketplace, your orders will appear here.
               </p>
               <Link
@@ -147,10 +147,10 @@ export default function MyOrdersPage() {
                   <Link
                     key={order.id}
                     href={`/marketplace/orders/${order.id}`}
-                    className="block bg-white rounded-xl border p-4 hover:shadow-md transition-shadow"
+                    className="block bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex gap-4">
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
                         {order.listing.images[0] ? (
                           <img
                             src={order.listing.images[0]}
@@ -166,22 +166,22 @@ export default function MyOrdersPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h3 className="font-medium text-gray-900 truncate">
+                            <h3 className="font-medium text-gray-900 dark:text-white truncate">
                               {order.listing.productName}
                               {order.listing.variety && (
-                                <span className="text-gray-600"> - {order.listing.variety}</span>
+                                <span className="text-gray-600 dark:text-gray-400"> - {order.listing.variety}</span>
                               )}
                             </h3>
-                            <p className="text-sm text-gray-600 mt-0.5">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
                               {order.quantity} {order.listing.unit} from{' '}
                               {order.listing.user.firstName} {order.listing.user.lastName}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                               Ordered {formatDate(order.createdAt)}
                             </p>
                           </div>
                           <div className="text-right flex-shrink-0">
-                            <p className="font-bold text-gray-900">
+                            <p className="font-bold text-gray-900 dark:text-white">
                               ${order.totalPrice.toFixed(2)}
                             </p>
                             <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.bgClass} ${status.textClass}`}>

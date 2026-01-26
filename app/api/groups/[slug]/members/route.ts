@@ -33,8 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             firstName: true,
             lastName: true,
             avatar: true,
-            city: true,
-            state: true,
+            location: true,
           },
         },
       },
@@ -48,7 +47,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       id: m.user.id,
       name: `${m.user.firstName || ''} ${m.user.lastName || ''}`.trim() || 'Member',
       avatar: m.user.avatar,
-      location: m.user.city && m.user.state ? `${m.user.city}, ${m.user.state}` : null,
+      location: m.user.location,
       role: m.role.toLowerCase(),
       joinedAt: m.joinedAt.toISOString(),
     }))
