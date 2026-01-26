@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/search(.*)',
   '/api/events(.*)',
   '/api/courses(.*)',
+  '/api/tools(.*)',
   '/explore(.*)',
   '/plots(.*)',
   '/marketplace(.*)',
@@ -26,12 +27,17 @@ const isPublicRoute = createRouteMatcher([
   '/challenges(.*)',
   '/leaderboard(.*)',
   '/subscription(.*)',
+  '/tools',
+  '/tools/:toolId',
 ])
 
 // Routes that require email verification
 const requiresVerification = createRouteMatcher([
   '/dashboard(.*)',
   '/list-plot(.*)',
+  '/tools/list(.*)',
+  '/tools/my-rentals(.*)',
+  '/my-bookings(.*)',
   '/settings(.*)',
   '/messages(.*)',
   '/bookings(.*)',

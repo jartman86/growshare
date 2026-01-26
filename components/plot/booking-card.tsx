@@ -5,6 +5,7 @@ import { Calendar, Users, X, CheckCircle, AlertCircle, Mail } from 'lucide-react
 import { formatCurrency } from '@/lib/utils'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
 import { AvailabilityCalendar } from './availability-calendar'
 
 interface BookingCardProps {
@@ -32,6 +33,7 @@ export function BookingCard({
 }: BookingCardProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const { isSignedIn } = useUser()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -62,6 +64,10 @@ export function BookingCard({
   }
 
   const handleRequestBooking = () => {
+    if (!isSignedIn) {
+      router.push(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`)
+      return
+    }
     setIsModalOpen(true)
     setError(null)
     setRequiresVerification(false)

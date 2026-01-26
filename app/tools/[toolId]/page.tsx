@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { notFound, useParams } from 'next/navigation'
+import { notFound, useParams, useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_TOOLS, calculateRentalCost } from '@/lib/tools-data'
@@ -31,6 +32,9 @@ import {
 
 export default function ToolDetailPage() {
   const params = useParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  const { isSignedIn } = useUser()
   const toolId = params.toolId as string
   const tool = SAMPLE_TOOLS.find((t) => t.id === toolId)
 
@@ -51,6 +55,14 @@ export default function ToolDetailPage() {
 
   const weekCost = tool.weeklyRate || calculateRentalCost(tool, 7)
   const monthCost = calculateRentalCost(tool, 30)
+
+  const requireAuth = (callback: () => void) => {
+    if (!isSignedIn) {
+      router.push(`/sign-in?redirect_url=${encodeURIComponent(pathname)}`)
+      return
+    }
+    callback()
+  }
 
   const handleSubmitReview = (reviewData: any) => {
     // TODO: Submit review to backend
@@ -244,7 +256,7 @@ export default function ToolDetailPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-2xl font-bold text-gray-900">Reviews & Ratings</h3>
                   <button
-                    onClick={() => setShowReviewForm(!showReviewForm)}
+                    onClick={() => requireAuth(() => setShowReviewForm(!showReviewForm))}
                     className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
                   >
                     <Edit className="h-4 w-4" />
@@ -367,7 +379,7 @@ export default function ToolDetailPage() {
                     <h4 className="text-lg font-semibold text-gray-900 mb-2">No reviews yet</h4>
                     <p className="text-gray-600 mb-6">Be the first to review this tool!</p>
                     <button
-                      onClick={() => setShowReviewForm(true)}
+                      onClick={() => requireAuth(() => setShowReviewForm(true))}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
                     >
                       <Edit className="h-5 w-5" />
@@ -465,21 +477,33 @@ export default function ToolDetailPage() {
                 {tool.status === 'available' ? (
                   <div className="space-y-3">
                     {tool.listingType === 'sale' && (
-                      <button className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                      <button
+                        onClick={() => requireAuth(() => {})}
+                        className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                      >
                         Buy Now
                       </button>
                     )}
                     {tool.listingType === 'rent' && (
-                      <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                      <button
+                        onClick={() => requireAuth(() => {})}
+                        className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
+                      >
                         Request to Rent
                       </button>
                     )}
                     {tool.listingType === 'both' && (
                       <>
-                        <button className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                        <button
+                          onClick={() => requireAuth(() => {})}
+                          className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                        >
                           Buy Now - ${tool.salePrice}
                         </button>
-                        <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                        <button
+                          onClick={() => requireAuth(() => {})}
+                          className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
+                        >
                           Rent - ${tool.dailyRate}/day
                         </button>
                       </>
@@ -497,7 +521,10 @@ export default function ToolDetailPage() {
                         }).format(tool.nextAvailable)}
                       </p>
                     </div>
-                    <button className="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors mb-3">
+                    <button
+                      onClick={() => requireAuth(() => {})}
+                      className="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors mb-3"
+                    >
                       Reserve for Next
                     </button>
                   </div>
@@ -511,7 +538,10 @@ export default function ToolDetailPage() {
                   </button>
                 )}
 
-                <button className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 mt-3">
+                <button
+                  onClick={() => requireAuth(() => {})}
+                  className="w-full border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 mt-3"
+                >
                   <MessageSquare className="h-5 w-5" />
                   Message Owner
                 </button>
