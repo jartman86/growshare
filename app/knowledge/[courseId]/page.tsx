@@ -84,42 +84,9 @@ export default async function CourseDetailPage({
     notFound()
   }
 
-  // Mock curriculum data
-  const curriculum = [
-    {
-      section: 'Getting Started',
-      lessons: [
-        { title: 'Welcome & Course Overview', duration: '5 min', type: 'video' as const },
-        { title: 'Course Materials & Resources', duration: '10 min', type: 'reading' as const },
-      ],
-    },
-    {
-      section: 'Core Concepts',
-      lessons: [
-        { title: 'Understanding the Fundamentals', duration: '20 min', type: 'video' as const },
-        { title: 'Practical Applications', duration: '15 min', type: 'video' as const },
-        { title: 'Case Studies', duration: '25 min', type: 'reading' as const },
-        { title: 'Quiz: Core Concepts', duration: '10 min', type: 'quiz' as const },
-      ],
-    },
-    {
-      section: 'Advanced Techniques',
-      lessons: [
-        { title: 'Advanced Methods', duration: '30 min', type: 'video' as const },
-        { title: 'Troubleshooting Common Issues', duration: '20 min', type: 'video' as const },
-        { title: 'Best Practices', duration: '15 min', type: 'reading' as const },
-      ],
-    },
-    {
-      section: 'Final Assessment',
-      lessons: [
-        { title: 'Final Project', duration: '45 min', type: 'quiz' as const },
-        { title: 'Certification Exam', duration: '30 min', type: 'quiz' as const },
-      ],
-    },
-  ]
-
-  const totalLessons = curriculum.reduce((sum, section) => sum + section.lessons.length, 0)
+  // Use real modules from database
+  const modules = dbCourse?.modules || []
+  const totalLessons = modules.length
 
   return (
     <>
@@ -231,31 +198,38 @@ export default async function CourseDetailPage({
               </div>
 
               {/* Curriculum */}
-              <div className="bg-white rounded-xl border p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Course Curriculum</h2>
-                <div className="space-y-4">
-                  {curriculum.map((section, sectionIndex) => (
-                    <div key={sectionIndex} className="border rounded-lg">
-                      <div className="p-4 bg-gray-50 border-b">
-                        <h3 className="font-semibold text-gray-900">{section.section}</h3>
-                        <p className="text-sm text-gray-600">{section.lessons.length} lessons</p>
-                      </div>
-                      <div className="divide-y">
-                        {section.lessons.map((lesson, lessonIndex) => (
-                          <div key={lessonIndex} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                            <div className="flex items-center gap-3">
-                              {lesson.type === 'video' && <Play className="h-4 w-4 text-blue-600" />}
-                              {lesson.type === 'reading' && <FileText className="h-4 w-4 text-green-600" />}
-                              {lesson.type === 'quiz' && <Trophy className="h-4 w-4 text-purple-600" />}
-                              <span className="text-gray-700">{lesson.title}</span>
-                            </div>
-                            <span className="text-sm text-gray-500">{lesson.duration}</span>
+              <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700 p-8">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Course Curriculum</h2>
+                {modules.length > 0 ? (
+                  <div className="space-y-4">
+                    {modules.map((module, index) => (
+                      <div key={module.id} className="border dark:border-gray-700 rounded-lg">
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 border-b dark:border-gray-700">
+                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                            Module {index + 1}: {module.title}
+                          </h3>
+                          {module.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{module.description}</p>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-center gap-3">
+                            {module.videoUrl ? (
+                              <Play className="h-4 w-4 text-blue-600" />
+                            ) : (
+                              <FileText className="h-4 w-4 text-green-600" />
+                            )}
+                            <span className="text-gray-700 dark:text-gray-300">
+                              {module.videoUrl ? 'Video Lesson' : 'Reading Material'}
+                            </span>
                           </div>
-                        ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 dark:text-gray-400">No modules available yet.</p>
+                )}
               </div>
             </div>
 
