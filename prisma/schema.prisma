@@ -19,6 +19,7 @@ enum UserRole {
   LANDOWNER
   RENTER
   BUYER
+  SELLER
   ORGANIZATION
   ADMIN
 }
@@ -60,6 +61,8 @@ model User {
 
   // Onboarding
   onboardingComplete Boolean    @default(false)
+  interests          String[]   @default([])
+  experienceLevel    String?
 
   // Gamification
   totalPoints       Int         @default(0)
@@ -129,6 +132,15 @@ model User {
   groupPosts            GroupPost[]       @relation("GroupPostAuthor")
   createdChallenges     Challenge[]       @relation("ChallengeCreator")
   challengeParticipations ChallengeParticipant[]
+
+  // Content Moderation
+  reportsFiled          Report[]          @relation("ReportedBy")
+  reportsReceived       Report[]          @relation("ReportedUser")
+
+  // Disputes
+  disputesFiled         BookingDispute[]  @relation("DisputeFiler")
+  disputesResolved      BookingDispute[]  @relation("DisputeResolver")
+  disputeMessages       DisputeMessage[]
 
   @@index([clerkId])
   @@index([email])
@@ -300,6 +312,7 @@ model Plot {
   soilTests         SoilTest[]
   reviews           Review[]
   blockedDates      PlotBlockedDate[]
+  reports           Report[]
 
   @@index([ownerId])
   @@index([status])
@@ -402,11 +415,99 @@ model Booking {
   // Relations
   messages        Message[]
   paymentIntent   PaymentIntent?
+  dispute         BookingDispute?
 
   @@index([plotId])
   @@index([renterId])
   @@index([status])
   @@index([startDate, endDate])
+}
+
+// ============================================
+// DISPUTE RESOLUTION
+// ============================================
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+enum DisputeReason {
+  PROPERTY_NOT_AS_DESCRIBED
+  ACCESS_ISSUES
+  PAYMENT_DISPUTE
+  EARLY_TERMINATION
+  DAMAGE_CLAIM
+  SAFETY_CONCERN
+  COMMUNICATION_ISSUES
+  OTHER
+}
+
+enum DisputeResolution {
+  FULL_REFUND
+  PARTIAL_REFUND
+  NO_REFUND
+  DEPOSIT_RETURNED
+  DEPOSIT_FORFEITED
+  MUTUAL_AGREEMENT
+  DISMISSED
+}
+
+model BookingDispute {
+  id              String            @id @default(cuid())
+  bookingId       String            @unique
+  booking         Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Who filed the dispute
+  filedById       String
+  filedBy         User              @relation("DisputeFiler", fields: [filedById], references: [id])
+
+  // Dispute details
+  reason          DisputeReason
+  description     String
+  evidence        String[]          // URLs to uploaded files/images
+  requestedAmount Float?            // Amount in dispute
+
+  // Status
+  status          DisputeStatus     @default(OPEN)
+
+  // Resolution
+  resolution      DisputeResolution?
+  resolutionNotes String?
+  resolvedAmount  Float?
+  resolvedById    String?
+  resolvedBy      User?             @relation("DisputeResolver", fields: [resolvedById], references: [id])
+  resolvedAt      DateTime?
+
+  // Communication
+  messages        DisputeMessage[]
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([filedById])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DisputeMessage {
+  id          String         @id @default(cuid())
+  disputeId   String
+  dispute     BookingDispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User           @relation(fields: [senderId], references: [id])
+
+  content     String
+  attachments String[]
+
+  isInternal  Boolean        @default(false) // Admin-only notes
+
+  createdAt   DateTime       @default(now())
+
+  @@index([disputeId])
+  @@index([senderId])
 }
 
 // ============================================
@@ -508,14 +609,17 @@ enum ActivityType {
   BOOKING_CANCELLED
   REVIEW_CREATED
   REVIEW_RECEIVED
+  REVIEW_SUBMITTED
   FIRST_HARVEST
   JOURNAL_ENTRY
+  COURSE_VIEWED
   COURSE_COMPLETED
   BADGE_EARNED
   PRODUCE_SOLD
   MILESTONE_REACHED
   POST_CREATED
   NEW_FOLLOWER
+  ACHIEVEMENT_UNLOCKED
 }
 
 model UserActivity {
@@ -649,6 +753,9 @@ model Course {
   certificateName String?
 
   isPublished     Boolean          @default(false)
+
+  // Stats
+  viewCount       Int              @default(0)
 
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -879,6 +986,9 @@ model Message {
   isRead      Boolean  @default(false)
   readAt      DateTime?
 
+  // Reports
+  reports     Report[]
+
   createdAt   DateTime @default(now())
 
   @@index([senderId])
@@ -902,6 +1012,8 @@ enum NotificationType {
   PLOT_VIEWED
   SYSTEM
   SUBSCRIPTION_UPDATED
+  INSTRUCTOR_APPROVED
+  INSTRUCTOR_REJECTED
 }
 
 model Notification {
@@ -933,6 +1045,7 @@ model Notification {
 enum ReviewType {
   PLOT
   USER
+  TOOL_RENTAL
 }
 
 model Review {
@@ -950,6 +1063,10 @@ model Review {
   subjectId   String?
   subject     User?        @relation("ReviewSubject", fields: [subjectId], references: [id], onDelete: Cascade)
 
+  // For Tool Rental Reviews
+  toolRentalId String?
+  toolRental   ToolRental? @relation(fields: [toolRentalId], references: [id], onDelete: Cascade)
+
   rating      Int          // 1-5
   title       String?
   content     String
@@ -964,6 +1081,9 @@ model Review {
   votes       ReviewVote[]
   helpfulCount    Int      @default(0)
   notHelpfulCount Int      @default(0)
+
+  // Reports
+  reports     Report[]
 
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -1045,6 +1165,7 @@ model ProduceListing {
 
   // Relations
   orders          Order[]
+  reports         Report[]
 
   @@index([userId])
   @@index([status])
@@ -1395,6 +1516,12 @@ model ToolRental {
   renterNotes     String?
   ownerNotes      String?
 
+  // Reports
+  reports         Report[]
+
+  // Reviews
+  reviews         Review[]
+
   // Timestamps
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -1527,6 +1654,9 @@ model GroupPost {
   content   String
   images    String[]
 
+  // Reports
+  reports   Report[]
+
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
@@ -1630,4 +1760,77 @@ model ChallengeParticipant {
   @@index([challengeId])
   @@index([userId])
   @@index([status])
+}
+
+// ============================================
+// CONTENT MODERATION
+// ============================================
+
+enum ReportType {
+  PLOT
+  REVIEW
+  MESSAGE
+  LISTING
+  TOOL
+  FORUM_POST
+  USER
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
+enum ReportReason {
+  SPAM
+  INAPPROPRIATE
+  HARASSMENT
+  FRAUD
+  MISLEADING
+  SAFETY
+  OTHER
+}
+
+model Report {
+  id          String       @id @default(cuid())
+
+  type        ReportType
+  reason      ReportReason
+  status      ReportStatus @default(PENDING)
+  details     String?      // Additional details from reporter
+
+  // Reporter
+  reporterId  String
+  reporter    User         @relation("ReportedBy", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  // Reported content IDs (only one will be set based on type)
+  plotId      String?
+  plot        Plot?        @relation(fields: [plotId], references: [id], onDelete: SetNull)
+  reviewId    String?
+  review      Review?      @relation(fields: [reviewId], references: [id], onDelete: SetNull)
+  messageId   String?
+  message     Message?     @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  listingId   String?
+  listing     ProduceListing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  toolId      String?
+  tool        ToolRental?  @relation(fields: [toolId], references: [id], onDelete: SetNull)
+  postId      String?
+  post        GroupPost?   @relation(fields: [postId], references: [id], onDelete: SetNull)
+  userId      String?      // For reporting users
+  reportedUser User?       @relation("ReportedUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  // Resolution
+  resolvedBy   String?
+  resolvedAt   DateTime?
+  resolution   String?      // Notes about how it was resolved
+  actionTaken  String?      // e.g., "content_removed", "user_warned", "none"
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([reporterId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
 }

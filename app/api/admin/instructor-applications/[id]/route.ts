@@ -79,7 +79,44 @@ export async function PATCH(
         : []),
     ])
 
-    // TODO: Send notification/email to applicant about their application status
+    // Send notification to applicant about their application status
+    await prisma.notification.create({
+      data: {
+        userId: application.userId,
+        type: status === 'APPROVED' ? 'INSTRUCTOR_APPROVED' : 'INSTRUCTOR_REJECTED',
+        title: status === 'APPROVED'
+          ? 'Instructor Application Approved!'
+          : 'Instructor Application Update',
+        content: status === 'APPROVED'
+          ? 'Congratulations! Your instructor application has been approved. You can now create courses and share your knowledge with the community.'
+          : `Your instructor application has been reviewed. ${reviewNotes ? `Feedback: ${reviewNotes}` : 'Please contact support for more information.'}`,
+        link: status === 'APPROVED' ? '/instructor' : '/instructor/apply',
+        metadata: {
+          applicationId: id,
+          status,
+        },
+      },
+    })
+
+    // Award points if approved
+    if (status === 'APPROVED') {
+      await prisma.user.update({
+        where: { id: application.userId },
+        data: {
+          totalPoints: { increment: 500 },
+        },
+      })
+
+      await prisma.userActivity.create({
+        data: {
+          userId: application.userId,
+          type: 'ACHIEVEMENT_UNLOCKED',
+          title: 'Became an Instructor',
+          description: 'Your instructor application was approved!',
+          points: 500,
+        },
+      })
+    }
 
     return NextResponse.json({
       success: true,

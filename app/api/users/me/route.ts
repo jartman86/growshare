@@ -60,7 +60,7 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json()
-    const { username, location, bio, role } = body
+    const { username, location, bio, role, interests, experienceLevel } = body
 
     // Check if username is already taken by another user
     if (username) {
@@ -87,6 +87,8 @@ export async function PATCH(request: Request) {
         ...(location && { location }),
         ...(bio !== undefined && { bio }),
         ...(role && { role }),
+        ...(interests && { interests }),
+        ...(experienceLevel && { experienceLevel }),
         ...(isCompletingOnboarding && { onboardingComplete: true }),
       },
     })
