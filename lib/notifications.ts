@@ -27,10 +27,67 @@ interface CreateNotificationParams {
   content: string
   link?: string
   metadata?: Record<string, any>
+  skipPreferenceCheck?: boolean // For critical notifications that should always be sent
+}
+
+// Map notification types to preference keys
+function getPreferenceKey(type: NotificationType): string | null {
+  switch (type) {
+    case 'BOOKING_REQUEST':
+      return 'bookingRequests'
+    case 'BOOKING_APPROVED':
+    case 'BOOKING_REJECTED':
+    case 'BOOKING_CANCELLED':
+      return 'bookingUpdates'
+    case 'NEW_MESSAGE':
+      return 'newMessages'
+    case 'NEW_REVIEW':
+      return 'newReviews'
+    case 'PAYMENT_RECEIVED':
+      return 'marketplaceActivity'
+    case 'SYSTEM':
+      return 'systemAnnouncements'
+    case 'PLOT_VIEWED':
+    case 'SUBSCRIPTION_UPDATED':
+      return null // Always send these
+    default:
+      return null
+  }
+}
+
+// Check if user has enabled this type of notification
+async function shouldSendNotification(userId: string, type: NotificationType): Promise<boolean> {
+  const preferenceKey = getPreferenceKey(type)
+
+  // If no preference key, always send
+  if (!preferenceKey) return true
+
+  try {
+    const preferences = await prisma.notificationPreferences.findUnique({
+      where: { userId },
+    })
+
+    // If no preferences set, default to enabled
+    if (!preferences) return true
+
+    // Check the specific preference
+    return (preferences as Record<string, boolean>)[preferenceKey] ?? true
+  } catch {
+    // On error, default to sending
+    return true
+  }
 }
 
 export async function createNotification(params: CreateNotificationParams) {
   try {
+    // Check user preferences unless explicitly skipped
+    if (!params.skipPreferenceCheck) {
+      const shouldSend = await shouldSendNotification(params.userId, params.type)
+      if (!shouldSend) {
+        return null // User has disabled this notification type
+      }
+    }
+
     const notification = await prisma.notification.create({
       data: {
         userId: params.userId,

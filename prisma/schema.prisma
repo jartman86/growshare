@@ -111,6 +111,7 @@ model User {
   forumVotes        ForumVote[]
   reviewVotes       ReviewVote[]
   emailPreferences  EmailPreferences?
+  notificationPreferences NotificationPreferences?
   verificationRequests VerificationRequest[]
   blockedUsers      BlockedUser[] @relation("UserBlocking")
   blockedByUsers    BlockedUser[] @relation("UserBlockedBy")
@@ -1432,6 +1433,27 @@ model EmailPreferences {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+// In-app notification preferences
+model NotificationPreferences {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // In-app notification preferences
+  bookingRequests       Boolean @default(true)
+  bookingUpdates        Boolean @default(true)
+  newMessages           Boolean @default(true)
+  newReviews            Boolean @default(true)
+  marketplaceActivity   Boolean @default(true)
+  forumActivity         Boolean @default(true)
+  courseUpdates         Boolean @default(true)
+  communityActivity     Boolean @default(true)  // Tips, events, groups
+  systemAnnouncements   Boolean @default(true)
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 // ============================================
