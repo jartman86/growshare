@@ -28,7 +28,7 @@ const isPublicRoute = createRouteMatcher([
   '/leaderboard(.*)',
   '/subscription(.*)',
   '/tools',
-  '/tools/:toolId',
+  '/tools/((?!list|my-rentals).*)',
 ])
 
 // Routes that require email verification
