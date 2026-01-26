@@ -121,6 +121,15 @@ model User {
   instructorEvents      CourseEvent[]     @relation("InstructorEvents")
   eventAttendances      EventAttendee[]
 
+  // Community Groups & Challenges
+  createdGroups         CommunityGroup[]  @relation("GroupCreator")
+  groupMemberships      GroupMember[]
+  hostedGroupEvents     GroupEvent[]      @relation("GroupEventHost")
+  groupEventAttendances GroupEventAttendee[]
+  groupPosts            GroupPost[]       @relation("GroupPostAuthor")
+  createdChallenges     Challenge[]       @relation("ChallengeCreator")
+  challengeParticipations ChallengeParticipant[]
+
   @@index([clerkId])
   @@index([email])
   @@index([username])
@@ -472,6 +481,7 @@ model Badge {
 
   // Relations
   userBadges  UserBadge[]
+  challenges  Challenge[]
 
   @@index([category])
 }
@@ -1406,4 +1416,218 @@ model SystemConfig {
   value       Json
   description String?
   updatedAt   DateTime @updatedAt
+}
+
+// ============================================
+// COMMUNITY GROUPS
+// ============================================
+
+model CommunityGroup {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String
+  coverImage      String?
+  icon            String?
+
+  // Location
+  city            String?
+  state           String?
+  country         String   @default("USA")
+
+  // Settings
+  isPublic        Boolean  @default(true)
+  requiresApproval Boolean @default(false)
+
+  // Metadata
+  tags            String[]
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  creatorId       String
+  creator         User     @relation("GroupCreator", fields: [creatorId], references: [id])
+  members         GroupMember[]
+  events          GroupEvent[]
+  posts           GroupPost[]
+
+  @@index([creatorId])
+  @@index([city, state])
+  @@index([isPublic])
+}
+
+enum GroupRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+model GroupMember {
+  id        String    @id @default(cuid())
+  groupId   String
+  group     CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role      GroupRole @default(MEMBER)
+  joinedAt  DateTime  @default(now())
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model GroupEvent {
+  id          String   @id @default(cuid())
+  groupId     String
+  group       CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  hostId      String
+  host        User     @relation("GroupEventHost", fields: [hostId], references: [id])
+
+  title       String
+  description String
+  location    String?
+  startTime   DateTime
+  endTime     DateTime?
+  maxAttendees Int?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  attendees   GroupEventAttendee[]
+
+  @@index([groupId])
+  @@index([hostId])
+  @@index([startTime])
+}
+
+model GroupEventAttendee {
+  id        String     @id @default(cuid())
+  eventId   String
+  event     GroupEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rsvpAt    DateTime   @default(now())
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+model GroupPost {
+  id        String         @id @default(cuid())
+  groupId   String
+  group     CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User           @relation("GroupPostAuthor", fields: [authorId], references: [id])
+
+  content   String
+  images    String[]
+
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([groupId])
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+// ============================================
+// CHALLENGES & QUESTS
+// ============================================
+
+enum ChallengeDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum ChallengeStatus {
+  DRAFT
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ChallengeSeason {
+  SPRING
+  SUMMER
+  FALL
+  WINTER
+  YEAR_ROUND
+}
+
+model Challenge {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  description     String
+  longDescription String?
+  coverImage      String?
+
+  difficulty      ChallengeDifficulty @default(BEGINNER)
+  season          ChallengeSeason @default(YEAR_ROUND)
+  status          ChallengeStatus @default(DRAFT)
+
+  // Timing
+  startDate       DateTime
+  endDate         DateTime
+
+  // Requirements
+  requirements    Json?    // Array of requirement objects
+
+  // Rewards
+  pointsReward    Int      @default(100)
+  badgeId         String?
+  badge           Badge?   @relation(fields: [badgeId], references: [id])
+
+  // Metadata
+  tags            String[]
+  maxParticipants Int?
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  creatorId       String
+  creator         User     @relation("ChallengeCreator", fields: [creatorId], references: [id])
+  participants    ChallengeParticipant[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([startDate, endDate])
+  @@index([season])
+}
+
+enum ParticipantStatus {
+  JOINED
+  IN_PROGRESS
+  COMPLETED
+  DROPPED
+}
+
+model ChallengeParticipant {
+  id           String   @id @default(cuid())
+  challengeId  String
+  challenge    Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status       ParticipantStatus @default(JOINED)
+  progress     Int      @default(0)  // 0-100 percentage
+  progressData Json?    // Detailed progress tracking
+
+  joinedAt     DateTime @default(now())
+  completedAt  DateTime?
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+  @@index([userId])
+  @@index([status])
 }

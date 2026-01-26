@@ -1,35 +1,71 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { EntryCard } from '@/components/journal/entry-card'
-import { SAMPLE_JOURNAL_ENTRIES } from '@/lib/journal-data'
-import { Plus, Filter, Search, BookOpen } from 'lucide-react'
+import { Plus, Filter, Search, BookOpen, Loader2 } from 'lucide-react'
+
+interface JournalEntry {
+  id: string
+  cropName: string
+  cropType: string
+  variety: string | null
+  status: string
+  plantedDate: string | null
+  expectedHarvestDate: string | null
+  plantCount: number | null
+  areaUsed: number | null
+  notes: string
+  images: string[]
+  harvestAmount: number
+  harvestCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface Stats {
+  total: number
+  growing: number
+  harvested: number
+  totalHarvest: number
+}
 
 export default function JournalPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
+  const [entries, setEntries] = useState<JournalEntry[]>([])
+  const [stats, setStats] = useState<Stats>({ total: 0, growing: 0, harvested: 0, totalHarvest: 0 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredEntries = SAMPLE_JOURNAL_ENTRIES.filter((entry) => {
-    const matchesStatus = statusFilter === 'ALL' || entry.status === statusFilter
-    const matchesSearch =
-      searchQuery === '' ||
-      entry.cropName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.cropType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.notes.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
+  useEffect(() => {
+    fetchEntries()
+  }, [statusFilter, searchQuery])
 
-  const stats = {
-    total: SAMPLE_JOURNAL_ENTRIES.length,
-    growing: SAMPLE_JOURNAL_ENTRIES.filter((e) => e.status === 'GROWING').length,
-    harvested: SAMPLE_JOURNAL_ENTRIES.filter((e) => e.status === 'HARVESTED').length,
-    totalHarvest: SAMPLE_JOURNAL_ENTRIES.reduce(
-      (sum, e) => sum + (e.harvestAmount || 0),
-      0
-    ),
+  const fetchEntries = async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (statusFilter !== 'ALL') params.set('status', statusFilter)
+      if (searchQuery) params.set('search', searchQuery)
+
+      const response = await fetch(`/api/journal?${params}`)
+      if (response.ok) {
+        const data = await response.json()
+        setEntries(data.entries)
+        setStats(data.stats)
+      } else if (response.status === 401) {
+        setError('Please sign in to view your journal')
+      } else {
+        setError('Failed to load journal entries')
+      }
+    } catch (err) {
+      setError('Failed to load journal entries')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -78,7 +114,7 @@ export default function JournalPage() {
             </div>
             <div className="bg-white rounded-xl border p-6">
               <p className="text-sm text-gray-600 mb-1">Total Harvest</p>
-              <p className="text-3xl font-bold text-purple-600">{stats.totalHarvest} lbs</p>
+              <p className="text-3xl font-bold text-purple-600">{stats.totalHarvest.toFixed(1)} lbs</p>
             </div>
           </div>
 
@@ -120,8 +156,11 @@ export default function JournalPage() {
                   <option value="ALL">All Statuses</option>
                   <option value="PLANNING">Planning</option>
                   <option value="PLANTED">Planted</option>
+                  <option value="GERMINATED">Germinated</option>
                   <option value="GROWING">Growing</option>
-                  <option value="HARVESTED">Harvested</option>
+                  <option value="FLOWERING">Flowering</option>
+                  <option value="FRUITING">Fruiting</option>
+                  <option value="HARVESTING">Harvesting</option>
                   <option value="COMPLETED">Completed</option>
                 </select>
               </div>
@@ -157,12 +196,29 @@ export default function JournalPage() {
           {/* Results Count */}
           <div className="mb-4">
             <p className="text-sm text-gray-600">
-              Showing {filteredEntries.length} of {SAMPLE_JOURNAL_ENTRIES.length} entries
+              Showing {entries.length} entries
             </p>
           </div>
 
           {/* Journal Entries Grid */}
-          {filteredEntries.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+            </div>
+          ) : error ? (
+            <div className="bg-white rounded-xl border p-12 text-center">
+              <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{error}</h3>
+              {error.includes('sign in') && (
+                <Link
+                  href="/sign-in"
+                  className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors mt-4"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
+          ) : entries.length === 0 ? (
             <div className="bg-white rounded-xl border p-12 text-center">
               <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -183,7 +239,7 @@ export default function JournalPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEntries.map((entry) => (
+              {entries.map((entry) => (
                 <EntryCard key={entry.id} entry={entry} />
               ))}
             </div>

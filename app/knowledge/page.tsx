@@ -7,7 +7,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CourseCard } from '@/components/knowledge/course-card'
 import { CalendarView } from '@/components/knowledge/calendar-view'
-import { SAMPLE_COURSES, COURSE_CATEGORIES, CourseCategory } from '@/lib/course-data'
+import { COURSE_CATEGORIES, CourseCategory } from '@/lib/course-data'
 import { BookOpen, Search, Filter, Award, Calendar, LayoutGrid, Loader2, Plus } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 
@@ -64,35 +64,31 @@ export default function KnowledgeHubPage() {
     }
   }
 
-  // Combine sample courses with DB courses for now
-  const allCourses = [
-    ...dbCourses.map(course => ({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      category: course.category as CourseCategory,
-      difficulty: course.level === 'BEGINNER' ? 'Beginner' :
-                  course.level === 'INTERMEDIATE' ? 'Intermediate' :
-                  course.level === 'ADVANCED' ? 'Advanced' : 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced',
-      duration: `${course._count.modules} modules`,
-      instructor: course.instructor
-        ? `${course.instructor.firstName || ''} ${course.instructor.lastName || ''}`.trim()
-        : 'Instructor',
-      instructorAvatar: course.instructor?.avatar || undefined,
-      image: course.thumbnailUrl || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
-      lessons: course._count.modules,
-      enrolled: course._count.progress,
-      rating: 4.5,
-      reviews: 0,
-      price: course.accessType === 'FREE' ? 0 : course.price || 0,
-      certification: course.isCertification,
-      points: 250,
-      tags: [],
-      skills: [],
-      isFromDB: true,
-    })),
-    ...SAMPLE_COURSES.map(c => ({ ...c, isFromDB: false })),
-  ]
+  // Map DB courses to display format
+  const allCourses = dbCourses.map(course => ({
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    category: course.category as CourseCategory,
+    difficulty: course.level === 'BEGINNER' ? 'Beginner' :
+                course.level === 'INTERMEDIATE' ? 'Intermediate' :
+                course.level === 'ADVANCED' ? 'Advanced' : 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced',
+    duration: `${course._count.modules} modules`,
+    instructor: course.instructor
+      ? `${course.instructor.firstName || ''} ${course.instructor.lastName || ''}`.trim()
+      : 'Instructor',
+    instructorAvatar: course.instructor?.avatar || undefined,
+    image: course.thumbnailUrl || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800',
+    lessons: course._count.modules,
+    enrolled: course._count.progress,
+    rating: 4.5,
+    reviews: 0,
+    price: course.accessType === 'FREE' ? 0 : course.price || 0,
+    certification: course.isCertification,
+    points: 250,
+    tags: [],
+    skills: [],
+  }))
 
   const filteredCourses = allCourses.filter((course) => {
     const matchesSearch =
