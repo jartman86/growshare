@@ -28,6 +28,8 @@ interface CertificateData {
     } | null
   }
   completedAt: string
+  certificateId: string
+  certificateIssuedAt: string | null
   userName: string
 }
 
@@ -62,9 +64,17 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
           return
         }
 
+        if (!courseData.progress.certificateId) {
+          setError('Certificate not yet issued. Please try again.')
+          setLoading(false)
+          return
+        }
+
         setData({
           course: courseData.course,
           completedAt: courseData.progress.completedAt,
+          certificateId: courseData.progress.certificateId,
+          certificateIssuedAt: courseData.progress.certificateIssuedAt,
           userName: clerkUser?.fullName || clerkUser?.firstName || 'Student',
         })
       } else {
@@ -268,10 +278,10 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
             {/* Certificate Footer */}
             <div className="bg-gray-50 dark:bg-gray-900 p-4 text-center text-sm text-gray-500 dark:text-gray-400">
               <p>
-                Certificate ID: {courseId.slice(0, 8).toUpperCase()}-{Date.now().toString(36).toUpperCase()}
+                Certificate ID: <span className="font-mono font-semibold">{data.certificateId}</span>
               </p>
               <p className="mt-1">
-                Verify at: growshare.com/certificates/verify
+                Verify at: <a href={`/certificates/verify?id=${data.certificateId}`} className="text-green-600 dark:text-green-400 hover:underline">growshare.com/certificates/verify</a>
               </p>
             </div>
           </div>

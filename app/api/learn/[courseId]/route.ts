@@ -115,6 +115,8 @@ export async function GET(
         completedModuleIds: progress.completedModuleIds,
         isCompleted: progress.isCompleted,
         completedAt: progress.completedAt,
+        certificateId: progress.certificateId,
+        certificateIssuedAt: progress.certificateIssuedAt,
         progressPercent: course.modules.length > 0
           ? Math.round(((progress.completedModuleIds as string[]).length / course.modules.length) * 100)
           : 0,

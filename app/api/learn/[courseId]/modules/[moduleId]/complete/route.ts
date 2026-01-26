@@ -56,6 +56,21 @@ export async function POST(
     const isCompleted = allModules.every(m => completedModuleIds.includes(m.id))
     const progressPercent = Math.round((completedModuleIds.length / allModules.length) * 100)
 
+    // Check if this is a certification course (for certificate generation)
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { isCertification: true },
+    })
+
+    // Generate certificate ID if course is completed and it's a certification course
+    let certificateId: string | null = null
+    if (isCompleted && !progress.isCompleted && course?.isCertification) {
+      // Generate unique certificate ID: GS-CERT-XXXXXX
+      const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase()
+      const timestamp = Date.now().toString(36).toUpperCase().slice(-4)
+      certificateId = `GS-CERT-${randomPart}${timestamp}`
+    }
+
     // Update progress
     const updatedProgress = await prisma.courseProgress.update({
       where: { id: progress.id },
@@ -64,6 +79,10 @@ export async function POST(
         progressPercent,
         isCompleted,
         completedAt: isCompleted ? new Date() : null,
+        ...(certificateId && {
+          certificateId,
+          certificateIssuedAt: new Date(),
+        }),
       },
     })
 
@@ -100,6 +119,7 @@ export async function POST(
       progressPercent,
       isCompleted,
       justCompleted: isCompleted && !progress.isCompleted,
+      certificateId: updatedProgress.certificateId,
     })
   } catch (error) {
     console.error('Error completing module:', error)

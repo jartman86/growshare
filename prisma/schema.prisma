@@ -817,9 +817,14 @@ model CourseProgress {
   completedModuleIds String[]  @default([])
   updatedAt          DateTime  @updatedAt
 
+  // Certificate (only for certification courses)
+  certificateId      String?   @unique
+  certificateIssuedAt DateTime?
+
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+  @@index([certificateId])
 }
 
 // ============================================
