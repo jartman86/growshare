@@ -16,6 +16,7 @@ import {
   CheckCircle,
   X,
 } from 'lucide-react'
+import { CommunityTipsSection } from '@/components/resources/community-tips-section'
 
 export default function PestsDiseasesPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -412,6 +413,9 @@ export default function PestsDiseasesPage() {
               </div>
             </div>
           </div>
+
+          {/* Community Tips */}
+          <CommunityTipsSection category="PEST_DISEASE" title="Pest & Disease Tips from the Community" />
         </div>
       </main>
 

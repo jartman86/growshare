@@ -133,6 +133,10 @@ model User {
   createdChallenges     Challenge[]       @relation("ChallengeCreator")
   challengeParticipations ChallengeParticipant[]
 
+  // Community Tips
+  communityTips         CommunityTip[]
+  communityTipVotes     CommunityTipVote[]
+
   // Content Moderation
   reportsFiled          Report[]          @relation("ReportedBy")
   reportsReceived       Report[]          @relation("ReportedUser")
@@ -620,6 +624,8 @@ enum ActivityType {
   POST_CREATED
   NEW_FOLLOWER
   ACHIEVEMENT_UNLOCKED
+  TIP_SUBMITTED
+  TIP_APPROVED
 }
 
 model UserActivity {
@@ -1412,6 +1418,81 @@ model ForumVote {
   @@unique([userId, replyId])
   @@index([topicId])
   @@index([replyId])
+}
+
+// ============================================
+// COMMUNITY TIPS & CONTRIBUTIONS
+// ============================================
+
+enum TipCategory {
+  PLANTING_CALENDAR
+  PEST_DISEASE
+  COMPANION_PLANTING
+}
+
+enum TipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model CommunityTip {
+  id          String      @id @default(cuid())
+  authorId    String
+  author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  category    TipCategory
+  title       String
+  content     String
+
+  // For planting calendar tips
+  plantName   String?     // e.g., "Tomatoes"
+  usdaZone    String?     // e.g., "5b", "7a"
+
+  // For pest/disease tips
+  pestName    String?     // e.g., "Aphids", "Powdery Mildew"
+  treatment   String?     // Treatment method
+
+  // For companion planting tips
+  mainPlant   String?     // Primary plant
+  companions  String[]    // Good companion plants
+  avoid       String[]    // Plants to avoid
+
+  // Moderation
+  status      TipStatus   @default(PENDING)
+  reviewedBy  String?
+  reviewNotes String?
+  reviewedAt  DateTime?
+
+  // Engagement
+  upvotes     Int         @default(0)
+  downvotes   Int         @default(0)
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  votes       CommunityTipVote[]
+
+  @@index([authorId])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model CommunityTipVote {
+  id        String        @id @default(cuid())
+  tipId     String
+  tip       CommunityTip  @relation(fields: [tipId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     Int           // 1 for upvote, -1 for downvote
+
+  createdAt DateTime      @default(now())
+
+  @@unique([tipId, userId])
+  @@index([tipId])
+  @@index([userId])
 }
 
 // ============================================

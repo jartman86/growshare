@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_PLANT_GUIDES } from '@/lib/resources-data'
 import { Calendar, ArrowLeft, Leaf, Thermometer, Info, MapPin, Snowflake, Sun, Loader2, AlertCircle, Sprout, Clock } from 'lucide-react'
+import { CommunityTipsSection } from '@/components/resources/community-tips-section'
 
 interface FrostData {
   zipCode: string
@@ -558,6 +559,9 @@ export default function PlantingCalendarPage() {
               </div>
             </div>
           </div>
+
+          {/* Community Tips */}
+          <CommunityTipsSection category="PLANTING_CALENDAR" title="Planting Tips from the Community" />
         </div>
       </main>
 

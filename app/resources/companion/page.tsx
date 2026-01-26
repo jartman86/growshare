@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { SAMPLE_PLANT_GUIDES } from '@/lib/resources-data'
 import { Heart, XCircle, ArrowLeft, Search, Leaf, Info } from 'lucide-react'
+import { CommunityTipsSection } from '@/components/resources/community-tips-section'
 
 export default function CompanionPlantingPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -251,6 +252,9 @@ export default function CompanionPlantingPage() {
               </div>
             </div>
           </div>
+
+          {/* Community Tips */}
+          <CommunityTipsSection category="COMPANION_PLANTING" title="Companion Planting Tips from the Community" />
         </div>
       </main>
 
