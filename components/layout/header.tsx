@@ -325,8 +325,8 @@ export function Header() {
       </header>
 
       {/* Mobile Bottom Navigation */}
-      {isSignedIn && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-800/95 backdrop-blur border-t-2 border-[#8bc34a]/30 dark:border-gray-700 shadow-lg">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-800/95 backdrop-blur border-t-2 border-[#8bc34a]/30 dark:border-gray-700 shadow-lg">
+        {isSignedIn ? (
           <div className="grid grid-cols-5 gap-1 px-2 py-2">
             {/* Main nav items */}
             {mobileNavItems.map((item) => {
@@ -378,39 +378,86 @@ export function Header() {
               <span className="text-[10px]">Account</span>
             </Link>
           </div>
+        ) : (
+          /* Mobile nav for unauthenticated users */
+          <div className="grid grid-cols-4 gap-1 px-2 py-2">
+            {/* Explore */}
+            <Link
+              href="/explore"
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                pathname.startsWith('/explore')
+                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
+                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
+              )}
+            >
+              <MapIcon className={cn('h-5 w-5', pathname.startsWith('/explore') && 'scale-110')} />
+              <span className="text-[10px]">Explore</span>
+            </Link>
 
-          {/* Mobile List Menu Popup */}
-          {showMobileListMenu && (
-            <>
-              {/* Backdrop */}
-              <div
-                className="fixed inset-0 bg-black/20 z-40"
-                onClick={() => setShowMobileListMenu(false)}
-              />
-              {/* Menu */}
-              <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 animate-in slide-in-from-bottom-2">
-                <div className="p-4 space-y-2">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Create Listing</p>
-                  {listDropdownItems.slice(0, 3).map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setShowMobileListMenu(false)}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <span className="text-gray-400">{item.icon}</span>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.label}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+            {/* Marketplace */}
+            <Link
+              href="/marketplace"
+              className={cn(
+                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                pathname.startsWith('/marketplace')
+                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
+                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
+              )}
+            >
+              <ShoppingBagIcon className={cn('h-5 w-5', pathname.startsWith('/marketplace') && 'scale-110')} />
+              <span className="text-[10px]">Market</span>
+            </Link>
+
+            {/* Sign In */}
+            <SignInButton mode="modal">
+              <button className="flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700">
+                <UserIcon className="h-5 w-5" />
+                <span className="text-[10px]">Sign In</span>
+              </button>
+            </SignInButton>
+
+            {/* Get Started */}
+            <SignUpButton mode="modal">
+              <button className="flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md">
+                <Plus className="h-5 w-5" />
+                <span className="text-[10px]">Join</span>
+              </button>
+            </SignUpButton>
+          </div>
+        )}
+
+        {/* Mobile List Menu Popup (only for signed-in users) */}
+        {isSignedIn && showMobileListMenu && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/20 z-40"
+              onClick={() => setShowMobileListMenu(false)}
+            />
+            {/* Menu */}
+            <div className="absolute bottom-full left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50 animate-in slide-in-from-bottom-2">
+              <div className="p-4 space-y-2">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Create Listing</p>
+                {listDropdownItems.slice(0, 3).map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setShowMobileListMenu(false)}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <span className="text-gray-400">{item.icon}</span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.label}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{item.description}</p>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </>
-          )}
-        </div>
-      )}
+            </div>
+          </>
+        )}
+      </div>
     </>
   )
 }

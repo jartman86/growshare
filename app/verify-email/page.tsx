@@ -42,9 +42,9 @@ function VerifyEmailContent() {
   // Not signed in
   if (!user) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 flex items-center justify-center py-12 px-4">
+      <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 flex items-center justify-center py-12 px-4 pb-24 sm:pb-12">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-xl shadow-lg border-2 border-[#8bc34a]/30 p-8 text-center">
+          <div className="bg-white rounded-xl shadow-lg border-2 border-[#8bc34a]/30 p-8 text-center relative z-10">
             <div className="mx-auto w-16 h-16 bg-[#aed581]/30 rounded-full flex items-center justify-center mb-6">
               <AlertCircle className="h-8 w-8 text-[#4a7c2c]" />
             </div>
@@ -69,9 +69,9 @@ function VerifyEmailContent() {
   const emailAddress = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || 'your email'
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 flex items-center justify-center py-12 px-4">
+    <main className="min-h-screen bg-gradient-to-br from-[#f4e4c1] via-white to-[#aed581]/30 flex items-center justify-center py-12 px-4 pb-24 sm:pb-12">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-xl shadow-lg border-2 border-[#8bc34a]/30 p-8 text-center">
+        <div className="bg-white rounded-xl shadow-lg border-2 border-[#8bc34a]/30 p-8 text-center relative z-10">
           {/* Icon */}
           <div className="mx-auto w-16 h-16 bg-[#aed581]/30 rounded-full flex items-center justify-center mb-6">
             <Mail className="h-8 w-8 text-[#4a7c2c]" />

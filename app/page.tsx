@@ -10,7 +10,7 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Section with Photo Background */}
-      <section className="relative h-[90vh] min-h-[600px] overflow-hidden">
+      <section className="relative h-[calc(100vh-60px)] min-h-[550px] sm:h-[90vh] sm:min-h-[600px] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50 z-10"></div>
         <Image
@@ -22,10 +22,10 @@ export default function HomePage() {
         />
 
         {/* Content */}
-        <div className="relative z-20 h-full flex items-center">
+        <div className="relative z-20 h-full flex items-center pt-4 pb-20 sm:pb-0">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
             <div className="max-w-3xl">
-              <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl md:text-7xl leading-tight">
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
                 Transform Land Into
                 <span className="block text-[#a7d46c] mt-2">Living Opportunity</span>
               </h1>
