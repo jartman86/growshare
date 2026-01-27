@@ -1,7 +1,7 @@
 {
   "name": "GrowShare",
   "short_name": "GrowShare",
-  "description": "Connect landowners with growers and build thriving food communities",
+  "description": "Connect with land, grow together",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/growshare-logo.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/growshare-logo.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

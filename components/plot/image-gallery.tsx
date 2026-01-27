@@ -29,7 +29,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
   return (
     <>
       {/* Main Gallery Grid */}
-      <div className="grid grid-cols-4 gap-2 h-[500px]">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 h-[300px] md:h-[500px]">
         {/* Large Image */}
         <div
           className="col-span-2 row-span-2 relative overflow-hidden rounded-l-lg cursor-pointer group"
@@ -87,7 +87,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
           {/* Close Button */}
           <button
             onClick={() => setIsLightboxOpen(false)}
-            className="absolute top-4 right-4 text-white hover:bg-white/10 p-2 rounded-lg transition-colors z-10"
+            className="absolute top-4 right-4 text-white hover:bg-white/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors z-10"
           >
             <X className="h-6 w-6" />
           </button>
@@ -100,7 +100,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
           {/* Previous Button */}
           <button
             onClick={prevImage}
-            className="absolute left-4 text-white hover:bg-white/10 p-3 rounded-full transition-colors"
+            className="absolute left-4 text-white hover:bg-white/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors"
           >
             <ChevronLeft className="h-8 w-8" />
           </button>
@@ -115,7 +115,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
           {/* Next Button */}
           <button
             onClick={nextImage}
-            className="absolute right-4 text-white hover:bg-white/10 p-3 rounded-full transition-colors"
+            className="absolute right-4 text-white hover:bg-white/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors"
           >
             <ChevronRight className="h-8 w-8" />
           </button>

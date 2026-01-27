@@ -6,9 +6,27 @@ import { ImageUpload } from '@/components/ui/image-upload'
 import { WeatherWidget } from '@/components/journal/weather-widget'
 import type { WeatherData } from '@/lib/weather'
 
+interface JournalEntry {
+  id: string
+  cropName: string
+  variety: string | null
+  plantedDate: string | null
+  expectedHarvest: string | null
+  stage: string
+  title: string
+  content: string
+  plantCount: number | null
+  areaUsed: number | null
+  images: string[]
+  weatherData: WeatherData | null
+  weatherLocation: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 interface NewEntryFormProps {
   onClose: () => void
-  onSubmit: (entry: any) => void
+  onSubmit: (entry: JournalEntry) => void
 }
 
 export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {

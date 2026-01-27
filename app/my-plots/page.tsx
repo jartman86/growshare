@@ -43,7 +43,7 @@ export default function MyPlotsPage() {
   const fetchMyPlots = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/my-plots-v2')
+      const response = await fetch('/api/my-plots')
       if (!response.ok) throw new Error('Failed to fetch plots')
 
       const data = await response.json()

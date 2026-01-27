@@ -1,13 +1,20 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import { LocalGroup, formatGroupMemberCount } from '@/lib/groups-data'
-import { Users, MapPin, Calendar, TrendingUp, Lock, CheckCircle } from 'lucide-react'
+import { Users, MapPin, Calendar, TrendingUp, Lock, CheckCircle, Loader2 } from 'lucide-react'
 
 interface GroupCardProps {
   group: LocalGroup
   showJoinButton?: boolean
+  initialIsMember?: boolean
 }
 
-export function GroupCard({ group, showJoinButton = true }: GroupCardProps) {
+export function GroupCard({ group, showJoinButton = true, initialIsMember = false }: GroupCardProps) {
+  const [isJoining, setIsJoining] = useState(false)
+  const [isMember, setIsMember] = useState(initialIsMember)
+  const [error, setError] = useState<string | null>(null)
   const activityPercentage = Math.round((group.activeMembers / group.memberCount) * 100)
 
   return (
@@ -110,28 +117,70 @@ export function GroupCard({ group, showJoinButton = true }: GroupCardProps) {
         </div>
 
         {/* Join Button */}
-        {showJoinButton && (
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              // TODO: Handle join group
-              alert(`Joining ${group.name}`)
-            }}
-            className={`w-full py-2 rounded-lg font-semibold transition-colors ${
-              group.requiresApproval
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-green-600 text-white hover:bg-green-700'
-            }`}
-          >
-            {group.requiresApproval ? (
-              <>
-                <CheckCircle className="h-4 w-4 inline mr-1" />
-                Request to Join
-              </>
-            ) : (
-              'Join Group'
+        {showJoinButton && !isMember && (
+          <>
+            <button
+              onClick={async (e) => {
+                e.preventDefault()
+                setIsJoining(true)
+                setError(null)
+
+                try {
+                  const response = await fetch(`/api/groups/${group.slug}/membership`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  })
+
+                  const data = await response.json()
+
+                  if (!response.ok) {
+                    throw new Error(data.error || 'Failed to join group')
+                  }
+
+                  setIsMember(true)
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Failed to join group')
+                } finally {
+                  setIsJoining(false)
+                }
+              }}
+              disabled={isJoining}
+              className={`w-full py-2 rounded-lg font-semibold transition-colors ${
+                isJoining
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : group.requiresApproval
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+              }`}
+            >
+              {isJoining ? (
+                <>
+                  <Loader2 className="h-4 w-4 inline mr-1 animate-spin" />
+                  Joining...
+                </>
+              ) : group.requiresApproval ? (
+                <>
+                  <CheckCircle className="h-4 w-4 inline mr-1" />
+                  Request to Join
+                </>
+              ) : (
+                'Join Group'
+              )}
+            </button>
+            {error && (
+              <p className="mt-2 text-sm text-red-600 text-center">{error}</p>
             )}
-          </button>
+          </>
+        )}
+
+        {/* Member Badge */}
+        {showJoinButton && isMember && (
+          <div className="w-full py-2 rounded-lg font-semibold bg-green-100 text-green-700 text-center flex items-center justify-center gap-1">
+            <CheckCircle className="h-4 w-4" />
+            Member
+          </div>
         )}
       </div>
     </Link>

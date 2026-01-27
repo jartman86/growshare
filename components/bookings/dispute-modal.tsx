@@ -5,9 +5,10 @@ import {
   X,
   AlertTriangle,
   Loader2,
-  Upload,
   DollarSign,
+  ImageIcon,
 } from 'lucide-react'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 interface DisputeModalProps {
   bookingId: string
@@ -38,6 +39,7 @@ export function DisputeModal({
   const [reason, setReason] = useState('')
   const [description, setDescription] = useState('')
   const [requestedAmount, setRequestedAmount] = useState('')
+  const [evidence, setEvidence] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -65,7 +67,7 @@ export function DisputeModal({
           reason,
           description,
           requestedAmount: requestedAmount ? parseFloat(requestedAmount) : null,
-          evidence: [],
+          evidence,
         }),
       })
 
@@ -176,6 +178,25 @@ export function DisputeModal({
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Booking total: ${totalAmount.toFixed(2)}
             </p>
+          </div>
+
+          {/* Evidence Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <span className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Supporting Evidence (Optional)
+              </span>
+            </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+              Upload photos or screenshots that support your dispute (e.g., property damage, condition issues)
+            </p>
+            <ImageUpload
+              value={evidence}
+              onChange={setEvidence}
+              maxImages={5}
+              folder="growshare/disputes"
+            />
           </div>
 
           {/* Info Box */}

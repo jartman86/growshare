@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {}
+    // Using Record type for dynamic property assignment, then cast to ForumTopicWhereInput
+    const where: Record<string, unknown> = {}
 
     if (category) {
       where.category = category
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     const [topics, total] = await Promise.all([
       prisma.forumTopic.findMany({
-        where,
+        where: where as Prisma.ForumTopicWhereInput,
         include: {
           author: {
             select: {
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * limit,
         take: limit,
       }),
-      prisma.forumTopic.count({ where }),
+      prisma.forumTopic.count({ where: where as Prisma.ForumTopicWhereInput }),
     ])
 
     // Calculate vote scores

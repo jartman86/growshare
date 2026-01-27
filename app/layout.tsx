@@ -16,10 +16,15 @@ export const metadata: Metadata = {
   keywords: ["agriculture", "land rental", "farming", "community garden", "sustainable agriculture", "local food"],
   authors: [{ name: "GrowShare" }],
   manifest: "/manifest.webmanifest",
+  themeColor: "#059669",
   icons: {
-    icon: "/growshare-logo.png",
-    shortcut: "/growshare-logo.png",
-    apple: "/growshare-logo.png",
+    icon: [
+      { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/icons/favicon-32x32.png",
+    apple: "/icons/apple-touch-icon.png",
   },
   openGraph: {
     type: "website",

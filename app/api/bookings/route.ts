@@ -3,6 +3,17 @@ import { prisma } from '@/lib/prisma'
 import { notifyBookingRequest } from '@/lib/notifications'
 import { ensureUser, ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
+// Types for booking queries
+interface BookingWithPlotAndOwner {
+  plot: {
+    id: string
+  }
+}
+
+interface ReviewPlotId {
+  plotId: string | null
+}
+
 // Create a new booking request
 export async function POST(request: NextRequest) {
   try {
@@ -323,7 +334,7 @@ export async function GET(request: NextRequest) {
       })
 
       // Get all reviews by this user for their booked plots
-      const plotIds = rawBookings.map((booking: any) => booking.plot.id)
+      const plotIds = rawBookings.map((booking: BookingWithPlotAndOwner) => booking.plot.id)
       const userReviews = await prisma.review.findMany({
         where: {
           authorId: currentUser.id,
@@ -335,10 +346,10 @@ export async function GET(request: NextRequest) {
       })
 
       // Create a Set of reviewed plot IDs for fast lookup
-      const reviewedPlotIds = new Set(userReviews.map((review: any) => review.plotId))
+      const reviewedPlotIds = new Set(userReviews.map((review: ReviewPlotId) => review.plotId))
 
       // Add hasReviewed flag
-      bookings = rawBookings.map((booking: any) => ({
+      bookings = rawBookings.map((booking: BookingWithPlotAndOwner) => ({
         ...booking,
         hasReviewed: reviewedPlotIds.has(booking.plot.id),
       }))

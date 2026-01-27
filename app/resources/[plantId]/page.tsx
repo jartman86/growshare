@@ -25,6 +25,7 @@ import {
   Globe,
   ExternalLink,
 } from 'lucide-react'
+import { PlantCommunityTips } from '@/components/resources/plant-community-tips'
 
 async function getPlantData(plantId: string) {
   // Check if it's a Perenual ID
@@ -406,6 +407,9 @@ export default async function PlantGuidePage({
                   )}
                 </div>
               )}
+
+              {/* Community Tips */}
+              <PlantCommunityTips plantName={guide.commonName} />
             </div>
 
             {/* Sidebar */}

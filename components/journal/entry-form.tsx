@@ -13,9 +13,25 @@ interface Plot {
   state?: string
 }
 
+interface JournalFormData {
+  plotId: string
+  cropName: string
+  cropType: string
+  plantingDate: string
+  expectedHarvestDate: string
+  status: string
+  growthStage: string
+  notes: string
+  weatherConditions: string
+  soilCondition: string
+  pestIssues: string
+  fertilizer: string
+  wateringSchedule: string
+}
+
 interface EntryFormProps {
   mode?: 'create' | 'edit'
-  initialData?: any
+  initialData?: Partial<JournalFormData>
 }
 
 export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {

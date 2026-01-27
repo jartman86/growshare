@@ -18,6 +18,7 @@ import {
   Loader2,
   Globe,
 } from 'lucide-react'
+import { RecentCommunityTips } from '@/components/resources/recent-community-tips'
 
 interface PlantResult {
   id: string
@@ -357,6 +358,11 @@ export default function ResourcesPage() {
             </div>
           )}
 
+          {/* Community Tips Section */}
+          <div className="mt-12">
+            <RecentCommunityTips limit={6} title="Tips from the Community" />
+          </div>
+
           {/* Info Banner */}
           <div className="mt-12 bg-gradient-to-br from-[#a8dadc]/30 to-[#87ceeb]/20 dark:from-blue-900/20 dark:to-cyan-900/20 border-2 border-[#87ceeb]/30 dark:border-blue-800/30 rounded-xl p-6 shadow-md">
             <h3 className="font-semibold text-[#2d5016] dark:text-white mb-2">📊 Data Sources</h3>
@@ -367,6 +373,7 @@ export default function ResourcesPage() {
               <li>• <strong>Perenual Plant API</strong> - Access to 10,000+ plant species with detailed care info</li>
               <li>• <strong>Local Growing Guides</strong> - Curated guides with comprehensive planting tips</li>
               <li>• <strong>USDA Hardiness Zones</strong> - Climate-specific planting recommendations</li>
+              <li>• <strong>Community Tips</strong> - Knowledge shared by fellow gardeners</li>
             </ul>
           </div>
         </div>

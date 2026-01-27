@@ -292,11 +292,20 @@ export default function MyBookingsPage() {
       <main className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-            <p className="text-gray-600 mt-2">
-              View and manage your plot booking requests
-            </p>
+          <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
+              <p className="text-gray-600 mt-2">
+                View and manage your plot booking requests
+              </p>
+            </div>
+            <button
+              onClick={() => router.push('/dashboard/disputes')}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              View All Disputes
+            </button>
           </div>
 
           {error && (

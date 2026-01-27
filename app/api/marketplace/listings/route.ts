@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
-import { ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
+import { ensureUser, ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,22 +14,33 @@ export async function GET(request: NextRequest) {
     const deliveryMethod = searchParams.get('deliveryMethod')
     const search = searchParams.get('search')
     const userId = searchParams.get('userId')
+    const mine = searchParams.get('mine')
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
 
-    // Default to available listings unless status is specified
-    if (status) {
-      where.status = status
+    // If requesting own listings, get current user
+    if (mine === 'true') {
+      const currentUser = await ensureUser()
+      if (!currentUser) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      where.userId = currentUser.id
+      // Show all statuses for own listings
     } else {
-      where.status = 'AVAILABLE'
+      // Default to available listings unless status is specified
+      if (status) {
+        where.status = status
+      } else {
+        where.status = 'AVAILABLE'
+      }
     }
 
     if (category) {
       where.category = { equals: category, mode: 'insensitive' }
     }
 
-    if (userId) {
+    if (userId && mine !== 'true') {
       where.userId = userId
     }
 

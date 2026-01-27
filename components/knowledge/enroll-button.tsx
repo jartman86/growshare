@@ -103,6 +103,7 @@ export function EnrollButton({ course }: EnrollButtonProps) {
   const router = useRouter()
   const { isSignedIn } = useUser()
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [accessStatus, setAccessStatus] = useState<{
     hasAccess: boolean
     reason?: string
@@ -133,6 +134,7 @@ export function EnrollButton({ course }: EnrollButtonProps) {
     }
 
     setIsLoading(true)
+    setError(null)
     try {
       const response = await fetch(`/api/courses/${course.id}/enroll`, {
         method: 'POST',
@@ -143,10 +145,10 @@ export function EnrollButton({ course }: EnrollButtonProps) {
         router.push(`/learn/${course.id}`)
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to enroll')
+        setError(data.error || 'Failed to enroll. Please try again.')
       }
-    } catch (error) {
-      alert('An error occurred')
+    } catch (err) {
+      setError('An error occurred. Please check your connection and try again.')
     } finally {
       setIsLoading(false)
     }
@@ -159,6 +161,7 @@ export function EnrollButton({ course }: EnrollButtonProps) {
     }
 
     setIsLoading(true)
+    setError(null)
     try {
       const response = await fetch(`/api/courses/${course.id}/purchase`, {
         method: 'POST',
@@ -170,10 +173,10 @@ export function EnrollButton({ course }: EnrollButtonProps) {
         setClientSecret(data.clientSecret)
         setShowPaymentForm(true)
       } else {
-        alert(data.error || 'Failed to initiate purchase')
+        setError(data.error || 'Failed to initiate purchase. Please try again.')
       }
-    } catch (error) {
-      alert('An error occurred')
+    } catch (err) {
+      setError('An error occurred. Please check your connection and try again.')
     } finally {
       setIsLoading(false)
     }
@@ -245,26 +248,38 @@ export function EnrollButton({ course }: EnrollButtonProps) {
   // Free course - show enroll button
   if (isFree) {
     return (
-      <button
-        onClick={handleEnrollFree}
-        disabled={isLoading}
-        className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Enrolling...
-          </>
-        ) : (
-          'Enroll for Free'
+      <div className="space-y-3">
+        {error && (
+          <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+          </div>
         )}
-      </button>
+        <button
+          onClick={handleEnrollFree}
+          disabled={isLoading}
+          className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Enrolling...
+            </>
+          ) : (
+            'Enroll for Free'
+          )}
+        </button>
+      </div>
     )
   }
 
   // Paid course - show purchase button
   return (
-    <>
+    <div className="space-y-3">
+      {error && (
+        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+        </div>
+      )}
       <button
         onClick={handlePurchase}
         disabled={isLoading}
@@ -293,6 +308,6 @@ export function EnrollButton({ course }: EnrollButtonProps) {
           />
         </Elements>
       )}
-    </>
+    </div>
   )
 }

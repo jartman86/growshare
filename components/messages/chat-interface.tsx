@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Message, Conversation, formatMessageTime } from '@/lib/messages-data'
-import { Send, Image, Paperclip, MoreVertical, Info, Circle } from 'lucide-react'
+import { Send, Image as ImageIcon, Paperclip, MoreVertical, Info, Circle } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface ChatInterfaceProps {
   conversation: Conversation
@@ -57,10 +58,12 @@ export function ChatInterface({
           {/* Avatar with status */}
           <div className="relative">
             <Link href={`/profile/${otherParticipant.id}`}>
-              <img
-                src={otherParticipant.avatar}
+              <Image
+                src={otherParticipant.avatar || '/images/default-avatar.png'}
                 alt={otherParticipant.name}
-                className="w-10 h-10 rounded-full border-2 border-gray-200 hover:border-green-500 transition-colors cursor-pointer"
+                width={40}
+                height={40}
+                className="rounded-full border-2 border-gray-200 hover:border-green-500 transition-colors cursor-pointer"
               />
             </Link>
             {otherParticipant.status === 'online' && (
@@ -87,11 +90,11 @@ export function ChatInterface({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowInfo(!showInfo)}
-            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-200 rounded-lg transition-colors"
           >
             <Info className="h-5 w-5 text-gray-600" />
           </button>
-          <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
+          <button className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-200 rounded-lg transition-colors">
             <MoreVertical className="h-5 w-5 text-gray-600" />
           </button>
         </div>
@@ -129,10 +132,12 @@ export function ChatInterface({
               {/* Avatar */}
               <div className="flex-shrink-0 w-8">
                 {showAvatar && !isCurrentUser && (
-                  <img
-                    src={message.senderAvatar}
+                  <Image
+                    src={message.senderAvatar || '/images/default-avatar.png'}
                     alt={message.senderName}
-                    className="w-8 h-8 rounded-full border border-gray-200"
+                    width={32}
+                    height={32}
+                    className="rounded-full border border-gray-200"
                   />
                 )}
               </div>
@@ -177,14 +182,14 @@ export function ChatInterface({
           {/* Attachment buttons */}
           <button
             type="button"
-            className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
             title="Attach image"
           >
-            <Image className="h-5 w-5" />
+            <ImageIcon className="h-5 w-5" />
           </button>
           <button
             type="button"
-            className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
             title="Attach file"
           >
             <Paperclip className="h-5 w-5" />
@@ -215,7 +220,7 @@ export function ChatInterface({
           <button
             type="submit"
             disabled={!messageText.trim()}
-            className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-3 min-w-[44px] min-h-[44px] flex items-center justify-center bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="h-5 w-5" />
           </button>
@@ -238,10 +243,12 @@ export function ChatInterface({
 
           {/* Participant Info */}
           <div className="text-center mb-6">
-            <img
-              src={otherParticipant.avatar}
+            <Image
+              src={otherParticipant.avatar || '/images/default-avatar.png'}
               alt={otherParticipant.name}
-              className="w-20 h-20 rounded-full border-2 border-gray-200 mx-auto mb-3"
+              width={80}
+              height={80}
+              className="rounded-full border-2 border-gray-200 mx-auto mb-3"
             />
             <h4 className="font-semibold text-gray-900">{otherParticipant.name}</h4>
             <Link

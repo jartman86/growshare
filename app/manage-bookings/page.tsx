@@ -272,10 +272,21 @@ export default function ManageBookingsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Manage Bookings</h1>
-            <p className="text-gray-600 mt-2">
-              Review and manage booking requests for your plots
-            </p>
+            <div className="flex items-start justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Manage Bookings</h1>
+                <p className="text-gray-600 mt-2">
+                  Review and manage booking requests for your plots
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/dashboard/disputes')}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                <AlertTriangle className="h-4 w-4" />
+                View All Disputes
+              </button>
+            </div>
             {pendingCount > 0 && (
               <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <AlertCircle className="h-5 w-5 text-yellow-600" />

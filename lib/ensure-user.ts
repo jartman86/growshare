@@ -139,11 +139,21 @@ export async function ensureVerifiedUser() {
     return null
   }
 
-  const primaryEmail = clerkUser.emailAddresses.find(
-    (email) => email.id === clerkUser.primaryEmailAddressId
-  ) || clerkUser.emailAddresses[0]
+  // Safely access emailAddresses with null checks
+  const emailAddresses = clerkUser.emailAddresses
+  if (!emailAddresses || emailAddresses.length === 0) {
+    return null
+  }
 
-  const isEmailVerified = primaryEmail?.verification?.status === 'verified'
+  const primaryEmail = emailAddresses.find(
+    (email) => email.id === clerkUser.primaryEmailAddressId
+  ) || emailAddresses[0]
+
+  if (!primaryEmail) {
+    return null
+  }
+
+  const isEmailVerified = primaryEmail.verification?.status === 'verified'
 
   // If Clerk says verified but database doesn't, sync it
   if (isEmailVerified && !user.isVerified) {

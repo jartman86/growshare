@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { SignInButton, SignUpButton, useUser } from '@clerk/nextjs'
 import {
@@ -201,11 +202,13 @@ export function Header() {
           <div className="flex items-center justify-between py-2">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <img
+              <Image
                 src="/growshare-logo.png"
                 alt="GrowShare"
-                style={{ width: '125px', height: 'auto', maxWidth: 'none' }}
+                width={125}
+                height={40}
                 className="transition-transform group-hover:scale-105"
+                priority
               />
             </Link>
 
@@ -283,7 +286,7 @@ export function Header() {
                   {/* Messages Icon */}
                   <Link
                     href="/messages"
-                    className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                    className="relative p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
                     title="Messages"
                   >
                     <Mail className="h-5 w-5 text-gray-700 dark:text-white" />

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import {
   Search,
   Filter,
@@ -262,13 +263,15 @@ function AdminUsersContent() {
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <img
+                      <Image
                         src={
                           user.avatar ||
                           `https://api.dicebear.com/7.x/initials/svg?seed=${user.firstName}%20${user.lastName}`
                         }
                         alt=""
-                        className="h-10 w-10 rounded-full"
+                        width={40}
+                        height={40}
+                        className="rounded-full"
                       />
                       <div>
                         <div className="flex items-center gap-2">

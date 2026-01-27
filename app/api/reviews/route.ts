@@ -322,8 +322,8 @@ export async function GET(request: NextRequest) {
     const authorId = searchParams.get('authorId')
     const limit = searchParams.get('limit')
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {}
+    // Using Record type for dynamic property assignment, then cast to ReviewWhereInput
+    const where: Record<string, unknown> = {}
 
     if (plotId) {
       where.plotId = plotId
@@ -341,7 +341,7 @@ export async function GET(request: NextRequest) {
     }
 
     const reviews = await prisma.review.findMany({
-      where,
+      where: where as Prisma.ReviewWhereInput,
       include: {
         author: {
           select: {

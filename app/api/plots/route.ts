@@ -4,6 +4,66 @@ import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { ensureUser, ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
 
+// Types for plot filtering and transformation
+interface PlotWithRelations {
+  id: string
+  title: string
+  latitude: number
+  longitude: number
+  acreage: number
+  pricePerMonth: number
+  status: string
+  images: string[]
+  city: string | null
+  state: string | null
+  soilType: string[]
+  waterAccess: string[]
+  hasIrrigation: boolean
+  hasFencing: boolean
+  hasGreenhouse: boolean
+  instantBook: boolean
+  owner: {
+    firstName: string | null
+    lastName: string | null
+    avatar: string | null
+    isVerified: boolean
+    isPhoneVerified: boolean
+    isIdVerified: boolean
+  }
+  reviews: { rating: number }[]
+  bookings?: { startDate: Date; endDate: Date }[]
+  blockedDates?: { startDate: Date; endDate: Date }[]
+}
+
+interface PlotMarker {
+  id: string
+  title: string
+  latitude: number
+  longitude: number
+  acreage: number
+  pricePerMonth: number
+  status: string
+  images: string[]
+  city: string | null
+  state: string | null
+  soilType: string[]
+  waterAccess: string[]
+  hasIrrigation: boolean
+  hasFencing: boolean
+  hasGreenhouse: boolean
+  instantBook: boolean
+  averageRating: number | undefined
+  reviewCount: number
+  ownerName: string
+  ownerAvatar: string | undefined
+  ownerVerified: boolean
+}
+
+interface DateRange {
+  startDate: Date
+  endDate: Date
+}
+
 // Helper function to geocode an address
 async function geocodeAddress(address: string, city: string, state: string, zipCode: string): Promise<{ latitude: number; longitude: number } | null> {
   try {
@@ -63,11 +123,11 @@ export async function GET(request: NextRequest) {
     const minRating = searchParams.get('minRating')
 
     // Dynamic where clause for flexible filtering from request params
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {}
+    // Using Record type for dynamic property assignment, then cast to PlotWhereInput
+    const where: Record<string, unknown> = {}
 
     // Status filter - support multiple statuses or default to ACTIVE and RENTED
-    if (status) {
+    if (status && typeof status === 'string') {
       const statuses = status.split(',')
       where.status = { in: statuses }
     } else {
@@ -83,25 +143,27 @@ export async function GET(request: NextRequest) {
     }
 
     if (minAcreage || maxAcreage) {
-      where.acreage = {}
-      if (minAcreage) where.acreage.gte = parseFloat(minAcreage)
-      if (maxAcreage) where.acreage.lte = parseFloat(maxAcreage)
+      const acreageFilter: { gte?: number; lte?: number } = {}
+      if (minAcreage) acreageFilter.gte = parseFloat(minAcreage)
+      if (maxAcreage) acreageFilter.lte = parseFloat(maxAcreage)
+      where.acreage = acreageFilter
     }
 
     if (minPrice || maxPrice) {
-      where.pricePerMonth = {}
-      if (minPrice) where.pricePerMonth.gte = parseFloat(minPrice)
-      if (maxPrice) where.pricePerMonth.lte = parseFloat(maxPrice)
+      const priceFilter: { gte?: number; lte?: number } = {}
+      if (minPrice) priceFilter.gte = parseFloat(minPrice)
+      if (maxPrice) priceFilter.lte = parseFloat(maxPrice)
+      where.pricePerMonth = priceFilter
     }
 
     // Soil types filter
-    if (soilTypes) {
+    if (soilTypes && typeof soilTypes === 'string') {
       const types = soilTypes.split(',')
       where.soilType = { hasSome: types }
     }
 
     // Water access filter
-    if (waterAccess) {
+    if (waterAccess && typeof waterAccess === 'string') {
       const access = waterAccess.split(',')
       where.waterAccess = { hasSome: access }
     }
@@ -134,7 +196,7 @@ export async function GET(request: NextRequest) {
     }
 
     const plots = await prisma.plot.findMany({
-      where,
+      where: where as Prisma.PlotWhereInput,
       include: {
         owner: {
           select: {
@@ -179,9 +241,9 @@ export async function GET(request: NextRequest) {
       const fromDate = availableFrom ? new Date(availableFrom) : null
       const toDate = availableTo ? new Date(availableTo) : null
 
-      filteredPlots = plots.filter((plot: any) => {
+      filteredPlots = plots.filter((plot: PlotWithRelations) => {
         // Check if any booking conflicts with the requested dates
-        const hasBookingConflict = (plot.bookings || []).some((booking: any) => {
+        const hasBookingConflict = (plot.bookings || []).some((booking: DateRange) => {
           const bookingStart = new Date(booking.startDate)
           const bookingEnd = new Date(booking.endDate)
 
@@ -196,7 +258,7 @@ export async function GET(request: NextRequest) {
         })
 
         // Check if any blocked date conflicts with the requested dates
-        const hasBlockedConflict = (plot.blockedDates || []).some((blocked: any) => {
+        const hasBlockedConflict = (plot.blockedDates || []).some((blocked: DateRange) => {
           const blockedStart = new Date(blocked.startDate)
           const blockedEnd = new Date(blocked.endDate)
 
@@ -215,8 +277,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform to PlotMarker format with calculated average ratings
-    let plotMarkers = filteredPlots.map((plot: any) => {
-      const ratings = plot.reviews.map((r: any) => r.rating)
+    let plotMarkers = filteredPlots.map((plot: PlotWithRelations) => {
+      const ratings = plot.reviews.map((r: { rating: number }) => r.rating)
       const averageRating = ratings.length > 0
         ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
         : undefined
@@ -249,14 +311,14 @@ export async function GET(request: NextRequest) {
     // Filter by minimum rating (post-query since it's calculated)
     if (minRating) {
       const minRatingNum = parseFloat(minRating)
-      plotMarkers = plotMarkers.filter((plot: any) =>
+      plotMarkers = plotMarkers.filter((plot: PlotMarker) =>
         plot.averageRating !== undefined && plot.averageRating >= minRatingNum
       )
     }
 
     // Sort by rating if that's the selected sort (post-query since it's calculated)
     if (sortBy === 'rating') {
-      plotMarkers = plotMarkers.sort((a: any, b: any) => {
+      plotMarkers = plotMarkers.sort((a: PlotMarker, b: PlotMarker) => {
         const ratingA = a.averageRating ?? 0
         const ratingB = b.averageRating ?? 0
         return ratingB - ratingA

@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50')
     const plantName = searchParams.get('plantName')
     const pestName = searchParams.get('pestName')
+    const mainPlant = searchParams.get('mainPlant')
 
     // Get current user if logged in
     let currentUserId: string | null = null
@@ -43,6 +44,13 @@ export async function GET(request: NextRequest) {
     if (pestName) {
       where.pestName = {
         contains: pestName,
+        mode: 'insensitive',
+      }
+    }
+
+    if (mainPlant) {
+      where.mainPlant = {
+        contains: mainPlant,
         mode: 'insensitive',
       }
     }

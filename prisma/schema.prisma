@@ -783,6 +783,7 @@ model Course {
   progress        CourseProgress[]
   purchases       CoursePurchase[]
   events          CourseEvent[]
+  views           CourseView[]
 
   @@index([category])
   @@index([isPublished])
@@ -830,6 +831,26 @@ model CourseProgress {
   @@index([userId])
   @@index([courseId])
   @@index([certificateId])
+}
+
+model CourseView {
+  id          String   @id @default(cuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // Track by user if logged in, otherwise by session/IP
+  userId      String?
+  sessionId   String?  // For anonymous users
+
+  // Track viewing date to allow re-counting after a day
+  viewedAt    DateTime @default(now())
+  viewDate    String   // YYYY-MM-DD format for easy daily deduplication
+
+  @@unique([courseId, userId, viewDate])
+  @@unique([courseId, sessionId, viewDate])
+  @@index([courseId])
+  @@index([userId])
+  @@index([viewDate])
 }
 
 // ============================================

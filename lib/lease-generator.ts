@@ -1,6 +1,8 @@
 // Lease Agreement Generator
 // This module generates PDF lease agreements for plot bookings
 
+import { PrismaClient } from '@prisma/client'
+
 interface LeaseData {
   bookingId: string
   // Renter Info
@@ -312,7 +314,7 @@ export function generateLeaseHTML(data: LeaseData): string {
 
 // Store lease data for a booking
 export async function saveLeaseDocument(
-  prisma: any,
+  prisma: PrismaClient,
   bookingId: string
 ): Promise<string> {
   // In a production environment, this would:
@@ -336,7 +338,7 @@ export async function saveLeaseDocument(
 
 // Get lease data from a booking
 export async function getLeaseDataFromBooking(
-  prisma: any,
+  prisma: PrismaClient,
   bookingId: string
 ): Promise<LeaseData | null> {
   const booking = await prisma.booking.findUnique({

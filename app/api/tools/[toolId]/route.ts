@@ -24,11 +24,15 @@ export async function GET(
           },
         },
         rentals: {
-          where: { status: 'ACTIVE' },
           select: {
+            id: true,
             startDate: true,
             endDate: true,
+            status: true,
           },
+        },
+        _count: {
+          select: { rentals: true },
         },
       },
     })
