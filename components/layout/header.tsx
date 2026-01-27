@@ -324,10 +324,10 @@ export function Header() {
         </nav>
       </header>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#f4e4c1]/95 via-white/95 to-[#aed581]/95 dark:from-gray-900/95 dark:via-gray-900/95 dark:to-gray-800/95 backdrop-blur border-t-2 border-[#8bc34a]/30 dark:border-gray-700 shadow-lg">
+      {/* Mobile Bottom Navigation - Premium with 44px touch targets */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
         {isSignedIn ? (
-          <div className="grid grid-cols-5 gap-1 px-2 py-2">
+          <div className="grid grid-cols-5 px-1 py-1.5 safe-area-pb">
             {/* Main nav items */}
             {mobileNavItems.map((item) => {
               const Icon = item.icon
@@ -338,14 +338,19 @@ export function Header() {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                    'flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] px-1 font-medium transition-all active:scale-95',
                     isActive
-                      ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                      : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   )}
                 >
-                  <Icon className={cn('h-5 w-5', isActive && 'scale-110')} />
-                  <span className="text-[10px]">{item.name}</span>
+                  <div className={cn(
+                    'p-2 rounded-xl transition-colors',
+                    isActive && 'bg-green-100 dark:bg-green-900/40'
+                  )}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <span className="text-[11px]">{item.name}</span>
                 </Link>
               )
             })}
@@ -354,74 +359,98 @@ export function Header() {
             <button
               onClick={() => setShowMobileListMenu(!showMobileListMenu)}
               className={cn(
-                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                'flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] px-1 font-medium transition-all active:scale-95',
                 showMobileListMenu
-                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               )}
             >
-              <Plus className={cn('h-5 w-5', showMobileListMenu && 'scale-110')} />
-              <span className="text-[10px]">List</span>
+              <div className={cn(
+                'p-2 rounded-xl transition-colors',
+                showMobileListMenu && 'bg-green-100 dark:bg-green-900/40'
+              )}>
+                <Plus className="h-6 w-6" />
+              </div>
+              <span className="text-[11px]">Create</span>
             </button>
 
-            {/* Account Button - uses same dropdown as desktop */}
+            {/* Account Button */}
             <Link
               href="/dashboard"
               className={cn(
-                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                'flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] px-1 font-medium transition-all active:scale-95',
                 pathname.startsWith('/dashboard') || pathname.startsWith('/settings') || pathname.startsWith('/profile')
-                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               )}
             >
-              <UserIcon className={cn('h-5 w-5', (pathname.startsWith('/dashboard') || pathname.startsWith('/settings') || pathname.startsWith('/profile')) && 'scale-110')} />
-              <span className="text-[10px]">Account</span>
+              <div className={cn(
+                'p-2 rounded-xl transition-colors',
+                (pathname.startsWith('/dashboard') || pathname.startsWith('/settings') || pathname.startsWith('/profile')) && 'bg-green-100 dark:bg-green-900/40'
+              )}>
+                <UserIcon className="h-6 w-6" />
+              </div>
+              <span className="text-[11px]">Account</span>
             </Link>
           </div>
         ) : (
           /* Mobile nav for unauthenticated users */
-          <div className="grid grid-cols-4 gap-1 px-2 py-2">
+          <div className="grid grid-cols-4 px-2 py-1.5 safe-area-pb">
             {/* Explore */}
             <Link
               href="/explore"
               className={cn(
-                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                'flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] px-1 font-medium transition-all active:scale-95',
                 pathname.startsWith('/explore')
-                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               )}
             >
-              <MapIcon className={cn('h-5 w-5', pathname.startsWith('/explore') && 'scale-110')} />
-              <span className="text-[10px]">Explore</span>
+              <div className={cn(
+                'p-2 rounded-xl transition-colors',
+                pathname.startsWith('/explore') && 'bg-green-100 dark:bg-green-900/40'
+              )}>
+                <MapIcon className="h-6 w-6" />
+              </div>
+              <span className="text-[11px]">Explore</span>
             </Link>
 
             {/* Marketplace */}
             <Link
               href="/marketplace"
               className={cn(
-                'flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all',
+                'flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] px-1 font-medium transition-all active:scale-95',
                 pathname.startsWith('/marketplace')
-                  ? 'text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md'
-                  : 'text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700'
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               )}
             >
-              <ShoppingBagIcon className={cn('h-5 w-5', pathname.startsWith('/marketplace') && 'scale-110')} />
-              <span className="text-[10px]">Market</span>
+              <div className={cn(
+                'p-2 rounded-xl transition-colors',
+                pathname.startsWith('/marketplace') && 'bg-green-100 dark:bg-green-900/40'
+              )}>
+                <ShoppingBagIcon className="h-6 w-6" />
+              </div>
+              <span className="text-[11px]">Market</span>
             </Link>
 
             {/* Sign In */}
             <SignInButton mode="modal">
-              <button className="flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all text-[#4a3f35] dark:text-white hover:text-[#2d5016] dark:hover:text-white hover:bg-[#aed581]/20 dark:hover:bg-gray-700">
-                <UserIcon className="h-5 w-5" />
-                <span className="text-[10px]">Sign In</span>
+              <button className="flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] px-1 font-medium transition-all active:scale-95 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                <div className="p-2 rounded-xl">
+                  <UserIcon className="h-6 w-6" />
+                </div>
+                <span className="text-[11px]">Sign In</span>
               </button>
             </SignInButton>
 
             {/* Get Started */}
             <SignUpButton mode="modal">
-              <button className="flex flex-col items-center justify-center gap-1 rounded-lg px-2 py-2 text-xs font-medium transition-all text-white bg-gradient-to-br from-[#6ba03f] to-[#4a7c2c] shadow-md">
-                <Plus className="h-5 w-5" />
-                <span className="text-[10px]">Join</span>
+              <button className="flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] px-1 font-medium transition-all active:scale-95 text-green-600 dark:text-green-400">
+                <div className="p-2 rounded-xl bg-green-100 dark:bg-green-900/40">
+                  <Plus className="h-6 w-6" />
+                </div>
+                <span className="text-[11px]">Join</span>
               </button>
             </SignUpButton>
           </div>

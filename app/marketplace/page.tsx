@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { ProductCardSkeleton } from '@/components/ui/skeleton'
 import { Search, ShoppingBag, Sprout, Award, Package, X, Plus, Loader2 } from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 
@@ -286,10 +287,18 @@ export default function MarketplacePage() {
             )}
           </div>
 
-          {/* Loading State */}
+          {/* Loading State - Premium skeleton grid */}
           {loading && (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-[#4a7c2c]" />
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div
+                  key={i}
+                  className="animate-in fade-in slide-in-from-bottom-4"
+                  style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}
+                >
+                  <ProductCardSkeleton />
+                </div>
+              ))}
             </div>
           )}
 
@@ -306,14 +315,15 @@ export default function MarketplacePage() {
             </div>
           )}
 
-          {/* Products */}
+          {/* Products - with staggered animations */}
           {!loading && !error && filteredProducts.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((listing) => (
+              {filteredProducts.map((listing, index) => (
                 <Link
                   key={listing.id}
                   href={`/marketplace/${listing.id}`}
-                  className="group bg-white rounded-xl border-2 border-[#aed581]/30 overflow-hidden shadow-md hover:shadow-xl transition-all hover:border-[#4a7c2c]/50"
+                  className="group bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-100 dark:border-gray-700 overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:border-green-300 dark:hover:border-green-600 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
+                  style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
                 >
                   <div className="aspect-square relative bg-gray-100">
                     {listing.images.length > 0 && listing.images[0] ? (

@@ -5,8 +5,10 @@ import { Header } from '@/components/layout/header'
 import { Map } from '@/components/map/map'
 import { PlotCard } from '@/components/map/plot-card'
 import { FilterSidebar } from '@/components/map/filter-sidebar'
+import { CardSkeleton, CardGridSkeleton } from '@/components/ui/skeleton'
+import { StaggeredGrid } from '@/components/ui/animated'
 import { MapFilters, PlotMarker } from '@/lib/types'
-import { Search, LayoutGrid, Map as MapIcon, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
+import { Search, LayoutGrid, Map as MapIcon, Loader2, AlertCircle, RefreshCw, Sprout } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type ViewMode = 'map' | 'grid'
@@ -192,29 +194,35 @@ export default function ExplorePage() {
 
                 <div className="space-y-4">
                   {isLoading ? (
-                    <div className="text-center py-12">
-                      <Loader2 className="h-8 w-8 text-[#4a7c2c] animate-spin mx-auto mb-4" />
-                      <p className="text-[#4a3f35]">Loading plots...</p>
+                    <div className="space-y-4">
+                      {[1, 2, 3, 4].map((i) => (
+                        <CardSkeleton key={i} />
+                      ))}
                     </div>
                   ) : (
                     <>
-                      {filteredPlots.map(plot => (
-                        <PlotCard
+                      {filteredPlots.map((plot, index) => (
+                        <div
                           key={plot.id}
-                          plot={plot}
-                          showLink={true}
-                          onClick={() => handlePlotClick(plot)}
-                          isSelected={selectedPlotId === plot.id}
-                        />
+                          className="animate-in fade-in slide-in-from-bottom-2"
+                          style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
+                        >
+                          <PlotCard
+                            plot={plot}
+                            showLink={true}
+                            onClick={() => handlePlotClick(plot)}
+                            isSelected={selectedPlotId === plot.id}
+                          />
+                        </div>
                       ))}
 
                       {filteredPlots.length === 0 && (
-                        <div className="text-center py-12">
-                          <div className="text-4xl mb-4">🔍</div>
-                          <h3 className="text-lg font-semibold text-[#2d5016] mb-2">
+                        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700">
+                          <Sprout className="h-12 w-12 text-green-300 dark:text-green-700 mx-auto mb-4" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                             No plots found
                           </h3>
-                          <p className="text-[#4a3f35]">
+                          <p className="text-gray-600 dark:text-gray-400">
                             Try adjusting your filters or search query
                           </p>
                         </div>
@@ -234,13 +242,10 @@ export default function ExplorePage() {
               </h2>
 
               {isLoading ? (
-                <div className="text-center py-24 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
-                  <Loader2 className="h-12 w-12 text-[#4a7c2c] animate-spin mx-auto mb-4" />
-                  <p className="text-xl text-[#4a3f35]">Loading plots...</p>
-                </div>
+                <CardGridSkeleton count={6} />
               ) : (
                 <>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  <StaggeredGrid className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" staggerDelay={75}>
                     {filteredPlots.map(plot => (
                       <PlotCard
                         key={plot.id}
@@ -249,15 +254,15 @@ export default function ExplorePage() {
                         isSelected={selectedPlotId === plot.id}
                       />
                     ))}
-                  </div>
+                  </StaggeredGrid>
 
                   {filteredPlots.length === 0 && (
-                    <div className="text-center py-12 bg-white/60 backdrop-blur-sm rounded-2xl border-2 border-[#aed581]/30 shadow-md">
-                      <div className="text-6xl mb-4">🔍</div>
-                      <h3 className="text-2xl font-semibold text-[#2d5016] mb-2">
+                    <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-100 dark:border-gray-700 shadow-md">
+                      <Sprout className="h-16 w-16 text-green-200 dark:text-green-800 mx-auto mb-4" />
+                      <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
                         No plots found
                       </h3>
-                      <p className="text-lg text-[#4a3f35]">
+                      <p className="text-lg text-gray-600 dark:text-gray-400">
                         Try adjusting your filters or search query
                       </p>
                     </div>
