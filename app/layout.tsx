@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/lib/theme-context'
@@ -9,6 +9,13 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#059669",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://growshare.co'),
   title: "GrowShare - Agricultural Engagement Ecosystem",
@@ -16,7 +23,6 @@ export const metadata: Metadata = {
   keywords: ["agriculture", "land rental", "farming", "community garden", "sustainable agriculture", "local food"],
   authors: [{ name: "GrowShare" }],
   manifest: "/manifest.webmanifest",
-  themeColor: "#059669",
   icons: {
     icon: [
       { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
