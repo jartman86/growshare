@@ -10,9 +10,9 @@ export default function HomePage() {
       <Header />
 
       {/* Hero Section with Photo Background */}
-      <section className="relative h-[calc(100vh-60px)] min-h-[550px] sm:h-[90vh] sm:min-h-[600px] overflow-hidden">
+      <section className="relative min-h-[100svh] sm:min-h-[90vh] overflow-hidden -mt-[60px] pt-[60px]">
         {/* Background Image */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 z-10"></div>
         <Image
           src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1920&q=80"
           alt="Agricultural field"
@@ -21,13 +21,13 @@ export default function HomePage() {
           priority
         />
 
-        {/* Content */}
-        <div className="relative z-20 h-full flex items-center pt-4 pb-20 sm:pb-0">
+        {/* Content - positioned to avoid header */}
+        <div className="relative z-20 min-h-[calc(100svh-60px)] sm:min-h-[calc(90vh-60px)] flex items-center py-8 pb-24 sm:pb-8">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
             <div className="max-w-3xl">
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
+              <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl leading-tight drop-shadow-lg">
                 Transform Land Into
-                <span className="block text-[#a7d46c] mt-2">Living Opportunity</span>
+                <span className="block text-[#a7d46c] mt-2 drop-shadow-lg">Living Opportunity</span>
               </h1>
               <p className="mt-8 text-xl text-gray-100 leading-relaxed max-w-2xl">
                 Connect landowners with passionate growers. Build sustainable communities.
