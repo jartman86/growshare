@@ -370,6 +370,13 @@ html {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Ensure Clerk modals appear above mobile navigation */
+.cl-rootBox,
+.cl-modalBackdrop,
+.cl-modal {
+  z-index: 9999 !important;
+}
+
 .safe-area-pt {
   padding-top: env(safe-area-inset-top, 0px);
 }
