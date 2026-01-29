@@ -13,14 +13,18 @@ import {
   Lightbulb,
   Menu,
   X,
+  GraduationCap,
+  BookOpen,
 } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
   { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '/admin/verifications', icon: Shield, label: 'Verifications' },
+  { href: '/admin/instructor-applications', icon: GraduationCap, label: 'Instructor Apps' },
   { href: '/admin/moderation', icon: Flag, label: 'Moderation' },
   { href: '/admin/community-tips', icon: Lightbulb, label: 'Community Tips' },
+  { href: '/knowledge', icon: BookOpen, label: 'Knowledge Hub' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 

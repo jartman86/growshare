@@ -366,7 +366,8 @@ html {
 }
 
 /* Safe area for iOS devices with notch/home indicator */
-.safe-area-pb {
+.safe-area-pb,
+.pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
