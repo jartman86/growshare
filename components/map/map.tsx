@@ -173,21 +173,21 @@ export function Map({ plots, onPlotClick, selectedPlotId, center = [-82.5515, 35
         </div>
       )}
 
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4">
-        <h4 className="text-sm font-semibold text-gray-900 mb-2">Plot Status</h4>
+      {/* Legend - hidden on mobile */}
+      <div className="hidden sm:block absolute bottom-4 left-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4">
+        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Plot Status</h4>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-600 rounded-full"></div>
-            <span className="text-sm text-gray-700">Available</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Available</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
-            <span className="text-sm text-gray-700">Rented</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Rented</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-gray-500 rounded-full"></div>
-            <span className="text-sm text-gray-700">Inactive</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Inactive</span>
           </div>
         </div>
       </div>

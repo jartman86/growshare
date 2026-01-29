@@ -13,7 +13,8 @@ interface FilterSidebarProps {
 }
 
 export function FilterSidebar({ filters, onFiltersChange, plotCount }: FilterSidebarProps) {
-  const [isOpen, setIsOpen] = useState(true)
+  // Start closed on mobile, open on desktop
+  const [isOpen, setIsOpen] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     price: true,
     acreage: true,
@@ -55,8 +56,9 @@ export function FilterSidebar({ filters, onFiltersChange, plotCount }: FilterSid
       {/* Sidebar */}
       <div
         className={cn(
-          'bg-white border-r overflow-y-auto transition-all duration-300',
-          isOpen ? 'w-80' : 'w-0 lg:w-0',
+          'bg-white dark:bg-gray-900 border-r dark:border-gray-700 overflow-y-auto transition-all duration-300',
+          isOpen ? 'w-80' : 'w-0',
+          'lg:w-80', // Always visible on desktop
           'lg:relative fixed inset-y-0 left-0 z-20 lg:z-0'
         )}
       >
