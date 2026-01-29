@@ -434,31 +434,27 @@ export function Header() {
               <span className="text-[11px]">Market</span>
             </Link>
 
-            {/* Sign In */}
-            <SignInButton mode="modal">
-              <button
-                type="button"
-                className="flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] min-w-[56px] px-1 font-medium transition-all active:scale-95 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
-              >
-                <div className="p-2 rounded-xl pointer-events-none">
-                  <UserIcon className="h-6 w-6" />
-                </div>
-                <span className="text-[11px] pointer-events-none">Sign In</span>
-              </button>
-            </SignInButton>
+            {/* Sign In - use direct link for better mobile support */}
+            <Link
+              href="/sign-in"
+              className="flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] min-w-[56px] px-1 font-medium transition-all active:scale-95 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            >
+              <div className="p-2 rounded-xl">
+                <UserIcon className="h-6 w-6" />
+              </div>
+              <span className="text-[11px]">Sign In</span>
+            </Link>
 
-            {/* Get Started */}
-            <SignUpButton mode="modal">
-              <button
-                type="button"
-                className="flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] min-w-[56px] px-1 font-medium transition-all active:scale-95 text-green-600 dark:text-green-400 cursor-pointer"
-              >
-                <div className="p-2 rounded-xl bg-green-100 dark:bg-green-900/40 pointer-events-none">
-                  <Plus className="h-6 w-6" />
-                </div>
-                <span className="text-[11px] pointer-events-none">Join</span>
-              </button>
-            </SignUpButton>
+            {/* Get Started - use direct link for better mobile support */}
+            <Link
+              href="/sign-up"
+              className="flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[56px] min-w-[56px] px-1 font-medium transition-all active:scale-95 text-green-600 dark:text-green-400"
+            >
+              <div className="p-2 rounded-xl bg-green-100 dark:bg-green-900/40">
+                <Plus className="h-6 w-6" />
+              </div>
+              <span className="text-[11px]">Join</span>
+            </Link>
           </div>
         )}
 
