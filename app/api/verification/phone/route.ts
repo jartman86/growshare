@@ -5,9 +5,9 @@ import crypto from 'crypto'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 import { validateRequest, phoneVerificationRequestSchema, phoneVerificationVerifySchema } from '@/lib/validations'
 
-// Generate a 6-digit code
+// Generate a 6-digit code using cryptographically secure random
 function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString()
+  return crypto.randomInt(100000, 999999).toString()
 }
 
 // Hash the code for storage

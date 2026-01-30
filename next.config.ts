@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import withPWAInit from "@ducanh2912/next-pwa";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -52,4 +53,27 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA(nextConfig);
+// Wrap with PWA first, then Sentry
+const configWithPWA = withPWA(nextConfig);
+
+export default withSentryConfig(configWithPWA, {
+  // Sentry organization and project
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Only print logs in CI
+  silent: !process.env.CI,
+
+  // Upload source maps to Sentry
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+
+  // Automatically tree-shake Sentry logger statements
+  disableLogger: true,
+
+  // Vercel cron monitoring
+  webpack: {
+    automaticVercelMonitors: true,
+  },
+});
