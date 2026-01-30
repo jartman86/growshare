@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { ensureUser } from '@/lib/ensure-user'
+import { generateCertificateId } from '@/lib/sanitize'
 
 export async function POST(
   request: NextRequest,
@@ -65,10 +66,8 @@ export async function POST(
     // Generate certificate ID if course is completed and it's a certification course
     let certificateId: string | null = null
     if (isCompleted && !progress.isCompleted && course?.isCertification) {
-      // Generate unique certificate ID: GS-CERT-XXXXXX
-      const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase()
-      const timestamp = Date.now().toString(36).toUpperCase().slice(-4)
-      certificateId = `GS-CERT-${randomPart}${timestamp}`
+      // Generate cryptographically secure certificate ID
+      certificateId = generateCertificateId()
     }
 
     // Update progress
@@ -107,8 +106,7 @@ export async function POST(
             totalPoints: { increment: 250 },
           },
         })
-      } catch (error) {
-        console.error('Error awarding course completion points:', error)
+      } catch {
         // Don't fail the request if gamification fails
       }
     }
@@ -121,8 +119,7 @@ export async function POST(
       justCompleted: isCompleted && !progress.isCompleted,
       certificateId: updatedProgress.certificateId,
     })
-  } catch (error) {
-    console.error('Error completing module:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to complete module' },
       { status: 500 }

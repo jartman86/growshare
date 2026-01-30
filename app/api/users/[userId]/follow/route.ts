@@ -79,8 +79,7 @@ export async function POST(
       }
       throw createError // Re-throw if it's a different error
     }
-  } catch (error) {
-    console.error('Error following user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to follow user' },
       { status: 500 }
@@ -129,8 +128,7 @@ export async function DELETE(
       success: true,
       message: 'Unfollowed successfully',
     })
-  } catch (error) {
-    console.error('Error unfollowing user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to unfollow user' },
       { status: 500 }
@@ -171,8 +169,7 @@ export async function GET(
     return NextResponse.json({
       isFollowing: !!follow,
     })
-  } catch (error) {
-    console.error('Error checking follow status:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to check follow status' },
       { status: 500 }

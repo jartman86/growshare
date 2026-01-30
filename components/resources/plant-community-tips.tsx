@@ -72,8 +72,8 @@ export function PlantCommunityTips({ plantName, limit = 10 }: PlantCommunityTips
       uniqueTips.sort((a, b) => (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes))
 
       setTips(uniqueTips.slice(0, limit))
-    } catch (error) {
-      console.error('Error fetching plant tips:', error)
+    } catch {
+      // Error fetching plant tips
     } finally {
       setLoading(false)
     }
@@ -108,8 +108,8 @@ export function PlantCommunityTips({ plantName, limit = 10 }: PlantCommunityTips
             : tip
         ))
       }
-    } catch (error) {
-      console.error('Error voting:', error)
+    } catch {
+      // Error voting
     } finally {
       setVotingTipId(null)
     }

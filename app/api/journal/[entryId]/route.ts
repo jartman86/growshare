@@ -60,8 +60,7 @@ export async function GET(
     }
 
     return NextResponse.json(formattedEntry)
-  } catch (error) {
-    console.error('Error fetching journal entry:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch entry' }, { status: 500 })
   }
 }
@@ -122,8 +121,7 @@ export async function PATCH(
     })
 
     return NextResponse.json(updatedEntry)
-  } catch (error) {
-    console.error('Error updating journal entry:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to update entry' }, { status: 500 })
   }
 }
@@ -158,8 +156,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting journal entry:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to delete entry' }, { status: 500 })
   }
 }

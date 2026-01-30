@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
     const priceId = process.env.STRIPE_SUBSCRIPTION_PRICE_ID
 
     if (!priceId) {
-      console.error('STRIPE_SUBSCRIPTION_PRICE_ID not configured')
       return NextResponse.json(
         { error: 'Subscription not available' },
         { status: 500 }
@@ -83,8 +82,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (error) {
-    console.error('Error creating subscription checkout:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create checkout session' },
       { status: 500 }

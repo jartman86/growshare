@@ -26,7 +26,6 @@ export function Map({ plots, onPlotClick, selectedPlotId, center = [-82.5515, 35
     const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
     if (!mapboxToken || mapboxToken === 'your_mapbox_access_token') {
-      console.warn('Mapbox token not configured. Using fallback view.')
       return
     }
 

@@ -77,8 +77,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(formattedActivities)
-  } catch (error) {
-    console.error('Error fetching activity feed:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch activity feed' }, { status: 500 })
   }
 }

@@ -43,8 +43,7 @@ export async function GET(
       { error: 'Plant not found' },
       { status: 404 }
     )
-  } catch (error) {
-    console.error('Error fetching plant details:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch plant details' },
       { status: 500 }

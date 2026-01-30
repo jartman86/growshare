@@ -178,8 +178,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(result)
-  } catch (error) {
-    console.error('Error fetching frost dates:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch frost dates. Please try again later.' },
       { status: 500 }

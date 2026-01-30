@@ -145,8 +145,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       ...updatedTip,
       userVote: userVote?.value || 0,
     })
-  } catch (error) {
-    console.error('Error voting on tip:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to vote on tip' },
       { status: 500 }

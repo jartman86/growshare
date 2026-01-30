@@ -206,8 +206,7 @@ export async function POST(request: NextRequest) {
           `${currentUser.firstName} ${currentUser.lastName}`,
           booking.id
         )
-      } catch (error) {
-        console.error('Failed to send booking notification:', error)
+      } catch {
         // Don't fail the booking if notification fails
       }
     }
@@ -220,7 +219,6 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       )
     }
-    console.error('Error creating booking:', error)
     return NextResponse.json(
       { error: 'Failed to create booking' },
       { status: 500 }
@@ -232,7 +230,6 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const currentUser = await ensureUser()
-    console.log('[BOOKINGS] ensureUser returned:', currentUser?.id, currentUser?.email)
 
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -240,7 +237,6 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams
     const type = searchParams.get('type') // 'renter' or 'owner'
-    console.log('[BOOKINGS] type:', type, 'userId:', currentUser.id)
 
     let bookings
 
@@ -355,10 +351,8 @@ export async function GET(request: NextRequest) {
       }))
     }
 
-    console.log('[BOOKINGS] Found', bookings.length, 'bookings')
     return NextResponse.json(bookings)
-  } catch (error) {
-    console.error('Error fetching bookings:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch bookings' },
       { status: 500 }

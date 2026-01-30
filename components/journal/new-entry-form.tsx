@@ -95,7 +95,6 @@ export function NewEntryForm({ onClose, onSubmit }: NewEntryFormProps) {
       onSubmit(createdJournal)
       onClose()
     } catch (err) {
-      console.error('Error creating journal entry:', err)
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setIsSubmitting(false)
     }

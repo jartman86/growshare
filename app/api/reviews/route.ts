@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { notifyNewReview } from '@/lib/notifications'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // Create a new review
 export async function POST(request: NextRequest) {
@@ -10,6 +11,15 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 30 reviews per minute per user
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({
@@ -42,8 +52,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-  } catch (error) {
-    console.error('Error creating review:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create review' },
       { status: 500 }
@@ -381,8 +390,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(reviews)
-  } catch (error) {
-    console.error('Error fetching reviews:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch reviews' },
       { status: 500 }

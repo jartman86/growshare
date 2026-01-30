@@ -49,8 +49,8 @@ export function CommunityTipsSection({ category, title = 'Community Tips' }: Com
         const data = await response.json()
         setTips(data)
       }
-    } catch (error) {
-      console.error('Error fetching tips:', error)
+    } catch {
+      // Error fetching tips
     } finally {
       setLoading(false)
     }
@@ -83,8 +83,8 @@ export function CommunityTipsSection({ category, title = 'Community Tips' }: Com
             : tip
         ))
       }
-    } catch (error) {
-      console.error('Error voting:', error)
+    } catch {
+      // Error voting
     } finally {
       setVotingTipId(null)
     }

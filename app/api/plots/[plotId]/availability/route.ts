@@ -99,8 +99,7 @@ export async function GET(
         reason: bd.reason,
       })),
     })
-  } catch (error) {
-    console.error('Error fetching availability:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch availability' },
       { status: 500 }

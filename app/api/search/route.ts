@@ -221,8 +221,7 @@ export async function GET(request: NextRequest) {
     await Promise.all(searches)
 
     return NextResponse.json(results)
-  } catch (error) {
-    console.error('Search error:', error)
+  } catch {
     return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

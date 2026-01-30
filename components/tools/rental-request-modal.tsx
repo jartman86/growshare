@@ -72,9 +72,8 @@ export function RentalRequestModal({ tool, onClose, onSuccess }: RentalRequestMo
 
       onSuccess()
       onClose()
-    } catch (err) {
-      console.error('Error submitting rental request:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred')
+    } catch {
+      setError('An error occurred')
       setIsSubmitting(false)
     }
   }

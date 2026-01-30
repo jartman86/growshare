@@ -101,8 +101,7 @@ export async function GET() {
       message: 'User synced successfully',
       user
     })
-  } catch (error) {
-    console.error('Error syncing user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to sync user' },
       { status: 500 }

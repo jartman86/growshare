@@ -35,8 +35,7 @@ export async function GET() {
     })
 
     return NextResponse.json(blockedUsers)
-  } catch (error) {
-    console.error('Error fetching blocked users:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch blocked users' },
       { status: 500 }
@@ -131,8 +130,7 @@ export async function POST(request: NextRequest) {
       message: 'User blocked successfully',
       blockedUser,
     }, { status: 201 })
-  } catch (error) {
-    console.error('Error blocking user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to block user' },
       { status: 500 }
@@ -191,8 +189,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'User unblocked successfully',
     })
-  } catch (error) {
-    console.error('Error unblocking user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to unblock user' },
       { status: 500 }

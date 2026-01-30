@@ -38,8 +38,7 @@ export function VerificationBanner({ onClose, className = '' }: VerificationBann
     try {
       await primaryEmail.prepareVerification({ strategy: 'email_code' })
       setSent(true)
-    } catch (err) {
-      console.error('Failed to send verification email:', err)
+    } catch {
       setError('Failed to send verification email. Please try again.')
     } finally {
       setSending(false)
@@ -130,8 +129,8 @@ export function VerificationRequired({ message }: { message?: string }) {
     try {
       await primaryEmail.prepareVerification({ strategy: 'email_code' })
       setSent(true)
-    } catch (err) {
-      console.error('Failed to send verification email:', err)
+    } catch {
+      // Failed to send verification email
     } finally {
       setSending(false)
     }

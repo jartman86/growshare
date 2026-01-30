@@ -48,8 +48,7 @@ export async function GET(request: NextRequest) {
         }))
 
         results.push(...convertedResults)
-      } catch (apiError) {
-        console.error('Perenual API error:', apiError)
+      } catch {
         // Continue with local results only
       }
     }
@@ -69,8 +68,7 @@ export async function GET(request: NextRequest) {
       page,
       hasApiAccess: perenual.isConfigured(),
     })
-  } catch (error) {
-    console.error('Error fetching plants:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch plants' },
       { status: 500 }

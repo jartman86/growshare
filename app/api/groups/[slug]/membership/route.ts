@@ -61,8 +61,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         where: { id: currentUser.id },
         data: { totalPoints: { increment: 10 } },
       })
-    } catch (error) {
-      console.error('Error awarding points:', error)
+    } catch {
+      // Failed to award points, but membership was created successfully
     }
 
     return NextResponse.json({
@@ -72,8 +72,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         joinedAt: membership.joinedAt.toISOString(),
       },
     })
-  } catch (error) {
-    console.error('Error joining group:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to join group' }, { status: 500 })
   }
 }
@@ -131,8 +130,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error leaving group:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to leave group' }, { status: 500 })
   }
 }

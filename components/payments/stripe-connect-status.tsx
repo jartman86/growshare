@@ -42,8 +42,7 @@ export function StripeConnectStatus({ onStatusChange }: StripeConnectStatusProps
       const data = await response.json()
       setStatus(data)
       onStatusChange?.(data)
-    } catch (err) {
-      console.error('Error fetching connect status:', err)
+    } catch {
       setError('Failed to load payout status')
     } finally {
       setIsLoading(false)
@@ -74,8 +73,7 @@ export function StripeConnectStatus({ onStatusChange }: StripeConnectStatusProps
       if (data.onboardingUrl) {
         window.location.href = data.onboardingUrl
       }
-    } catch (err) {
-      console.error('Error starting onboarding:', err)
+    } catch {
       setError('Failed to start payout setup. Please try again.')
       setIsProcessing(false)
     }

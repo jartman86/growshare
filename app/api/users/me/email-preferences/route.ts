@@ -41,8 +41,7 @@ export async function GET() {
     }
 
     return NextResponse.json(preferences)
-  } catch (error) {
-    console.error('Error fetching email preferences:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch email preferences' },
       { status: 500 }
@@ -105,8 +104,7 @@ export async function PATCH(request: Request) {
     })
 
     return NextResponse.json(preferences)
-  } catch (error) {
-    console.error('Error updating email preferences:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update email preferences' },
       { status: 500 }

@@ -86,8 +86,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         where: { id: currentUser.id },
         data: { totalPoints: { increment: 15 } },
       })
-    } catch (error) {
-      console.error('Error awarding join points:', error)
+    } catch {
+      // Failed to award points, but participation was created successfully
     }
 
     return NextResponse.json({
@@ -99,8 +99,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         joinedAt: participation.joinedAt.toISOString(),
       },
     })
-  } catch (error) {
-    console.error('Error joining challenge:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to join challenge' }, { status: 500 })
   }
 }
@@ -148,8 +147,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error leaving challenge:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to leave challenge' }, { status: 500 })
   }
 }

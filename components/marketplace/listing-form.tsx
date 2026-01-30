@@ -139,7 +139,6 @@ export function ListingForm({ initialData, mode = 'create' }: ListingFormProps) 
       router.push('/dashboard/sell')
       router.refresh()
     } catch (err) {
-      console.error('Error saving listing:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
       setIsSubmitting(false)
     }

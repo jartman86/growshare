@@ -201,7 +201,6 @@ export function CheckoutForm({
       const data = await response.json()
       setClientSecret(data.clientSecret)
     } catch (err) {
-      console.error('Error creating payment intent:', err)
       setError(err instanceof Error ? err.message : 'Failed to initialize payment')
       onError?.(err instanceof Error ? err.message : 'Failed to initialize payment')
     } finally {

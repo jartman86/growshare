@@ -65,8 +65,7 @@ export async function GET(
     }
 
     return NextResponse.json(rental)
-  } catch (error) {
-    console.error('Error fetching rental:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch rental' },
       { status: 500 }
@@ -223,8 +222,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(updatedRental)
-  } catch (error) {
-    console.error('Error updating rental:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update rental' },
       { status: 500 }

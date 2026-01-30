@@ -32,8 +32,7 @@ export async function GET() {
       isInstructor: false,
       application,
     })
-  } catch (error) {
-    console.error('Error fetching instructor application:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch application status' },
       { status: 500 }
@@ -91,8 +90,7 @@ export async function PATCH(request: Request) {
       success: true,
       application: updatedApplication,
     })
-  } catch (error) {
-    console.error('Error updating instructor application:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update application' },
       { status: 500 }

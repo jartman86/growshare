@@ -71,11 +71,9 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
         if (response.ok) {
           const data = await response.json()
           setPlots(data)
-        } else {
-          console.error('Failed to fetch plots')
         }
-      } catch (error) {
-        console.error('Error fetching plots:', error)
+      } catch {
+        // Error fetching plots
       } finally {
         setIsLoadingPlots(false)
       }

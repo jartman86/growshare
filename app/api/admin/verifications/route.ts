@@ -59,8 +59,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit),
       },
     })
-  } catch (error) {
-    console.error('Error fetching verification requests:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch verification requests' },
       { status: 500 }
@@ -147,8 +146,7 @@ export async function PATCH(request: NextRequest) {
       request: result,
       message: `Verification ${action.toLowerCase()}d successfully`,
     })
-  } catch (error) {
-    console.error('Error processing verification request:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to process verification request' },
       { status: 500 }

@@ -116,7 +116,6 @@ export function ToolListingForm({ initialData, mode = 'create' }: ToolListingFor
       router.push('/tools')
       router.refresh()
     } catch (err) {
-      console.error('Error saving tool:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
       setIsSubmitting(false)
     }

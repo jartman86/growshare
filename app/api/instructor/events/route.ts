@@ -38,8 +38,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({ events })
-  } catch (error) {
-    console.error('Error fetching instructor events:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch events' },
       { status: 500 }
@@ -156,8 +155,7 @@ export async function POST(request: NextRequest) {
       success: true,
       event,
     })
-  } catch (error) {
-    console.error('Error creating event:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create event' },
       { status: 500 }

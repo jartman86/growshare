@@ -85,8 +85,8 @@ export function CalendarView() {
         const data = await response.json()
         setEvents(data.events)
       }
-    } catch (error) {
-      console.error('Error fetching events:', error)
+    } catch {
+      // Error fetching events
     } finally {
       setLoading(false)
     }
@@ -152,8 +152,8 @@ export function CalendarView() {
           )
         }
       }
-    } catch (error) {
-      console.error('Error registering:', error)
+    } catch {
+      // Error registering
     } finally {
       setRegistering(false)
     }

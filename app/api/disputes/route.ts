@@ -119,8 +119,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(disputesWithRole)
-  } catch (error) {
-    console.error('Error fetching disputes:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch disputes' },
       { status: 500 }

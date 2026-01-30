@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
 
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
     if (!webhookSecret) {
-      console.error('STRIPE_WEBHOOK_SECRET is not configured')
       return NextResponse.json(
         { error: 'Webhook secret not configured' },
         { status: 500 }
@@ -32,8 +31,7 @@ export async function POST(request: NextRequest) {
 
     try {
       event = verifyWebhookSignature(body, signature, webhookSecret)
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err)
+    } catch {
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
@@ -83,12 +81,11 @@ export async function POST(request: NextRequest) {
         break
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        // Unhandled event type
     }
 
     return NextResponse.json({ received: true })
-  } catch (error) {
-    console.error('Webhook error:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Webhook processing failed' },
       { status: 500 }
@@ -116,7 +113,6 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   })
 
   if (!dbPayment) {
-    console.error(`Payment not found: ${paymentIntent.id}`)
     return
   }
 
@@ -180,7 +176,6 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
   })
 
   if (!dbPayment) {
-    console.error(`Payment not found: ${paymentIntent.id}`)
     return
   }
 
@@ -199,7 +194,6 @@ async function handlePaymentCanceled(paymentIntent: Stripe.PaymentIntent) {
   })
 
   if (!dbPayment) {
-    console.error(`Payment not found: ${paymentIntent.id}`)
     return
   }
 
@@ -218,7 +212,6 @@ async function handleAccountUpdated(account: Stripe.Account) {
   })
 
   if (!user) {
-    console.error(`User not found for connect account: ${account.id}`)
     return
   }
 
@@ -235,18 +228,15 @@ async function handleAccountUpdated(account: Stripe.Account) {
 async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.userId
   if (!userId) {
-    console.error('No userId in subscription checkout metadata')
     return
   }
 
   const subscriptionId = session.subscription as string
   if (!subscriptionId) {
-    console.error('No subscription ID in checkout session')
     return
   }
 
   // Subscription will be created by customer.subscription.created event
-  console.log(`Subscription checkout completed for user ${userId}`)
 }
 
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
@@ -258,7 +248,6 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   })
 
   if (!user) {
-    console.error(`User not found for customer: ${customerId}`)
     return
   }
 
@@ -316,7 +305,6 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   })
 
   if (!dbSubscription) {
-    console.error(`Subscription not found: ${subscription.id}`)
     // Try to create it
     await handleSubscriptionCreated(subscription)
     return
@@ -345,7 +333,6 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   })
 
   if (!dbSubscription) {
-    console.error(`Subscription not found: ${subscription.id}`)
     return
   }
 
@@ -380,7 +367,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   })
 
   if (!dbSubscription) {
-    console.error(`Subscription not found: ${subscriptionId}`)
     return
   }
 

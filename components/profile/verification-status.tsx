@@ -68,8 +68,8 @@ export function VerificationStatus({
           setIdPending(true)
         }
       }
-    } catch (err) {
-      console.error('Failed to check verification status:', err)
+    } catch {
+      // Failed to check verification status
     }
   }
 
@@ -171,8 +171,7 @@ export function VerificationStatus({
       const data = await response.json()
       setUploadedDocumentUrl(data.secure_url)
       setUploadProgress(100)
-    } catch (err) {
-      console.error('Upload error:', err)
+    } catch {
       setError('Failed to upload document. Please try again.')
     } finally {
       setIsUploading(false)

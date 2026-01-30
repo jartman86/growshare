@@ -133,8 +133,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     return response
-  } catch (error) {
-    console.error('Error tracking course view:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to track view' },
       { status: 500 }
@@ -157,8 +156,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json({ viewCount: course.viewCount })
-  } catch (error) {
-    console.error('Error getting view count:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to get view count' },
       { status: 500 }

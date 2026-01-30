@@ -29,8 +29,7 @@ async function geocodeAddress(address: string, city: string, state: string, zipC
     }
 
     return null
-  } catch (error) {
-    console.error('Geocoding error:', error)
+  } catch {
     return null
   }
 }
@@ -103,8 +102,7 @@ async function geocodePlots() {
       skipped,
       total: plots.length,
     })
-  } catch (error) {
-    console.error('Error geocoding plots:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to geocode plots' },
       { status: 500 }

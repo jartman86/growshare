@@ -24,8 +24,7 @@ export async function GET() {
     }
 
     return NextResponse.json(user)
-  } catch (error) {
-    console.error('Error fetching privacy settings:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch privacy settings' },
       { status: 500 }
@@ -80,8 +79,7 @@ export async function PATCH(request: NextRequest) {
     })
 
     return NextResponse.json(updatedUser)
-  } catch (error) {
-    console.error('Error updating privacy settings:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update privacy settings' },
       { status: 500 }

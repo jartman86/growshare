@@ -79,8 +79,8 @@ export function BookingCard({
           if (total !== undefined) {
             setCalculatedTotal(total)
           }
-        } catch (e) {
-          console.error('Failed to restore booking dates:', e)
+        } catch {
+          // Failed to restore booking dates
         }
       }
       setIsModalOpen(true)

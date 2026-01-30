@@ -88,8 +88,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json(dispute, { status: 201 })
-  } catch (error) {
-    console.error('Error creating dispute:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create dispute' },
       { status: 500 }
@@ -189,8 +188,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
       userRole: isAdmin ? 'admin' : isOwner ? 'owner' : 'renter',
     })
-  } catch (error) {
-    console.error('Error fetching dispute:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch dispute' },
       { status: 500 }
@@ -314,8 +312,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json(updatedDispute)
-  } catch (error) {
-    console.error('Error updating dispute:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update dispute' },
       { status: 500 }

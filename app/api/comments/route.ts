@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import DOMPurify from 'isomorphic-dompurify'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // Get comments for a post
 export async function GET(request: NextRequest) {
   try {
+    const { userId } = await auth()
     const searchParams = request.nextUrl.searchParams
     const postId = searchParams.get('postId')
 
@@ -13,6 +16,25 @@ export async function GET(request: NextRequest) {
         { error: 'Post ID is required' },
         { status: 400 }
       )
+    }
+
+    // Check if post exists and user has access
+    const post = await prisma.userPost.findUnique({
+      where: { id: postId },
+      include: {
+        author: {
+          select: { id: true, clerkId: true, profileVisibility: true }
+        }
+      }
+    })
+
+    if (!post) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
+    }
+
+    // Check access: public posts are accessible to all, private posts only to author
+    if (post.author.profileVisibility === 'PRIVATE' && post.author.clerkId !== userId) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
     }
 
     const comments = await prisma.postComment.findMany({
@@ -32,8 +54,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(comments)
-  } catch (error) {
-    console.error('Error fetching comments:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch comments' },
       { status: 500 }
@@ -47,6 +68,15 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 30 comments per minute per user
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const user = await prisma.user.findUnique({
@@ -67,6 +97,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Sanitize content to prevent XSS
+    const sanitizedContent = DOMPurify.sanitize(content, {
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br'],
+      ALLOWED_ATTR: ['href'],
+    })
+
+    if (sanitizedContent.length > 5000) {
+      return NextResponse.json(
+        { error: 'Comment too long (max 5000 characters)' },
+        { status: 400 }
+      )
+    }
+
     // Check if post exists
     const post = await prisma.userPost.findUnique({
       where: { id: postId },
@@ -80,7 +123,7 @@ export async function POST(request: NextRequest) {
       data: {
         postId,
         authorId: user.id,
-        content,
+        content: sanitizedContent,
       },
       include: {
         author: {
@@ -96,8 +139,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(comment)
-  } catch (error) {
-    console.error('Error creating comment:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create comment' },
       { status: 500 }

@@ -21,8 +21,8 @@ export function FollowButton({ userId, initialIsFollowing = false }: FollowButto
           const data = await response.json()
           setIsFollowing(data.isFollowing)
         }
-      } catch (error) {
-        console.error('Error checking follow status:', error)
+      } catch {
+        // Silently ignore errors checking follow status
       }
     }
     checkFollowStatus()
@@ -38,9 +38,6 @@ export function FollowButton({ userId, initialIsFollowing = false }: FollowButto
         })
         if (response.ok) {
           setIsFollowing(false)
-        } else {
-          const error = await response.json()
-          console.error('Failed to unfollow:', error)
         }
       } else {
         // Follow
@@ -49,13 +46,10 @@ export function FollowButton({ userId, initialIsFollowing = false }: FollowButto
         })
         if (response.ok) {
           setIsFollowing(true)
-        } else {
-          const error = await response.json()
-          console.error('Failed to follow:', error)
         }
       }
-    } catch (error) {
-      console.error('Error toggling follow:', error)
+    } catch {
+      // Silently ignore errors toggling follow
     } finally {
       setIsLoading(false)
     }

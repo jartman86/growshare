@@ -45,8 +45,7 @@ export async function GET(
     }
 
     return NextResponse.json({ course })
-  } catch (error) {
-    console.error('Error fetching course:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch course' },
       { status: 500 }
@@ -139,8 +138,7 @@ export async function PATCH(
       success: true,
       course: updatedCourse,
     })
-  } catch (error) {
-    console.error('Error updating course:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update course' },
       { status: 500 }
@@ -209,8 +207,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting course:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete course' },
       { status: 500 }

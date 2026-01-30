@@ -82,8 +82,7 @@ export async function PATCH(
     })
 
     return NextResponse.json(reply)
-  } catch (error) {
-    console.error('Error updating reply:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update reply' },
       { status: 500 }
@@ -134,8 +133,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting reply:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete reply' },
       { status: 500 }

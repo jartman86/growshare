@@ -79,8 +79,7 @@ export async function GET(
       votes: undefined,
       replies: repliesWithScores,
     })
-  } catch (error) {
-    console.error('Error fetching topic:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch topic' },
       { status: 500 }
@@ -162,8 +161,7 @@ export async function PATCH(
     })
 
     return NextResponse.json(topic)
-  } catch (error) {
-    console.error('Error updating topic:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update topic' },
       { status: 500 }
@@ -214,8 +212,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting topic:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete topic' },
       { status: 500 }

@@ -151,13 +151,11 @@ export async function POST(request: NextRequest) {
         receiverId,
         `${currentUser.firstName} ${currentUser.lastName}`
       )
-    } catch (error) {
-      console.error('Failed to send notification:', error)
+    } catch {
     }
 
     return NextResponse.json(message, { status: 201 })
-  } catch (error) {
-    console.error('Error sending message:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to send message' },
       { status: 500 }
@@ -332,8 +330,7 @@ export async function GET(request: NextRequest) {
     )
 
     return NextResponse.json(conversations)
-  } catch (error) {
-    console.error('Error fetching messages:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch messages' },
       { status: 500 }

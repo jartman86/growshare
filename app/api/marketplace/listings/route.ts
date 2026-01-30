@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { ensureUser, ensureVerifiedUser, EmailNotVerifiedError } from '@/lib/ensure-user'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
@@ -88,8 +89,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(listings)
-  } catch (error) {
-    console.error('Error fetching marketplace listings:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch listings' },
       { status: 500 }
@@ -104,6 +104,15 @@ export async function POST(request: NextRequest) {
 
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 30 listings per minute per user
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, currentUser.clerkId),
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const body = await request.json()
@@ -216,7 +225,6 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       )
     }
-    console.error('Error creating marketplace listing:', error)
     return NextResponse.json(
       { error: 'Failed to create listing' },
       { status: 500 }

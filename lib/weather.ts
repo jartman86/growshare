@@ -63,7 +63,6 @@ interface OpenWeatherResponse {
 export async function fetchWeatherByCoords(lat: number, lon: number): Promise<WeatherData | null> {
   const apiKey = process.env.WEATHER_API_KEY
   if (!apiKey) {
-    console.error('WEATHER_API_KEY is not configured')
     return null
   }
 
@@ -72,7 +71,6 @@ export async function fetchWeatherByCoords(lat: number, lon: number): Promise<We
     const response = await fetch(url, { next: { revalidate: 1800 } }) // Cache for 30 minutes
 
     if (!response.ok) {
-      console.error('Weather API error:', response.statusText)
       return null
     }
 
@@ -101,8 +99,7 @@ export async function fetchWeatherByCoords(lat: number, lon: number): Promise<We
         lon: data.coord.lon,
       },
     }
-  } catch (error) {
-    console.error('Error fetching weather:', error)
+  } catch {
     return null
   }
 }
@@ -110,7 +107,6 @@ export async function fetchWeatherByCoords(lat: number, lon: number): Promise<We
 export async function fetchWeatherByCity(city: string, state?: string, country: string = 'US'): Promise<WeatherData | null> {
   const apiKey = process.env.WEATHER_API_KEY
   if (!apiKey) {
-    console.error('WEATHER_API_KEY is not configured')
     return null
   }
 
@@ -120,7 +116,6 @@ export async function fetchWeatherByCity(city: string, state?: string, country: 
     const response = await fetch(url, { next: { revalidate: 1800 } })
 
     if (!response.ok) {
-      console.error('Weather API error:', response.statusText)
       return null
     }
 
@@ -149,8 +144,7 @@ export async function fetchWeatherByCity(city: string, state?: string, country: 
         lon: data.coord.lon,
       },
     }
-  } catch (error) {
-    console.error('Error fetching weather:', error)
+  } catch {
     return null
   }
 }

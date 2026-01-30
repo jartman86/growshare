@@ -99,8 +99,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         },
       },
     })
-  } catch (error) {
-    console.error('Error verifying certificate:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to verify certificate' },
       { status: 500 }

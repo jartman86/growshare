@@ -78,8 +78,7 @@ export async function POST(request: NextRequest) {
       message: 'Your instructor application has been submitted! We will review it shortly.',
       application,
     })
-  } catch (error) {
-    console.error('Error submitting instructor application:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to submit application' },
       { status: 500 }

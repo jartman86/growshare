@@ -117,8 +117,7 @@ export function OnboardingWizard({ user, onComplete, onSkip }: OnboardingWizardP
 
       const uploadData = await uploadRes.json()
       setAvatar(uploadData.secure_url)
-    } catch (error) {
-      console.error('Error uploading avatar:', error)
+    } catch {
       alert('Failed to upload image. Please try again.')
     } finally {
       setIsUploading(false)
@@ -160,8 +159,7 @@ export function OnboardingWizard({ user, onComplete, onSkip }: OnboardingWizardP
       }
 
       onComplete()
-    } catch (error) {
-      console.error('Error completing onboarding:', error)
+    } catch {
       alert('Failed to save your profile. Please try again.')
     } finally {
       setIsLoading(false)

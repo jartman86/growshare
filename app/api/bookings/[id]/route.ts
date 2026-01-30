@@ -197,8 +197,8 @@ export async function PATCH(
       // Send notification to renter
       try {
         await notifyBookingApproved(booking.renterId, booking.plot.title, bookingId)
-      } catch (error) {
-        console.error('Failed to send notification:', error)
+      } catch {
+        // Notification failed silently
       }
     } else if (status === 'REJECTED') {
       // Create activity for renter
@@ -215,8 +215,8 @@ export async function PATCH(
       // Send notification to renter
       try {
         await notifyBookingRejected(booking.renterId, booking.plot.title, bookingId)
-      } catch (error) {
-        console.error('Failed to send notification:', error)
+      } catch {
+        // Notification failed silently
       }
     } else if (status === 'CANCELLED') {
       // Process refund if booking was paid
@@ -265,11 +265,10 @@ export async function PATCH(
                 bookingId,
                 refundPercentage
               )
-            } catch (error) {
-              console.error('Failed to send refund notification:', error)
+            } catch {
+              // Refund notification failed silently
             }
-          } catch (error) {
-            console.error('Failed to process refund:', error)
+          } catch {
             // Continue with cancellation even if refund fails - log for manual processing
           }
         }
@@ -308,14 +307,13 @@ export async function PATCH(
           ? `${booking.plot.owner.firstName} ${booking.plot.owner.lastName}`
           : `${booking.renter.firstName} ${booking.renter.lastName}`
         await notifyBookingCancelled(otherUserId, booking.plot.title, bookingId, cancelledBy)
-      } catch (error) {
-        console.error('Failed to send notification:', error)
+      } catch {
+        // Notification failed silently
       }
     }
 
     return NextResponse.json(updatedBooking)
-  } catch (error) {
-    console.error('Error updating booking:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update booking' },
       { status: 500 }
@@ -387,8 +385,7 @@ export async function GET(
     }
 
     return NextResponse.json(booking)
-  } catch (error) {
-    console.error('Error fetching booking:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch booking' },
       { status: 500 }

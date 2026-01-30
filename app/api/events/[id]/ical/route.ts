@@ -82,8 +82,7 @@ export async function GET(
         'Content-Disposition': `attachment; filename="${event.title.replace(/[^a-zA-Z0-9]/g, '_')}.ics"`,
       },
     })
-  } catch (error) {
-    console.error('Error generating iCal:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to generate calendar file' },
       { status: 500 }

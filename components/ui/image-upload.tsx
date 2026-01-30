@@ -58,7 +58,6 @@ export function ImageUpload({
 
       if (!uploadRes.ok) {
         const errorData = await uploadRes.json()
-        console.error('Cloudinary error:', errorData)
         throw new Error(errorData.error?.message || 'Upload failed')
       }
 
@@ -68,7 +67,6 @@ export function ImageUpload({
 
       return data.secure_url
     } catch (err) {
-      console.error('Upload error:', err)
       setUploadingFiles((prev) => prev.filter((f) => f.id !== fileId))
       throw err
     }

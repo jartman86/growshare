@@ -86,8 +86,7 @@ export async function GET(request: NextRequest) {
       limit,
       totalPages: Math.ceil(total / limit),
     })
-  } catch (error) {
-    console.error('Error fetching disputes:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch disputes' },
       { status: 500 }

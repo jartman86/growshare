@@ -67,8 +67,8 @@ export function SearchBar() {
           })
         })
         setResults(flattened)
-      } catch (error) {
-        console.error('Search error:', error)
+      } catch {
+        // Search error
       } finally {
         setLoading(false)
       }

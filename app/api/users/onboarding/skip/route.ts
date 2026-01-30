@@ -19,8 +19,7 @@ export async function POST() {
     })
 
     return NextResponse.json({ success: true, user })
-  } catch (error) {
-    console.error('Error skipping onboarding:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to skip onboarding' },
       { status: 500 }

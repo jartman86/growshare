@@ -61,8 +61,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(report)
-  } catch (error) {
-    console.error('Error fetching report:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch report' },
       { status: 500 }
@@ -109,8 +108,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json(report)
-  } catch (error) {
-    console.error('Error updating report:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update report' },
       { status: 500 }

@@ -125,8 +125,8 @@ export function ReviewCard({
       } else {
         onNotHelpful?.(review.id)
       }
-    } catch (error) {
-      console.error('Error voting:', error)
+    } catch {
+      // Error voting
     } finally {
       setIsVoting(false)
     }

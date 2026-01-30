@@ -79,8 +79,7 @@ export async function GET() {
         total: totalRevenue._sum.totalAmount || 0,
       },
     })
-  } catch (error) {
-    console.error('Error fetching admin stats:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch stats' },
       { status: 500 }

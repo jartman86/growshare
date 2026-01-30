@@ -25,8 +25,7 @@ export async function GET() {
     })
 
     return NextResponse.json(savedSearches)
-  } catch (error) {
-    console.error('Error fetching saved searches:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch saved searches' },
       { status: 500 }
@@ -83,8 +82,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(savedSearch, { status: 201 })
-  } catch (error) {
-    console.error('Error creating saved search:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create saved search' },
       { status: 500 }
@@ -138,8 +136,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Saved search deleted',
     })
-  } catch (error) {
-    console.error('Error deleting saved search:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete saved search' },
       { status: 500 }

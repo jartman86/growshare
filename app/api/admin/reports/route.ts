@@ -177,8 +177,7 @@ export async function GET(request: NextRequest) {
       limit,
       totalPages: Math.ceil(total / limit),
     })
-  } catch (error) {
-    console.error('Error fetching reports:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch reports' },
       { status: 500 }

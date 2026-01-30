@@ -49,8 +49,8 @@ export function SavedSearches({ currentFilters, onLoadSearch }: SavedSearchesPro
         const data = await response.json()
         setSavedSearches(data)
       }
-    } catch (err) {
-      console.error('Error fetching saved searches:', err)
+    } catch {
+      // Error fetching saved searches
     } finally {
       setIsLoading(false)
     }
@@ -102,8 +102,8 @@ export function SavedSearches({ currentFilters, onLoadSearch }: SavedSearchesPro
       if (response.ok) {
         setSavedSearches(prev => prev.filter(s => s.id !== searchId))
       }
-    } catch (err) {
-      console.error('Error deleting saved search:', err)
+    } catch {
+      // Error deleting saved search
     }
   }
 

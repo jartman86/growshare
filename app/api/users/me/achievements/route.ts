@@ -92,8 +92,7 @@ export async function GET() {
       streak,
       nextBadge,
     })
-  } catch (error) {
-    console.error('Error fetching achievements:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch achievements' }, { status: 500 })
   }
 }

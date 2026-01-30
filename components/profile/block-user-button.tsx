@@ -31,8 +31,8 @@ export function BlockUserButton({ userId, username, isBlocked, onBlockChange }: 
       setBlocked(true)
       setShowConfirm(false)
       onBlockChange?.()
-    } catch (error) {
-      console.error('Error blocking user:', error)
+    } catch {
+      // Error blocking user
     } finally {
       setIsLoading(false)
     }
@@ -51,8 +51,8 @@ export function BlockUserButton({ userId, username, isBlocked, onBlockChange }: 
 
       setBlocked(false)
       onBlockChange?.()
-    } catch (error) {
-      console.error('Error unblocking user:', error)
+    } catch {
+      // Error unblocking user
     } finally {
       setIsLoading(false)
     }

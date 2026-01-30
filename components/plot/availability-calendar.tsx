@@ -118,8 +118,7 @@ export function AvailabilityCalendar({
 
       setBookedDates(bookings)
       setBlockedDates(blocked)
-    } catch (err) {
-      console.error('Error fetching availability:', err)
+    } catch {
       setError('Unable to load availability. Please try again.')
     } finally {
       setLoading(false)
@@ -246,8 +245,8 @@ export function AvailabilityCalendar({
       if (!res.ok) throw new Error('Failed to unblock')
       invalidateCache()
       fetchAvailability(true)
-    } catch (error) {
-      console.error('Error unblocking dates:', error)
+    } catch {
+      // Error unblocking dates - silently ignore
     }
   }
 

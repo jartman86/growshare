@@ -91,8 +91,7 @@ export async function GET(request: NextRequest) {
     }))
 
     return NextResponse.json(tipsWithVotes)
-  } catch (error) {
-    console.error('Error fetching community tips:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch community tips' },
       { status: 500 }
@@ -197,8 +196,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(tip, { status: 201 })
-  } catch (error) {
-    console.error('Error creating community tip:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create tip' },
       { status: 500 }

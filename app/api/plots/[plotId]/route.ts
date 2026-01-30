@@ -18,7 +18,6 @@ async function geocodeAddress(address: string, city: string, state: string, zipC
     )
 
     if (!response.ok) {
-      console.error('Geocoding API error:', response.statusText)
       return null
     }
 
@@ -32,8 +31,7 @@ async function geocodeAddress(address: string, city: string, state: string, zipC
     }
 
     return null
-  } catch (error) {
-    console.error('Geocoding error:', error)
+  } catch {
     return null
   }
 }
@@ -104,8 +102,7 @@ export async function GET(
     })
 
     return NextResponse.json(plot)
-  } catch (error) {
-    console.error('Error fetching plot:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch plot' },
       { status: 500 }
@@ -236,8 +233,7 @@ export async function PATCH(
     })
 
     return NextResponse.json(updatedPlot)
-  } catch (error) {
-    console.error('Error updating plot:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update plot' },
       { status: 500 }
@@ -303,8 +299,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting plot:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete plot' },
       { status: 500 }

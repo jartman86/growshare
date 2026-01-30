@@ -99,8 +99,7 @@ export async function GET(request: NextRequest) {
     }))
 
     return NextResponse.json({ events: eventsWithStatus })
-  } catch (error) {
-    console.error('Error fetching events:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch events' },
       { status: 500 }

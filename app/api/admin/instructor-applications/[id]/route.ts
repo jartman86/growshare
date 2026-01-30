@@ -123,8 +123,7 @@ export async function PATCH(
       message: `Application ${status.toLowerCase()}`,
       application: updatedApplication,
     })
-  } catch (error) {
-    console.error('Error updating instructor application:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update application' },
       { status: 500 }
@@ -184,8 +183,7 @@ export async function GET(
     }
 
     return NextResponse.json({ application })
-  } catch (error) {
-    console.error('Error fetching instructor application:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch application' },
       { status: 500 }

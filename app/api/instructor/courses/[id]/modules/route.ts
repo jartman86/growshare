@@ -38,8 +38,7 @@ export async function GET(
     })
 
     return NextResponse.json({ modules })
-  } catch (error) {
-    console.error('Error fetching modules:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch modules' },
       { status: 500 }
@@ -113,8 +112,7 @@ export async function POST(
       success: true,
       module,
     })
-  } catch (error) {
-    console.error('Error creating module:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create module' },
       { status: 500 }
@@ -185,8 +183,7 @@ export async function PATCH(
       success: true,
       modules,
     })
-  } catch (error) {
-    console.error('Error reordering modules:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to reorder modules' },
       { status: 500 }

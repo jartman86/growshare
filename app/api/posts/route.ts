@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // Helper function to validate URLs
 function isValidUrl(urlString: string): boolean {
@@ -57,8 +58,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(posts)
-  } catch (error) {
-    console.error('Error fetching posts:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch posts' },
       { status: 500 }
@@ -72,6 +72,15 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 30 posts per minute per user
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const user = await prisma.user.findUnique({
@@ -223,8 +232,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, post })
-  } catch (error) {
-    console.error('Error creating post:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create post' },
       { status: 500 }

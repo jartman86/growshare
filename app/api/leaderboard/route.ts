@@ -131,8 +131,7 @@ export async function GET(request: NextRequest) {
       .filter(Boolean)
 
     return NextResponse.json(formattedUsers)
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
   }
 }

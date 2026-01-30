@@ -40,8 +40,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(tip)
-  } catch (error) {
-    console.error('Error fetching tip:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch tip' },
       { status: 500 }
@@ -156,8 +155,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json(updatedTip)
-  } catch (error) {
-    console.error('Error updating tip:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update tip' },
       { status: 500 }
@@ -214,8 +212,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting tip:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete tip' },
       { status: 500 }

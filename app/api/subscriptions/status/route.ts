@@ -40,8 +40,7 @@ export async function GET(request: NextRequest) {
         cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
       },
     })
-  } catch (error) {
-    console.error('Error fetching subscription status:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch subscription status' },
       { status: 500 }

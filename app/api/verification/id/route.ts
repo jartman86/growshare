@@ -79,8 +79,7 @@ export async function POST(request: NextRequest) {
       message: 'ID verification submitted for review',
       requestId: verificationRequest.id,
     }, { status: 201 })
-  } catch (error) {
-    console.error('Error submitting ID verification:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to submit ID verification' },
       { status: 500 }
@@ -162,8 +161,7 @@ export async function GET() {
       pendingRequests,
       recentRejected,
     })
-  } catch (error) {
-    console.error('Error fetching verification status:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch verification status' },
       { status: 500 }

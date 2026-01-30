@@ -85,8 +85,7 @@ export async function POST(
       message: 'Successfully enrolled',
       alreadyEnrolled: false,
     })
-  } catch (error) {
-    console.error('Error enrolling in course:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to enroll' },
       { status: 500 }

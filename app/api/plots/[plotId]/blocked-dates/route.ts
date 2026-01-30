@@ -16,8 +16,7 @@ export async function GET(
     })
 
     return NextResponse.json(blockedDates)
-  } catch (error) {
-    console.error('Error fetching blocked dates:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch blocked dates' },
       { status: 500 }
@@ -118,8 +117,7 @@ export async function POST(
     })
 
     return NextResponse.json(blockedDate, { status: 201 })
-  } catch (error) {
-    console.error('Error creating blocked date:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to block dates' },
       { status: 500 }
@@ -195,8 +193,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting blocked date:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to unblock dates' },
       { status: 500 }

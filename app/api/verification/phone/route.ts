@@ -25,11 +25,9 @@ async function sendSMS(phoneNumber: string, code: string): Promise<boolean> {
   if (!accountSid || !authToken || !fromNumber) {
     // In production, fail if Twilio is not configured
     if (process.env.NODE_ENV === 'production') {
-      console.error('Twilio is not configured - cannot send SMS in production')
       return false
     }
-    // In development, log the code for testing
-    console.log(`[DEV] Phone verification code for ${phoneNumber}: ${code}`)
+    // In development, allow without sending SMS
     return true
   }
 
@@ -51,8 +49,7 @@ async function sendSMS(phoneNumber: string, code: string): Promise<boolean> {
     )
 
     return response.ok
-  } catch (error) {
-    console.error('Error sending SMS:', error)
+  } catch {
     return false
   }
 }
@@ -155,8 +152,7 @@ export async function POST(request: NextRequest) {
       message: 'Verification code sent',
       expiresAt: expiresAt.toISOString(),
     })
-  } catch (error) {
-    console.error('Error sending verification code:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to send verification code' },
       { status: 500 }
@@ -249,8 +245,7 @@ export async function PUT(request: NextRequest) {
       success: true,
       message: 'Phone number verified',
     })
-  } catch (error) {
-    console.error('Error verifying phone:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to verify phone' },
       { status: 500 }

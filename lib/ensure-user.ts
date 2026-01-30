@@ -111,8 +111,7 @@ export async function ensureUser() {
     }
 
     return user
-  } catch (error) {
-    console.error('Error auto-syncing user:', error)
+  } catch {
     // User may have been created by another request - try to fetch again
     return prisma.user.findUnique({
       where: { clerkId: userId },

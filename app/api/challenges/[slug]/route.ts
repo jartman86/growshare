@@ -170,8 +170,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json(response)
-  } catch (error) {
-    console.error('Error fetching challenge:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch challenge' }, { status: 500 })
   }
 }

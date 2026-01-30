@@ -122,8 +122,7 @@ export async function POST(
       attendeeCount: updatedCount,
       spotsLeft: event.capacity ? event.capacity - updatedCount : null,
     })
-  } catch (error) {
-    console.error('Error RSVPing to event:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to RSVP' },
       { status: 500 }
@@ -186,8 +185,7 @@ export async function DELETE(
       attendeeCount: updatedCount,
       spotsLeft: event?.capacity ? event.capacity - updatedCount : null,
     })
-  } catch (error) {
-    console.error('Error cancelling RSVP:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to cancel RSVP' },
       { status: 500 }

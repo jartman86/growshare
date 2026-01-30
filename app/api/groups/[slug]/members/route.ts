@@ -56,8 +56,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       members: formattedMembers,
       total: formattedMembers.length,
     })
-  } catch (error) {
-    console.error('Error fetching members:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch members' }, { status: 500 })
   }
 }
@@ -155,8 +154,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         role: updatedMembership.role.toLowerCase(),
       },
     })
-  } catch (error) {
-    console.error('Error updating member role:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to update member role' }, { status: 500 })
   }
 }
@@ -230,8 +228,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error removing member:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to remove member' }, { status: 500 })
   }
 }

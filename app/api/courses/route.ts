@@ -55,8 +55,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({ courses })
-  } catch (error) {
-    console.error('Error fetching courses:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch courses' },
       { status: 500 }

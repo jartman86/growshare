@@ -38,8 +38,7 @@ export async function GET(
     }
 
     return NextResponse.json(review)
-  } catch (error) {
-    console.error('Error fetching review:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch review' },
       { status: 500 }
@@ -203,8 +202,7 @@ export async function PATCH(
     }
 
     return NextResponse.json(updatedReview)
-  } catch (error) {
-    console.error('Error updating review:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update review' },
       { status: 500 }
@@ -278,8 +276,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting review:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete review' },
       { status: 500 }

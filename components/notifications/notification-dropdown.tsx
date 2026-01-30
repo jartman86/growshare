@@ -52,8 +52,8 @@ export function NotificationDropdown() {
         const data = await response.json()
         setUnreadCount(data.count)
       }
-    } catch (error) {
-      console.error('Error fetching unread count:', error)
+    } catch {
+      // Error fetching unread count
     }
   }
 
@@ -65,8 +65,8 @@ export function NotificationDropdown() {
         const data = await response.json()
         setNotifications(data)
       }
-    } catch (error) {
-      console.error('Error fetching notifications:', error)
+    } catch {
+      // Error fetching notifications
     } finally {
       setIsLoading(false)
     }
@@ -83,8 +83,8 @@ export function NotificationDropdown() {
         setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n))
         setUnreadCount(prev => Math.max(0, prev - 1))
       }
-    } catch (error) {
-      console.error('Error marking notification as read:', error)
+    } catch {
+      // Error marking notification as read
     }
   }
 
@@ -99,8 +99,8 @@ export function NotificationDropdown() {
         setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
         setUnreadCount(0)
       }
-    } catch (error) {
-      console.error('Error marking all as read:', error)
+    } catch {
+      // Error marking all as read
     }
   }
 

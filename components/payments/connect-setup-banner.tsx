@@ -52,8 +52,8 @@ export function ConnectSetupBanner() {
           role: ['LANDOWNER'],
         })
       }
-    } catch (error) {
-      console.error('Error fetching banner data:', error)
+    } catch {
+      // Error fetching banner data
     } finally {
       setIsLoading(false)
     }

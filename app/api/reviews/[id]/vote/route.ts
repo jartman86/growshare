@@ -137,8 +137,7 @@ export async function POST(
       ...updatedReview,
       userVote: userVote?.value || null,
     })
-  } catch (error) {
-    console.error('Error voting on review:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to vote on review' },
       { status: 500 }
@@ -178,8 +177,7 @@ export async function GET(
     })
 
     return NextResponse.json({ userVote: vote?.value || null })
-  } catch (error) {
-    console.error('Error getting vote:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to get vote' },
       { status: 500 }

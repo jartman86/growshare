@@ -114,8 +114,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     })
 
     return NextResponse.json(review, { status: 201 })
-  } catch (error) {
-    console.error('Error creating review:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create review' },
       { status: 500 }

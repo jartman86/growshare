@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
@@ -87,8 +88,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit),
       },
     })
-  } catch (error) {
-    console.error('Error fetching forum topics:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch topics' },
       { status: 500 }
@@ -101,6 +101,15 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 30 topics per minute per user
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, userId),
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const currentUser = await prisma.user.findUnique({
@@ -173,8 +182,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(topic, { status: 201 })
-  } catch (error) {
-    console.error('Error creating forum topic:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create topic' },
       { status: 500 }

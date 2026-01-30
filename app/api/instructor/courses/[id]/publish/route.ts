@@ -79,8 +79,7 @@ export async function POST(
       success: true,
       course: updatedCourse,
     })
-  } catch (error) {
-    console.error('Error publishing course:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to publish course' },
       { status: 500 }
@@ -131,8 +130,7 @@ export async function DELETE(
       success: true,
       course: updatedCourse,
     })
-  } catch (error) {
-    console.error('Error unpublishing course:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to unpublish course' },
       { status: 500 }

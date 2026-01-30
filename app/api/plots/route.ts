@@ -80,7 +80,6 @@ async function geocodeAddress(address: string, city: string, state: string, zipC
     )
 
     if (!response.ok) {
-      console.error('Geocoding API error:', response.statusText)
       return null
     }
 
@@ -94,8 +93,7 @@ async function geocodeAddress(address: string, city: string, state: string, zipC
     }
 
     return null
-  } catch (error) {
-    console.error('Geocoding error:', error)
+  } catch {
     return null
   }
 }
@@ -326,8 +324,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(plotMarkers)
-  } catch (error) {
-    console.error('Error fetching plots:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch plots' },
       { status: 500 }
@@ -550,7 +547,6 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       )
     }
-    console.error('Error creating plot:', error)
     return NextResponse.json(
       { error: 'Failed to create plot' },
       { status: 500 }

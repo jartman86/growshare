@@ -146,7 +146,7 @@ export function BookingPaymentModal({
                 entityId={booking.id}
                 amount={booking.totalAmount}
                 onSuccess={handlePaymentSuccess}
-                onError={(error) => console.error('Payment error:', error)}
+                onError={() => {}}
               />
             </>
           )}

@@ -172,8 +172,7 @@ export async function GET(request: NextRequest) {
       recentTransactions,
       period,
     })
-  } catch (error) {
-    console.error('Error fetching earnings:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch earnings' }, { status: 500 })
   }
 }

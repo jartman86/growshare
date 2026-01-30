@@ -117,8 +117,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           where: { id: currentUser.id },
           data: { totalPoints: { increment: taskPoints } },
         })
-      } catch (error) {
-        console.error('Error awarding task points:', error)
+      } catch {
+        // Silently ignore - points tracking is optional
       }
     }
 
@@ -162,8 +162,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             })
           }
         }
-      } catch (error) {
-        console.error('Error awarding completion rewards:', error)
+      } catch {
+        // Silently ignore - rewards tracking is optional
       }
     }
 
@@ -179,8 +179,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       challengeCompleted: isNowCompleted,
       completionPointsAwarded: isNowCompleted ? challenge.pointsReward : 0,
     })
-  } catch (error) {
-    console.error('Error updating progress:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to update progress' }, { status: 500 })
   }
 }

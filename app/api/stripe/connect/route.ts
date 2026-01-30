@@ -62,8 +62,7 @@ export async function GET(request: NextRequest) {
       chargesEnabled: account.charges_enabled,
       payoutsEnabled: account.payouts_enabled,
     })
-  } catch (error) {
-    console.error('Error getting connect account:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to get connect account status' },
       { status: 500 }
@@ -150,8 +149,7 @@ export async function POST(request: NextRequest) {
       { error: 'Invalid action or account state' },
       { status: 400 }
     )
-  } catch (error) {
-    console.error('Error with connect account:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to process connect account request' },
       { status: 500 }

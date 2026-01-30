@@ -104,8 +104,7 @@ export async function GET(request: NextRequest) {
       completedCourses: courses.filter(c => c.isCompleted).length,
       inProgressCourses: courses.filter(c => !c.isCompleted && c.progressPercent > 0).length,
     })
-  } catch (error) {
-    console.error('Error fetching my courses:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch courses' },
       { status: 500 }

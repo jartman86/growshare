@@ -41,8 +41,7 @@ export async function GET(
     }
 
     return NextResponse.json({ module })
-  } catch (error) {
-    console.error('Error fetching module:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch module' },
       { status: 500 }
@@ -116,8 +115,7 @@ export async function PATCH(
       success: true,
       module,
     })
-  } catch (error) {
-    console.error('Error updating module:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update module' },
       { status: 500 }
@@ -186,8 +184,7 @@ export async function DELETE(
     )
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting module:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete module' },
       { status: 500 }

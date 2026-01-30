@@ -61,8 +61,7 @@ export async function GET() {
       totalEarnings,
       totalViews,
     })
-  } catch (error) {
-    console.error('Error fetching instructor courses:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch courses' },
       { status: 500 }
@@ -164,8 +163,7 @@ export async function POST(request: NextRequest) {
       success: true,
       course,
     })
-  } catch (error) {
-    console.error('Error creating course:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create course' },
       { status: 500 }

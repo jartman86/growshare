@@ -150,8 +150,7 @@ export async function POST(request: NextRequest) {
       refundId: refund.id,
       message: `Successfully refunded ${refundPercentage}% ($${centsToDollars(refundAmount).toFixed(2)})`,
     })
-  } catch (error) {
-    console.error('Error processing refund:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to process refund' },
       { status: 500 }
@@ -250,8 +249,7 @@ export async function GET(request: NextRequest) {
         '<3 days': 'No refund',
       },
     })
-  } catch (error) {
-    console.error('Error checking refund eligibility:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to check refund eligibility' },
       { status: 500 }

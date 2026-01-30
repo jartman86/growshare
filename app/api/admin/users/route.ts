@@ -94,8 +94,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit),
       },
     })
-  } catch (error) {
-    console.error('Error fetching users:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch users' },
       { status: 500 }
@@ -211,8 +210,7 @@ export async function PATCH(request: NextRequest) {
     })
 
     return NextResponse.json(updatedUser)
-  } catch (error) {
-    console.error('Error updating user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update user' },
       { status: 500 }

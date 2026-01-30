@@ -65,8 +65,8 @@ export function PrivacySettings() {
         const blockedData = await blockedRes.json()
         setBlockedUsers(blockedData)
       }
-    } catch (err) {
-      console.error('Error fetching privacy data:', err)
+    } catch {
+      // Error fetching privacy data
     } finally {
       setIsLoading(false)
     }

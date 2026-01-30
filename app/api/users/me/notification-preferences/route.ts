@@ -37,8 +37,7 @@ export async function GET() {
     }
 
     return NextResponse.json(preferences)
-  } catch (error) {
-    console.error('Error fetching notification preferences:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch notification preferences' },
       { status: 500 }
@@ -106,8 +105,7 @@ export async function PATCH(request: NextRequest) {
     })
 
     return NextResponse.json(preferences)
-  } catch (error) {
-    console.error('Error updating notification preferences:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update notification preferences' },
       { status: 500 }

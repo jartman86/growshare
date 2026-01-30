@@ -66,8 +66,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(rentals)
-  } catch (error) {
-    console.error('Error fetching tool rentals:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch rentals' },
       { status: 500 }
@@ -231,8 +230,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(rental, { status: 201 })
-  } catch (error) {
-    console.error('Error creating tool rental:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create rental request' },
       { status: 500 }

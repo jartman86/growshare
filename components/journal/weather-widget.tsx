@@ -45,7 +45,6 @@ export function WeatherWidget({ weatherData, onCapture, onClear, isCompact = fal
         setError('Geolocation is not supported by your browser')
       }
     } catch (err) {
-      console.error('Error capturing weather:', err)
       if (err instanceof GeolocationPositionError) {
         switch (err.code) {
           case err.PERMISSION_DENIED:

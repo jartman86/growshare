@@ -146,7 +146,6 @@ export function ListingForm() {
       // Redirect to success page
       router.push('/list-plot/success')
     } catch (err) {
-      console.error('Error submitting listing:', err)
       setError(err instanceof Error ? err.message : 'An unexpected error occurred')
       setIsSubmitting(false)
     }

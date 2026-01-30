@@ -70,8 +70,7 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json(tools)
-  } catch (error) {
-    console.error('Error fetching tools:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch tools' },
       { status: 500 }
@@ -175,8 +174,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(tool, { status: 201 })
-  } catch (error) {
-    console.error('Error creating tool:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create tool listing' },
       { status: 500 }

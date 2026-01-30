@@ -38,8 +38,8 @@ export function NewMessageModal({ isOpen, onClose, onSend }: NewMessageModalProp
         const data = await response.json()
         setUsers(data)
       }
-    } catch (error) {
-      console.error('Error fetching users:', error)
+    } catch {
+      // Silently ignore errors fetching users
     } finally {
       setIsLoading(false)
     }

@@ -30,8 +30,7 @@ export async function GET() {
     })
 
     return NextResponse.json(plots)
-  } catch (error) {
-    console.error('Error fetching user plots:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch plots' },
       { status: 500 }

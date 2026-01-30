@@ -113,8 +113,8 @@ export function PlotReviewCard({
       setHelpfulCount(data.helpfulCount)
       setNotHelpfulCount(data.notHelpfulCount)
       setUserVote(data.userVote)
-    } catch (error) {
-      console.error('Error voting:', error)
+    } catch {
+      // Error voting
     } finally {
       setIsVoting(false)
     }

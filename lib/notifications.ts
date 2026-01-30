@@ -101,7 +101,6 @@ export async function createNotification(params: CreateNotificationParams) {
     })
     return notification
   } catch (error) {
-    console.error('Error creating notification:', error)
     throw error
   }
 }
@@ -140,8 +139,8 @@ export async function notifyBookingRequest(
         endDate,
       })
     }
-  } catch (error) {
-    console.error('Error sending booking request email:', error)
+  } catch {
+    // Email sending failed silently
   }
 
   return notification
@@ -177,8 +176,8 @@ export async function notifyBookingApproved(
         startDate,
       })
     }
-  } catch (error) {
-    console.error('Error sending booking approved email:', error)
+  } catch {
+    // Email sending failed silently
   }
 
   return notification
@@ -204,8 +203,8 @@ export async function notifyBookingRejected(renterId: string, plotTitle: string,
     if (renter?.email) {
       await sendBookingRejectedEmail(renterId, renter.email, { plotTitle })
     }
-  } catch (error) {
-    console.error('Error sending booking rejected email:', error)
+  } catch {
+    // Email sending failed silently
   }
 
   return notification
@@ -241,8 +240,8 @@ export async function notifyNewMessage(receiverId: string, senderName: string) {
     if (receiver?.email) {
       await sendNewMessageEmail(receiverId, receiver.email, { senderName })
     }
-  } catch (error) {
-    console.error('Error sending new message email:', error)
+  } catch {
+    // Email sending failed silently
   }
 
   return notification
@@ -272,8 +271,8 @@ export async function notifyNewReview(plotOwnerId: string, plotTitle: string, re
         rating,
       })
     }
-  } catch (error) {
-    console.error('Error sending new review email:', error)
+  } catch {
+    // Email sending failed silently
   }
 
   return notification
@@ -299,8 +298,8 @@ export async function notifyPaymentReceived(userId: string, amount: string, desc
     if (user?.email) {
       await sendPaymentReceivedEmail(userId, user.email, { amount, description })
     }
-  } catch (error) {
-    console.error('Error sending payment received email:', error)
+  } catch {
+    // Email sending failed silently
   }
 
   return notification

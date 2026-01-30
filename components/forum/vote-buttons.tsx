@@ -60,13 +60,11 @@ export function VoteButtons({
         // Revert optimistic update
         setScore(previousScore)
         setUserVote(previousUserVote)
-        console.error('Vote failed')
       }
-    } catch (error) {
+    } catch {
       // Revert optimistic update
       setScore(previousScore)
       setUserVote(previousUserVote)
-      console.error('Vote error:', error)
     } finally {
       setIsVoting(false)
     }

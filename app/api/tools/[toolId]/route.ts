@@ -45,8 +45,7 @@ export async function GET(
     }
 
     return NextResponse.json(tool)
-  } catch (error) {
-    console.error('Error fetching tool:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch tool' },
       { status: 500 }
@@ -126,8 +125,7 @@ export async function PATCH(
     })
 
     return NextResponse.json(tool)
-  } catch (error) {
-    console.error('Error updating tool:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update tool' },
       { status: 500 }
@@ -190,8 +188,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting tool:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete tool' },
       { status: 500 }

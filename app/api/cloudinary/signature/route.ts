@@ -35,8 +35,7 @@ export async function GET(request: NextRequest) {
     const params = generateUploadParams(folder)
 
     return NextResponse.json(params)
-  } catch (error) {
-    console.error('Error generating upload signature:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to generate upload signature' },
       { status: 500 }

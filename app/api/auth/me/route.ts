@@ -34,8 +34,7 @@ export async function GET() {
         hasUsername: !!user.username,
       }
     })
-  } catch (error) {
-    console.error('Error fetching user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch user' },
       { status: 500 }

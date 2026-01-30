@@ -84,8 +84,7 @@ export async function GET(request: NextRequest) {
     }))
 
     return NextResponse.json(formattedChallenges)
-  } catch (error) {
-    console.error('Error fetching challenges:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch challenges' }, { status: 500 })
   }
 }
@@ -158,8 +157,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(challenge, { status: 201 })
-  } catch (error) {
-    console.error('Error creating challenge:', error)
+  } catch {
     return NextResponse.json({ error: 'Failed to create challenge' }, { status: 500 })
   }
 }

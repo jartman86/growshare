@@ -147,8 +147,7 @@ export async function GET(
       reason: 'unknown',
       course,
     })
-  } catch (error) {
-    console.error('Error checking course access:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to check access' },
       { status: 500 }

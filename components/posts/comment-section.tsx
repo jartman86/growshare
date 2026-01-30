@@ -41,8 +41,8 @@ export function CommentSection({ postId, isSignedIn }: CommentSectionProps) {
         const data = await response.json()
         setComments(data)
       }
-    } catch (error) {
-      console.error('Error fetching comments:', error)
+    } catch {
+      // Silently ignore errors fetching comments
     } finally {
       setLoading(false)
     }
@@ -68,8 +68,8 @@ export function CommentSection({ postId, isSignedIn }: CommentSectionProps) {
         setComments([comment, ...comments])
         setNewComment('')
       }
-    } catch (error) {
-      console.error('Error posting comment:', error)
+    } catch {
+      // Silently ignore errors posting comment
     } finally {
       setSubmitting(false)
     }

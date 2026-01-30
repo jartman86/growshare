@@ -88,7 +88,6 @@ export function TopicForm({ onClose, initialData, mode = 'create' }: TopicFormPr
       router.push(`/community/${topic.id}`)
       router.refresh()
     } catch (err) {
-      console.error('Error saving topic:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
       setIsSubmitting(false)
     }

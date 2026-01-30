@@ -87,8 +87,7 @@ export async function GET(
       html,
       generatedAt: new Date().toISOString(),
     })
-  } catch (error) {
-    console.error('Error fetching lease:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch lease' },
       { status: 500 }
@@ -161,8 +160,7 @@ export async function POST(
       leaseUrl,
       message: 'Lease document generated successfully',
     }, { status: 201 })
-  } catch (error) {
-    console.error('Error generating lease:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to generate lease' },
       { status: 500 }

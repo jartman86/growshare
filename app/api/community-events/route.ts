@@ -94,8 +94,7 @@ export async function GET(request: NextRequest) {
     }))
 
     return NextResponse.json(transformedEvents)
-  } catch (error) {
-    console.error('Error fetching community events:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch events' },
       { status: 500 }
@@ -215,8 +214,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(event, { status: 201 })
-  } catch (error) {
-    console.error('Error creating community event:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create event' },
       { status: 500 }

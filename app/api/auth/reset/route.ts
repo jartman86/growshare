@@ -18,8 +18,6 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log(`Resetting user with Clerk ID: ${userId}`)
-
     // Find the user
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
@@ -32,15 +30,10 @@ export async function POST() {
       })
     }
 
-    console.log(`Found user: ${user.email} (ID: ${user.id})`)
-    console.log('Deleting user and all related records...')
-
     // Delete the user (cascades to related records)
     await prisma.user.delete({
       where: { id: user.id },
     })
-
-    console.log('✅ User deleted successfully!')
 
     return NextResponse.json({
       message: 'User reset successfully! Now visit /api/auth/sync to recreate your account with a username.',
@@ -49,8 +42,7 @@ export async function POST() {
         clerkId: userId
       }
     })
-  } catch (error) {
-    console.error('Error resetting user:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to reset user' },
       { status: 500 }

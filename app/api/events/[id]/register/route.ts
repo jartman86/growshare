@@ -82,8 +82,7 @@ export async function POST(
       message: 'Successfully registered',
       alreadyRegistered: false,
     })
-  } catch (error) {
-    console.error('Error registering for event:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to register' },
       { status: 500 }
@@ -136,8 +135,7 @@ export async function DELETE(
       success: true,
       message: 'Successfully unregistered',
     })
-  } catch (error) {
-    console.error('Error unregistering from event:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to unregister' },
       { status: 500 }

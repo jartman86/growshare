@@ -85,9 +85,8 @@ export function EmailPreferencesForm() {
       }
       const data = await response.json()
       setPreferences(data)
-    } catch (err) {
+    } catch {
       setError('Failed to load email preferences')
-      console.error('Error fetching preferences:', err)
     } finally {
       setIsLoading(false)
     }
@@ -117,11 +116,10 @@ export function EmailPreferencesForm() {
 
       setSuccessMessage('Preference updated')
       setTimeout(() => setSuccessMessage(null), 2000)
-    } catch (err) {
+    } catch {
       // Revert optimistic update
       setPreferences(previousPreferences)
       setError('Failed to save preference')
-      console.error('Error updating preference:', err)
     } finally {
       setIsSaving(false)
     }
@@ -156,10 +154,9 @@ export function EmailPreferencesForm() {
 
       setSuccessMessage(value ? 'All notifications enabled' : 'All notifications disabled')
       setTimeout(() => setSuccessMessage(null), 2000)
-    } catch (err) {
+    } catch {
       setPreferences(previousPreferences)
       setError('Failed to save preferences')
-      console.error('Error updating preferences:', err)
     } finally {
       setIsSaving(false)
     }

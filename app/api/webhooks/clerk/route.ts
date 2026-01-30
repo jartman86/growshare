@@ -39,8 +39,7 @@ export async function POST(req: Request) {
       'svix-timestamp': svix_timestamp,
       'svix-signature': svix_signature,
     }) as WebhookEvent
-  } catch (err) {
-    console.error('Error verifying webhook:', err)
+  } catch {
     return new Response('Error occured', {
       status: 400,
     })
@@ -133,8 +132,7 @@ export async function POST(req: Request) {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
-    } catch (error) {
-      console.error('Error creating user:', error)
+    } catch {
       return new Response(JSON.stringify({ error: 'Failed to create user' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -193,8 +191,7 @@ export async function POST(req: Request) {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
-    } catch (error) {
-      console.error('Error updating user:', error)
+    } catch {
       return new Response(JSON.stringify({ error: 'Failed to update user' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -214,8 +211,7 @@ export async function POST(req: Request) {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       })
-    } catch (error) {
-      console.error('Error deleting user:', error)
+    } catch {
       return new Response(JSON.stringify({ error: 'Failed to delete user' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },

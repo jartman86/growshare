@@ -114,8 +114,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ action: 'created', value: vote.value }, { status: 201 })
-  } catch (error) {
-    console.error('Error processing vote:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to process vote' },
       { status: 500 }
@@ -174,8 +173,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(voteMap)
-  } catch (error) {
-    console.error('Error fetching votes:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch votes' },
       { status: 500 }

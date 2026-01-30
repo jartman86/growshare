@@ -152,7 +152,7 @@ export function Header() {
             setIsInstructor(true)
           }
         })
-        .catch((err) => console.error('Failed to fetch profile:', err))
+        .catch(() => {})
     }
   }, [isSignedIn])
 
@@ -168,7 +168,7 @@ export function Header() {
             setUnreadMessagesCount(data.count)
           }
         })
-        .catch((err) => console.error('Failed to fetch unread count:', err))
+        .catch(() => {})
     }
 
     fetchUnreadCount()

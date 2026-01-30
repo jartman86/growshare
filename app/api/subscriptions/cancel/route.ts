@@ -46,8 +46,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Subscription will be canceled at the end of the billing period',
     })
-  } catch (error) {
-    console.error('Error canceling subscription:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to cancel subscription' },
       { status: 500 }
@@ -101,8 +100,7 @@ export async function DELETE(request: NextRequest) {
       success: true,
       message: 'Subscription reactivated',
     })
-  } catch (error) {
-    console.error('Error reactivating subscription:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to reactivate subscription' },
       { status: 500 }

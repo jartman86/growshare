@@ -34,8 +34,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       text: options.text || options.html.replace(/<[^>]*>/g, ''),
     })
     return true
-  } catch (error) {
-    console.error('Error sending email:', error)
+  } catch {
     return false
   }
 }

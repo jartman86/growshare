@@ -171,8 +171,7 @@ export async function POST(
       amount: course.price,
       courseTitle: course.title,
     })
-  } catch (error) {
-    console.error('Error creating course purchase:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create purchase' },
       { status: 500 }

@@ -118,8 +118,7 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(reply, { status: 201 })
-  } catch (error) {
-    console.error('Error creating forum reply:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to create reply' },
       { status: 500 }

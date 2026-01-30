@@ -122,8 +122,8 @@ export function EnrollButton({ course }: EnrollButtonProps) {
       const response = await fetch(`/api/courses/${course.id}/access`)
       const data = await response.json()
       setAccessStatus(data)
-    } catch (error) {
-      console.error('Error checking access:', error)
+    } catch {
+      // Error checking access
     }
   }
 

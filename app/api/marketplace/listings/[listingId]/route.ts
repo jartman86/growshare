@@ -42,8 +42,7 @@ export async function GET(
       soldCount: listing.orders.length,
       orders: undefined,
     })
-  } catch (error) {
-    console.error('Error fetching listing:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to fetch listing' },
       { status: 500 }
@@ -130,8 +129,7 @@ export async function PATCH(
     })
 
     return NextResponse.json(listing)
-  } catch (error) {
-    console.error('Error updating listing:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to update listing' },
       { status: 500 }
@@ -197,8 +195,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error deleting listing:', error)
+  } catch {
     return NextResponse.json(
       { error: 'Failed to delete listing' },
       { status: 500 }
