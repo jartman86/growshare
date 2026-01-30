@@ -41,3 +41,18 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 server.log
+
+# PWA
+public/sw.js
+public/sw.js.map
+public/swe-worker-*.js
+public/workbox-*.js
+public/workbox-*.js.map
+
+# Capacitor
+ios/App/App/public
+ios/App/Pods
+ios/DerivedData
+android/app/build
+android/.gradle
+*.keystore
