@@ -1126,6 +1126,8 @@ model Message {
   @@index([receiverId])
   @@index([bookingId])
   @@index([createdAt])
+  @@index([senderId, receiverId, createdAt]) // Composite index for conversation queries
+  @@index([receiverId, isRead]) // Index for unread message counts
 }
 
 // ============================================

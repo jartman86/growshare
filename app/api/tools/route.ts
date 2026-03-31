@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { ensureVerifiedUser } from '@/lib/ensure-user'
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,28 +50,44 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    const tools = await prisma.tool.findMany({
-      where,
-      include: {
-        owner: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-            isVerified: true,
+    // Pagination
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
+    const skip = (page - 1) * limit
+
+    const [tools, total] = await Promise.all([
+      prisma.tool.findMany({
+        where,
+        include: {
+          owner: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+              isVerified: true,
+            },
+          },
+          _count: {
+            select: { rentals: true },
           },
         },
-        _count: {
-          select: { rentals: true },
+        orderBy: {
+          createdAt: 'desc',
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
+        take: limit,
+        skip,
+      }),
+      prisma.tool.count({ where }),
+    ])
 
-    return NextResponse.json(tools)
+    return NextResponse.json({
+      tools,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    })
   } catch {
     return NextResponse.json(
       { error: 'Failed to fetch tools' },
@@ -80,17 +98,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const currentUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
-    })
+    // Require verified user for creating tool listings
+    const currentUser = await ensureVerifiedUser()
 
     if (!currentUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: 'You must verify your account before listing tools' },
+        { status: 403 }
+      )
+    }
+
+    // Rate limit: 30 tool listings per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, currentUser.id),
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const body = await request.json()

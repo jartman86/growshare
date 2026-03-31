@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { sanitizeHtml, sanitizeText } from '@/lib/sanitize'
 
 // Helper function to validate URLs
 function isValidUrl(urlString: string): boolean {
@@ -184,13 +185,18 @@ export async function POST(request: NextRequest) {
     const uniqueId = crypto.randomUUID().split('-')[0] // First segment of UUID
     const slug = `${baseSlug}-${uniqueId}`
 
+    // Sanitize user-submitted content to prevent XSS
+    const sanitizedTitle = sanitizeText(title, 200)
+    const sanitizedContent = sanitizeHtml(content, 100000)
+    const sanitizedExcerpt = excerpt ? sanitizeText(excerpt, 500) : undefined
+
     const post = await prisma.userPost.create({
       data: {
         authorId: user.id,
-        title,
+        title: sanitizedTitle,
         slug,
-        content,
-        excerpt,
+        content: sanitizedContent,
+        excerpt: sanitizedExcerpt,
         type: type || 'BLOG',
         status: status || 'PUBLISHED',
         coverImage,
@@ -225,7 +231,7 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           type: 'POST_CREATED',
           title: 'Content Published',
-          description: `Published a new ${type.toLowerCase()}: ${title}`,
+          description: `Published a new ${type.toLowerCase()}: ${sanitizedTitle}`,
           points: 50,
         },
       })

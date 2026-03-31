@@ -43,9 +43,17 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      // Perenual plant API images
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'perenual.com',
+        port: '',
+        pathname: '/**',
+      },
+      // User-uploaded images via external URLs (tighten in production)
+      {
+        protocol: 'https',
+        hostname: '*.githubusercontent.com',
         port: '',
         pathname: '/**',
       },

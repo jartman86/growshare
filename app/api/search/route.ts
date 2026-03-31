@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   try {
+    // Rate limit search: 60 requests per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request),
+      RATE_LIMITS.search
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
+    }
+
     const searchParams = request.nextUrl.searchParams
     const query = searchParams.get('q')
     const type = searchParams.get('type') // plots, users, marketplace, tools, forums, or all

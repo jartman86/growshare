@@ -13,7 +13,10 @@
     "cap:init": "npx cap sync",
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android",
-    "cap:sync": "npx cap sync"
+    "cap:sync": "npx cap sync",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -62,16 +65,22 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "jsdom": "^29.0.1",
     "png-to-ico": "^3.0.1",
     "prisma": "^6.19.2",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.2"
   }
 }

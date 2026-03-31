@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { ensureUser } from '@/lib/ensure-user'
+import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
+import { CropStage } from '@prisma/client'
+
+// Valid growth stages for type-safe filtering
+const VALID_STAGES: string[] = Object.values(CropStage)
 
 // Get user's journal entries
 export async function GET(request: NextRequest) {
@@ -15,10 +20,15 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const search = searchParams.get('search')
 
+    // Type-safe stage filtering
+    const stageFilter = status && status !== 'ALL' && VALID_STAGES.includes(status)
+      ? { stage: status as CropStage }
+      : {}
+
     const entries = await prisma.cropJournal.findMany({
       where: {
         userId: currentUser.id,
-        ...(status && status !== 'ALL' && { stage: status as any }),
+        ...stageFilter,
         ...(search && {
           OR: [
             { cropName: { contains: search, mode: 'insensitive' } },
@@ -35,7 +45,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Transform to match the expected format
-    const formattedEntries = entries.map((entry: any) => {
+    const formattedEntries = entries.map((entry: typeof entries[number]) => {
       const totalHarvest = entry.harvests.reduce((sum: number, h: { quantity: number }) => sum + (h.quantity || 0), 0)
       return {
         id: entry.id,
@@ -59,9 +69,9 @@ export async function GET(request: NextRequest) {
     // Calculate stats
     const stats = {
       total: entries.length,
-      growing: entries.filter((e: any) => e.stage === 'GROWING').length,
-      harvested: entries.filter((e: any) => e.stage === 'HARVESTING' || e.stage === 'COMPLETED').length,
-      totalHarvest: entries.reduce((sum: number, e: any) =>
+      growing: entries.filter((e: typeof entries[number]) => e.stage === 'GROWING').length,
+      harvested: entries.filter((e: typeof entries[number]) => e.stage === 'HARVESTING' || e.stage === 'COMPLETED').length,
+      totalHarvest: entries.reduce((sum: number, e: typeof entries[number]) =>
         sum + e.harvests.reduce((h: number, harvest: { quantity: number }) => h + (harvest.quantity || 0), 0), 0
       ),
     }
@@ -79,6 +89,15 @@ export async function POST(request: NextRequest) {
 
     if (!currentUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limit: 30 journal entries per minute
+    const rateLimitResult = rateLimit(
+      getClientIdentifier(request, currentUser.id),
+      RATE_LIMITS.mutation
+    )
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult)
     }
 
     const body = await request.json()

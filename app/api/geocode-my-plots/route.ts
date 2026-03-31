@@ -57,25 +57,43 @@ async function geocodePlots() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Find all plots for this user
+    // Find plots that need geocoding (using default fallback coordinates or 0,0)
     const plots = await prisma.plot.findMany({
       where: {
         ownerId: currentUser.id,
+        OR: [
+          // Default fallback coordinates (center of USA)
+          { AND: [{ latitude: 39.8283 }, { longitude: -98.5795 }] },
+          // Zero coordinates (unset)
+          { AND: [{ latitude: 0 }, { longitude: 0 }] },
+        ],
+      },
+      select: {
+        id: true,
+        address: true,
+        city: true,
+        state: true,
+        zipCode: true,
       },
     })
 
+    if (plots.length === 0) {
+      return NextResponse.json({
+        message: 'All plots already have coordinates',
+        updated: 0,
+        failed: 0,
+        skipped: 0,
+        total: 0,
+      })
+    }
+
+    // Limit to 10 plots per request to avoid timeouts and respect Nominatim rate limits
+    const plotsToGeocode = plots.slice(0, 10)
     let updated = 0
     let failed = 0
-    let skipped = 0
 
-    for (const plot of plots) {
-      // Skip if plot already has valid coordinates (not default fallback)
-      if (plot.latitude && plot.longitude &&
-          !(plot.latitude === 39.8283 && plot.longitude === -98.5795)) {
-        skipped++
-        continue
-      }
-
+    // Process sequentially (Nominatim requires 1 req/sec)
+    for (const plot of plotsToGeocode) {
       const coords = await geocodeAddress(plot.address, plot.city, plot.state, plot.zipCode)
 
       if (coords) {
@@ -91,16 +109,19 @@ async function geocodePlots() {
         failed++
       }
 
-      // Add a small delay to respect rate limits
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Respect Nominatim rate limit (1 request per second)
+      if (plotsToGeocode.indexOf(plot) < plotsToGeocode.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1100))
+      }
     }
 
     return NextResponse.json({
       message: 'Geocoding complete',
       updated,
       failed,
-      skipped,
+      skipped: plots.length - plotsToGeocode.length,
       total: plots.length,
+      remaining: Math.max(0, plots.length - plotsToGeocode.length),
     })
   } catch {
     return NextResponse.json(

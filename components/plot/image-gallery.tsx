@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -34,11 +35,18 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
         <div
           className="col-span-2 row-span-2 relative overflow-hidden rounded-l-lg cursor-pointer group"
           onClick={() => openLightbox(0)}
+          role="button"
+          tabIndex={0}
+          aria-label={`View ${title} main photo`}
+          onKeyDown={(e) => e.key === 'Enter' && openLightbox(0)}
         >
-          <img
+          <Image
             src={images[0]}
-            alt={`${title} - Main`}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            alt={`${title} - Main photo`}
+            fill
+            className="object-cover transition-transform group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
         </div>
@@ -53,11 +61,17 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
               index === 3 && 'rounded-br-lg'
             )}
             onClick={() => openLightbox(index + 1)}
+            role="button"
+            tabIndex={0}
+            aria-label={`View photo ${index + 2} of ${title}`}
+            onKeyDown={(e) => e.key === 'Enter' && openLightbox(index + 1)}
           >
-            <img
+            <Image
               src={image}
-              alt={`${title} - ${index + 2}`}
-              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              alt={`${title} - Photo ${index + 2}`}
+              fill
+              className="object-cover transition-transform group-hover:scale-105"
+              sizes="(max-width: 768px) 50vw, 25vw"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
 
@@ -76,24 +90,31 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
       {/* View All Photos Button */}
       <button
         onClick={() => openLightbox(0)}
-        className="mt-4 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+        className="mt-4 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium text-gray-900 dark:text-white"
+        aria-label={`View all ${images.length} photos of ${title}`}
       >
         View all {images.length} photos
       </button>
 
       {/* Lightbox */}
       {isLightboxOpen && (
-        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+        <div
+          className="fixed inset-0 bg-black z-50 flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image lightbox"
+        >
           {/* Close Button */}
           <button
             onClick={() => setIsLightboxOpen(false)}
             className="absolute top-4 right-4 text-white hover:bg-white/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors z-10"
+            aria-label="Close lightbox"
           >
-            <X className="h-6 w-6" />
+            <X className="h-6 w-6" aria-hidden="true" />
           </button>
 
           {/* Image Counter */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-lg">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-lg" aria-live="polite">
             {currentIndex + 1} / {images.length}
           </div>
 
@@ -101,23 +122,30 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
           <button
             onClick={prevImage}
             className="absolute left-4 text-white hover:bg-white/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors"
+            aria-label="Previous image"
           >
-            <ChevronLeft className="h-8 w-8" />
+            <ChevronLeft className="h-8 w-8" aria-hidden="true" />
           </button>
 
           {/* Image */}
-          <img
-            src={images[currentIndex]}
-            alt={`${title} - ${currentIndex + 1}`}
-            className="max-h-[90vh] max-w-[90vw] object-contain"
-          />
+          <div className="relative max-h-[90vh] max-w-[90vw] w-full h-full">
+            <Image
+              src={images[currentIndex]}
+              alt={`${title} - Photo ${currentIndex + 1}`}
+              fill
+              className="object-contain"
+              sizes="90vw"
+              priority
+            />
+          </div>
 
           {/* Next Button */}
           <button
             onClick={nextImage}
             className="absolute right-4 text-white hover:bg-white/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors"
+            aria-label="Next image"
           >
-            <ChevronRight className="h-8 w-8" />
+            <ChevronRight className="h-8 w-8" aria-hidden="true" />
           </button>
 
           {/* Thumbnail Strip */}
@@ -127,13 +155,21 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={cn(
-                  'flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all',
+                  'flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all relative',
                   currentIndex === index
                     ? 'border-white scale-110'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 )}
+                aria-label={`View photo ${index + 1}`}
+                aria-current={currentIndex === index ? 'true' : undefined}
               >
-                <img src={image} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                <Image
+                  src={image}
+                  alt={`Thumbnail ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
               </button>
             ))}
           </div>

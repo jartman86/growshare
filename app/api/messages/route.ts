@@ -247,7 +247,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(messages)
     }
 
-    // Otherwise, get all messages involving the user
+    // Otherwise, get recent messages involving the user (bounded for performance)
     const allMessages = await prisma.message.findMany({
       where: {
         OR: [
@@ -287,6 +287,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
+      take: 500, // Limit to most recent 500 messages for conversation building
     })
 
     // Group messages into conversations

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 const footerNavigation = {
   platform: [
@@ -31,11 +32,13 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center group">
-              <img
+              <Image
                 src="/growshare-logo.png"
-                alt="GrowShare"
-                style={{ width: '125px', height: 'auto', maxWidth: 'none' }}
+                alt="GrowShare - Agricultural Community Platform"
+                width={125}
+                height={40}
                 className="transition-transform group-hover:scale-105"
+                priority={false}
               />
             </Link>
             <p className="text-sm text-[#4a3f35] dark:text-gray-300 max-w-xs font-medium">
