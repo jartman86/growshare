@@ -1,7 +1,7 @@
 # GrowShare - Claude Session Context
 
-**Last Updated:** January 26, 2026
-**Project Status:** Pre-Launch (Feature Complete)
+**Last Updated:** February 2, 2026
+**Project Status:** App Store Submission In Progress
 
 ---
 
@@ -26,6 +26,50 @@ GrowShare is an agricultural engagement ecosystem combining:
 - **SMS:** Twilio (phone verification)
 - **Theme:** Dark mode with class-based toggle
 - **PWA:** Manifest configured, icons generated, installable on mobile
+- **Native iOS:** Capacitor 7, Xcode project configured
+- **Monitoring:** Sentry error tracking configured
+
+---
+
+## Native App Status (iOS)
+
+### Capacitor Setup ✅
+- Capacitor 7 installed and configured
+- iOS project generated in `ios/` directory
+- App icons configured (1024x1024 base, all sizes generated)
+- Bundle ID: `com.growshare.app`
+- Display name: GrowShare
+
+### App Store Submission Checklist
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Apple Developer Account | ⏳ In Progress | $99/year enrollment at developer.apple.com/programs/enroll |
+| App Icon | ✅ Done | 1024x1024 + all required sizes |
+| Screenshots | ⏳ Pending | Need 6.7" iPhone (1290x2796px), minimum 3 |
+| App Description | ⏳ Pending | For App Store listing |
+| Keywords | ⏳ Pending | For App Store search optimization |
+| Privacy Policy URL | ✅ Done | https://growshare.co/privacy |
+| App Store Connect | ⏳ Pending | Create listing after Developer account approved |
+| Archive & Upload | ⏳ Pending | From Xcode after account setup |
+
+### iOS Build Commands
+```bash
+# Sync web assets to native project
+npx cap sync ios
+
+# Open in Xcode
+npx cap open ios
+
+# Build and run on simulator
+# (Use Xcode: Product → Run, or Cmd+R)
+```
+
+### Screenshot Locations (Simulator)
+- Press Cmd + S in Simulator to capture
+- Saved to Desktop by default
+- Required: 6.7" iPhone screenshots (1290x2796px)
+- Recommended screens: Explore page with map, Dashboard, Marketplace
 
 ---
 
@@ -303,7 +347,14 @@ These are lower priority items that could be added later:
 
 ---
 
-## Recent Work (January 2026)
+## Recent Work
+
+### February 2, 2026 - App Store Preparation
+- **Native iOS app:** Capacitor 7 configured, Xcode project ready
+- **App icons:** Generated all required iOS sizes from 1024x1024 base
+- **Sentry:** Error monitoring integrated for production
+- **Security hardening:** Final polish for launch
+- **Status:** Awaiting Apple Developer account enrollment ($99/year)
 
 ### January 26, 2026 - Comprehensive Codebase Audit
 - **Critical fixes:** Null checks for email arrays, type guards for string operations
