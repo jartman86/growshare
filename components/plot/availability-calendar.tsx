@@ -67,6 +67,7 @@ export function AvailabilityCalendar({
   const [blockEnd, setBlockEnd] = useState('')
   const [blockReason, setBlockReason] = useState('')
   const [blockLoading, setBlockLoading] = useState(false)
+  const [blockError, setBlockError] = useState<string>('')
 
   // Cache for previously fetched months
   const cacheRef = useRef<Map<string, CachedMonthData>>(new Map())
@@ -206,6 +207,7 @@ export function AvailabilityCalendar({
     if (!blockStart || !blockEnd) return
 
     setBlockLoading(true)
+    setBlockError('')
     try {
       const res = await fetch(`/api/plots/${plotId}/blocked-dates`, {
         method: 'POST',
@@ -229,7 +231,7 @@ export function AvailabilityCalendar({
       invalidateCache()
       fetchAvailability(true)
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to block dates')
+      setBlockError(error instanceof Error ? error.message : 'Failed to block dates')
     } finally {
       setBlockLoading(false)
     }
@@ -537,6 +539,10 @@ export function AvailabilityCalendar({
                   className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
                 />
               </div>
+
+              {blockError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3">{blockError}</p>
+              )}
 
               <div className="flex gap-3 pt-2">
                 <button

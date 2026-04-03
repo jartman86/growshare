@@ -125,6 +125,7 @@ export default function DisputeDetailPage({
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState<string>('')
 
   useEffect(() => {
     fetchDispute()
@@ -155,6 +156,7 @@ export default function DisputeDetailPage({
     if (!message.trim()) return
 
     setSending(true)
+    setSendError('')
     try {
       const response = await fetch(`/api/bookings/${bookingId}/dispute`, {
         method: 'PATCH',
@@ -173,10 +175,10 @@ export default function DisputeDetailPage({
         await fetchDispute()
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to send message')
+        setSendError(data.error || 'Failed to send message')
       }
     } catch {
-      alert('Failed to send message')
+      setSendError('Failed to send message')
     } finally {
       setSending(false)
     }
@@ -456,6 +458,9 @@ export default function DisputeDetailPage({
                     onSubmit={handleSendMessage}
                     className="p-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
                   >
+                    {sendError && (
+                      <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-3">{sendError}</p>
+                    )}
                     <div className="flex gap-3">
                       <textarea
                         value={message}

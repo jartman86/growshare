@@ -29,6 +29,7 @@ interface OnboardingWizardProps {
 
 type Step = 'welcome' | 'role' | 'profile' | 'location' | 'complete'
 
+
 const ROLES = [
   {
     id: 'RENTER',
@@ -61,6 +62,7 @@ export function OnboardingWizard({ user, onComplete, onSkip }: OnboardingWizardP
   const [location, setLocation] = useState('')
   const [avatar, setAvatar] = useState(user.avatar || '')
   const [isUploading, setIsUploading] = useState(false)
+  const [wizardError, setWizardError] = useState<string>('')
 
   const steps: Step[] = ['welcome', 'role', 'profile', 'location', 'complete']
   const currentIndex = steps.indexOf(currentStep)
@@ -118,7 +120,7 @@ export function OnboardingWizard({ user, onComplete, onSkip }: OnboardingWizardP
       const uploadData = await uploadRes.json()
       setAvatar(uploadData.secure_url)
     } catch {
-      alert('Failed to upload image. Please try again.')
+      setWizardError('Failed to upload image. Please try again.')
     } finally {
       setIsUploading(false)
     }
@@ -160,7 +162,7 @@ export function OnboardingWizard({ user, onComplete, onSkip }: OnboardingWizardP
 
       onComplete()
     } catch {
-      alert('Failed to save your profile. Please try again.')
+      setWizardError('Failed to save your profile. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -183,6 +185,12 @@ export function OnboardingWizard({ user, onComplete, onSkip }: OnboardingWizardP
       >
         Skip for now
       </button>
+
+      {wizardError && (
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-20 w-full max-w-sm px-4">
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3">{wizardError}</p>
+        </div>
+      )}
 
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-lg">

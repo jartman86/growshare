@@ -71,6 +71,7 @@ export default function MyBookingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
+  const [cancelError, setCancelError] = useState<string>('')
   const [reviewingBooking, setReviewingBooking] = useState<Booking | null>(null)
   const [payingBooking, setPayingBooking] = useState<Booking | null>(null)
   const [cancelConfirmBooking, setCancelConfirmBooking] = useState<Booking | null>(null)
@@ -130,6 +131,7 @@ export default function MyBookingsPage() {
     if (!cancelConfirmBooking) return
 
     setCancellingId(cancelConfirmBooking.id)
+    setCancelError('')
     setCancelConfirmBooking(null)
 
     try {
@@ -149,7 +151,7 @@ export default function MyBookingsPage() {
       // Refresh bookings list
       await fetchBookings()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to cancel booking')
+      setCancelError(err instanceof Error ? err.message : 'Failed to cancel booking')
     } finally {
       setCancellingId(null)
       setRefundInfo(null)
@@ -312,6 +314,9 @@ export default function MyBookingsPage() {
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-800">{error}</p>
             </div>
+          )}
+          {cancelError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">{cancelError}</p>
           )}
 
           {/* Bookings List */}

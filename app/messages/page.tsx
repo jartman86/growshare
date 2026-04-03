@@ -66,6 +66,7 @@ function MessagesPageContent() {
   const [currentUserId, setCurrentUserId] = useState<string>('')
   const [isConnected, setIsConnected] = useState(true)
   const [lastPollTime, setLastPollTime] = useState<Date | null>(null)
+  const [sendError, setSendError] = useState<string>('')
   const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const selectedUserIdRef = useRef<string | null>(null)
 
@@ -210,6 +211,7 @@ function MessagesPageContent() {
   const handleSendMessage = async (content: string) => {
     if (!selectedConversation) return
 
+    setSendError('')
     try {
       const response = await fetch('/api/messages', {
         method: 'POST',
@@ -238,7 +240,7 @@ function MessagesPageContent() {
       )
     } catch (error) {
       console.error('Error sending message:', error)
-      alert(error instanceof Error ? error.message : 'Failed to send message')
+      setSendError(error instanceof Error ? error.message : 'Failed to send message')
     }
   }
 
@@ -265,7 +267,7 @@ function MessagesPageContent() {
       router.push(`/messages?userId=${receiverId}`)
     } catch (error) {
       console.error('Error sending new message:', error)
-      alert(error instanceof Error ? error.message : 'Failed to send message')
+      setSendError(error instanceof Error ? error.message : 'Failed to send message')
     }
   }
 
@@ -390,6 +392,11 @@ function MessagesPageContent() {
             </div>
           </div>
         </div>
+
+        {/* Send Error */}
+        {sendError && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 px-4 py-2 text-center">{sendError}</p>
+        )}
 
         {/* Messages Container */}
         <div className="flex-1 overflow-hidden">

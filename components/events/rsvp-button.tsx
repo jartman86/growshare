@@ -24,14 +24,6 @@ export function RSVPButton({ event, isPast }: RSVPButtonProps) {
 
     setIsRSVPed(true)
     setIsSubmitting(false)
-
-    // Show success message
-    setTimeout(() => {
-      const message = event.price === 0
-        ? `✅ You're registered for "${event.title}"!\n\nCheck your email for event details and calendar invite.\n\nYou've earned 25 points!`
-        : `✅ Registration confirmed!\n\n"${event.title}"\nTotal: $${event.price}\n\nCheck your email for payment details and event information.\n\nYou've earned 25 points!`
-      alert(message)
-    }, 100)
   }
 
   if (isPast) {

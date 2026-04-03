@@ -149,6 +149,7 @@ export default function EventDetailPage({
   const [loading, setLoading] = useState(true)
   const [registering, setRegistering] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [rsvpError, setRsvpError] = useState<string>('')
 
   useEffect(() => {
     fetchEvent()
@@ -189,6 +190,7 @@ export default function EventDetailPage({
 
   const handleCourseRegister = async () => {
     setRegistering(true)
+    setRsvpError('')
     try {
       const response = await fetch(`/api/events/${eventId}/register`, {
         method: 'POST',
@@ -197,10 +199,10 @@ export default function EventDetailPage({
         await fetchEvent()
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to register')
+        setRsvpError(data.error || 'Failed to register')
       }
     } catch {
-      alert('Failed to register')
+      setRsvpError('Failed to register')
     } finally {
       setRegistering(false)
     }
@@ -208,6 +210,7 @@ export default function EventDetailPage({
 
   const handleCommunityRSVP = async (status: 'GOING' | 'INTERESTED') => {
     setRegistering(true)
+    setRsvpError('')
     try {
       const response = await fetch(`/api/community-events/${eventId}/rsvp`, {
         method: 'POST',
@@ -218,10 +221,10 @@ export default function EventDetailPage({
         await fetchEvent()
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to RSVP')
+        setRsvpError(data.error || 'Failed to RSVP')
       }
     } catch {
-      alert('Failed to RSVP')
+      setRsvpError('Failed to RSVP')
     } finally {
       setRegistering(false)
     }
@@ -229,6 +232,7 @@ export default function EventDetailPage({
 
   const handleCancelRSVP = async () => {
     setRegistering(true)
+    setRsvpError('')
     try {
       const response = await fetch(`/api/community-events/${eventId}/rsvp`, {
         method: 'DELETE',
@@ -237,10 +241,10 @@ export default function EventDetailPage({
         await fetchEvent()
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to cancel RSVP')
+        setRsvpError(data.error || 'Failed to cancel RSVP')
       }
     } catch {
-      alert('Failed to cancel RSVP')
+      setRsvpError('Failed to cancel RSVP')
     } finally {
       setRegistering(false)
     }
@@ -458,6 +462,10 @@ export default function EventDetailPage({
                           'Register for Free'
                         )}
                       </button>
+                    )}
+
+                    {rsvpError && (
+                      <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mt-2">{rsvpError}</p>
                     )}
 
                     {/* Capacity Info */}
@@ -826,6 +834,10 @@ export default function EventDetailPage({
                           Interested
                         </button>
                       </div>
+                    )}
+
+                    {rsvpError && (
+                      <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mt-2">{rsvpError}</p>
                     )}
 
                     {/* Capacity Info */}

@@ -69,6 +69,7 @@ export default function ManageBookingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [processingId, setProcessingId] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('all')
+  const [actionError, setActionError] = useState<string>('')
   const [disputeBooking, setDisputeBooking] = useState<Booking | null>(null)
 
   useEffect(() => {
@@ -105,6 +106,7 @@ export default function ManageBookingsPage() {
     }
 
     setProcessingId(bookingId)
+    setActionError('')
     try {
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PATCH',
@@ -122,7 +124,7 @@ export default function ManageBookingsPage() {
       // Refresh bookings list
       await fetchBookings()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update booking')
+      setActionError(err instanceof Error ? err.message : 'Failed to update booking')
     } finally {
       setProcessingId(null)
     }
@@ -302,6 +304,9 @@ export default function ManageBookingsPage() {
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-800">{error}</p>
             </div>
+          )}
+          {actionError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">{actionError}</p>
           )}
 
           {/* Filter Tabs */}

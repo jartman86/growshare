@@ -12,21 +12,24 @@ export function ReplyForm({ topicId }: ReplyFormProps) {
   const router = useRouter()
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [replyError, setReplyError] = useState('')
+  const [replySuccess, setReplySuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!content.trim()) {
-      alert('Please enter a reply')
+      setReplyError('Please enter a reply')
       return
     }
 
+    setReplyError('')
     setIsSubmitting(true)
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    alert('✅ Reply posted successfully! You earned 25 points.')
+    setReplySuccess(true)
 
     // Reset form
     setContent('')
@@ -34,10 +37,18 @@ export function ReplyForm({ topicId }: ReplyFormProps) {
 
     // Refresh page to show new reply (in real app, would update state)
     router.refresh()
+
+    setTimeout(() => setReplySuccess(false), 3000)
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {replyError && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{replyError}</p>
+      )}
+      {replySuccess && (
+        <p className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-3">Reply posted successfully! You earned 25 points.</p>
+      )}
       <div>
         <textarea
           value={content}

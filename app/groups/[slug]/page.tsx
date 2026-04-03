@@ -96,6 +96,9 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
   const [error, setError] = useState<string | null>(null)
   const [joining, setJoining] = useState(false)
   const [leaving, setLeaving] = useState(false)
+  const [joinError, setJoinError] = useState<string>('')
+  const [leaveError, setLeaveError] = useState<string>('')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     fetchGroup()
@@ -130,6 +133,7 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
     }
 
     setJoining(true)
+    setJoinError('')
     try {
       const response = await fetch(`/api/groups/${slug}/membership`, {
         method: 'POST',
@@ -144,10 +148,10 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
         } : null)
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to join group')
+        setJoinError(data.error || 'Failed to join group')
       }
     } catch (err) {
-      alert('Failed to join group')
+      setJoinError('Failed to join group')
     } finally {
       setJoining(false)
     }
@@ -157,6 +161,7 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
     if (!confirm('Are you sure you want to leave this group?')) return
 
     setLeaving(true)
+    setLeaveError('')
     try {
       const response = await fetch(`/api/groups/${slug}/membership`, {
         method: 'DELETE',
@@ -170,10 +175,10 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
         } : null)
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to leave group')
+        setLeaveError(data.error || 'Failed to leave group')
       }
     } catch (err) {
-      alert('Failed to leave group')
+      setLeaveError('Failed to leave group')
     } finally {
       setLeaving(false)
     }
@@ -192,7 +197,8 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
       }
     } else {
       navigator.clipboard.writeText(window.location.href)
-      alert('Link copied to clipboard!')
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
   }
 
@@ -291,7 +297,10 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
+                    {copied && (
+                      <span className="text-xs text-green-600 dark:text-green-400 font-medium">Copied!</span>
+                    )}
                     <button
                       onClick={handleShare}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -326,6 +335,12 @@ export default function GroupDetailPage({ params }: { params: Promise<{ slug: st
                 )}
 
                 {/* Action Buttons */}
+                {joinError && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">{joinError}</p>
+                )}
+                {leaveError && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">{leaveError}</p>
+                )}
                 {!isMember ? (
                   <button
                     onClick={handleJoin}

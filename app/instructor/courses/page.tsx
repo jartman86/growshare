@@ -46,6 +46,7 @@ export default function InstructorCoursesPage() {
   const [filter, setFilter] = useState<'all' | 'published' | 'draft'>('all')
   const [showMenu, setShowMenu] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string>('')
 
   useEffect(() => {
     checkInstructorAndFetch()
@@ -79,6 +80,7 @@ export default function InstructorCoursesPage() {
     if (!confirm('Are you sure you want to delete this course? This cannot be undone.')) return
 
     setDeleting(courseId)
+    setDeleteError('')
     try {
       const response = await fetch(`/api/instructor/courses/${courseId}`, {
         method: 'DELETE',
@@ -88,10 +90,10 @@ export default function InstructorCoursesPage() {
         setCourses(prev => prev.filter(c => c.id !== courseId))
       } else {
         const data = await response.json()
-        alert(data.error || 'Failed to delete course')
+        setDeleteError(data.error || 'Failed to delete course')
       }
     } catch (error) {
-      alert('An error occurred')
+      setDeleteError('An error occurred')
     } finally {
       setDeleting(null)
       setShowMenu(null)
@@ -151,6 +153,11 @@ export default function InstructorCoursesPage() {
               Create Course
             </Link>
           </div>
+
+          {/* Delete Error */}
+          {deleteError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">{deleteError}</p>
+          )}
 
           {/* Filters */}
           <div className="flex gap-4 mb-6">

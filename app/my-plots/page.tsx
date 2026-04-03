@@ -28,6 +28,7 @@ export default function MyPlotsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string>('')
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -64,6 +65,7 @@ export default function MyPlotsPage() {
     }
 
     setTogglingId(id)
+    setActionError('')
     try {
       const response = await fetch(`/api/plots/${id}`, {
         method: 'PATCH',
@@ -75,7 +77,7 @@ export default function MyPlotsPage() {
 
       if (!response.ok) {
         const data = await response.json()
-        alert(data.error || `Failed to ${action} plot`)
+        setActionError(data.error || `Failed to ${action} plot`)
         return
       }
 
@@ -83,7 +85,7 @@ export default function MyPlotsPage() {
       await fetchMyPlots()
     } catch (error) {
       console.error(`Error ${action}ing plot:`, error)
-      alert(`Failed to ${action} plot`)
+      setActionError(`Failed to ${action} plot`)
     } finally {
       setTogglingId(null)
     }
@@ -95,6 +97,7 @@ export default function MyPlotsPage() {
     }
 
     setDeletingId(id)
+    setActionError('')
     try {
       const response = await fetch(`/api/plots/${id}`, {
         method: 'DELETE',
@@ -102,7 +105,7 @@ export default function MyPlotsPage() {
 
       if (!response.ok) {
         const data = await response.json()
-        alert(data.error || 'Failed to delete plot')
+        setActionError(data.error || 'Failed to delete plot')
         return
       }
 
@@ -110,7 +113,7 @@ export default function MyPlotsPage() {
       setPlots(plots.filter(plot => plot.id !== id))
     } catch (error) {
       console.error('Error deleting plot:', error)
-      alert('Failed to delete plot')
+      setActionError('Failed to delete plot')
     } finally {
       setDeletingId(null)
     }
@@ -164,6 +167,11 @@ export default function MyPlotsPage() {
               Create New Plot
             </Link>
           </div>
+
+          {/* Action Error */}
+          {actionError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">{actionError}</p>
+          )}
 
           {/* Plots Grid */}
           {plots.length === 0 ? (

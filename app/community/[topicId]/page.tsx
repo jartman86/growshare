@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { SAMPLE_TOPICS, SAMPLE_REPLIES } from '@/lib/community-data'
+import { prisma } from '@/lib/prisma'
 import { ReplyCard } from '@/components/community/reply-card'
 import { ReplyForm } from '@/components/community/reply-form'
 import {
@@ -23,21 +23,54 @@ export default async function TopicDetailPage({
   params: Promise<{ topicId: string }>
 }) {
   const { topicId } = await params
-  const topic = SAMPLE_TOPICS.find((t) => t.id === topicId)
+
+  // Increment view count
+  await prisma.forumTopic.update({
+    where: { id: topicId },
+    data: { views: { increment: 1 } },
+  }).catch(() => {
+    // Topic may not exist
+  })
+
+  const topic = await prisma.forumTopic.findUnique({
+    where: { id: topicId },
+    include: {
+      author: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+        },
+      },
+      replies: {
+        include: {
+          author: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            },
+          },
+          votes: {
+            select: { value: true },
+          },
+        },
+        orderBy: [
+          { isAccepted: 'desc' },
+          { createdAt: 'asc' },
+        ],
+      },
+      votes: {
+        select: { value: true },
+      },
+    },
+  })
 
   if (!topic) {
     notFound()
   }
-
-  const replies = SAMPLE_REPLIES.filter((r) => r.topicId === topicId).sort(
-    (a, b) => {
-      // Accepted answer first
-      if (a.isAccepted && !b.isAccepted) return -1
-      if (!a.isAccepted && b.isAccepted) return 1
-      // Then by creation date
-      return a.createdAt.getTime() - b.createdAt.getTime()
-    }
-  )
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -48,6 +81,21 @@ export default async function TopicDetailPage({
       minute: '2-digit',
     }).format(date)
   }
+
+  const authorName = [topic.author.firstName, topic.author.lastName].filter(Boolean).join(' ') || 'Anonymous'
+  const totalUpvotes = topic.votes.reduce((sum, v) => sum + v.value, 0)
+
+  const replies = topic.replies.map((reply) => ({
+    id: reply.id,
+    topicId: topic.id,
+    content: reply.content,
+    authorName: [reply.author.firstName, reply.author.lastName].filter(Boolean).join(' ') || 'Anonymous',
+    authorAvatar: reply.author.avatar,
+    isAccepted: reply.isAccepted,
+    upvotes: reply.votes.reduce((sum: number, v: { value: number }) => sum + v.value, 0),
+    createdAt: reply.createdAt,
+    updatedAt: reply.updatedAt,
+  }))
 
   return (
     <>
@@ -90,17 +138,17 @@ export default async function TopicDetailPage({
 
             {/* Author Info */}
             <div className="flex items-start gap-4 mb-6">
-              {topic.authorAvatar && (
+              {topic.author.avatar && (
                 <img
-                  src={topic.authorAvatar}
-                  alt={topic.authorName}
+                  src={topic.author.avatar}
+                  alt={authorName}
                   className="w-12 h-12 rounded-full"
                 />
               )}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="font-semibold text-gray-900">{topic.authorName}</p>
-                  {topic.authorName === 'GrowShare Team' && (
+                  <p className="font-semibold text-gray-900">{authorName}</p>
+                  {authorName === 'GrowShare Team' && (
                     <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs font-medium">
                       <Star className="h-3 w-3" />
                       Staff
@@ -121,11 +169,11 @@ export default async function TopicDetailPage({
                 </div>
                 <div className="flex items-center gap-1 text-gray-600">
                   <MessageCircle className="h-4 w-4" />
-                  <span>{topic.replyCount}</span>
+                  <span>{replies.length}</span>
                 </div>
                 <div className="flex items-center gap-1 text-gray-600">
                   <ArrowUp className="h-4 w-4" />
-                  <span>{topic.upvotes}</span>
+                  <span>{totalUpvotes}</span>
                 </div>
               </div>
             </div>
@@ -138,7 +186,7 @@ export default async function TopicDetailPage({
             {/* Tags */}
             {topic.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 pt-6 border-t">
-                {topic.tags.map((tag) => (
+                {(topic.tags as string[]).map((tag: string) => (
                   <div
                     key={tag}
                     className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"

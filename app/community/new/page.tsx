@@ -11,6 +11,7 @@ import Link from 'next/link'
 export default function NewTopicPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -62,12 +63,11 @@ export default function NewTopicPage() {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    alert(
-      `🎉 Topic posted successfully!\n\nYour topic "${formData.title}" is now live in the community forum.\n\nYou've earned 50 points for starting a new discussion!`
-    )
+    setSubmitSuccess(true)
+    setIsSubmitting(false)
 
-    // Navigate to community page
-    router.push('/community')
+    // Navigate to community page after brief delay
+    setTimeout(() => router.push('/community'), 1500)
   }
 
   return (
@@ -233,6 +233,9 @@ export default function NewTopicPage() {
                   </>
                 )}
               </button>
+              {submitSuccess && (
+                <p className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-3 mt-2">Topic posted successfully! You've earned 50 points. Redirecting...</p>
+              )}
             </div>
           </form>
         </div>

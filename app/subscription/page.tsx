@@ -60,6 +60,7 @@ export default function SubscriptionPage() {
   const [canceling, setCanceling] = useState(false)
   const [reactivating, setReactivating] = useState(false)
   const [openingPortal, setOpeningPortal] = useState(false)
+  const [actionError, setActionError] = useState<string>('')
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -90,6 +91,7 @@ export default function SubscriptionPage() {
     }
 
     setSubscribing(true)
+    setActionError('')
     try {
       const response = await fetch('/api/subscriptions/create', {
         method: 'POST',
@@ -99,11 +101,11 @@ export default function SubscriptionPage() {
       if (data.url) {
         window.location.href = data.url
       } else {
-        alert(data.error || 'Failed to start checkout')
+        setActionError(data.error || 'Failed to start checkout')
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('An error occurred')
+      setActionError('An error occurred')
     } finally {
       setSubscribing(false)
     }
@@ -115,6 +117,7 @@ export default function SubscriptionPage() {
     }
 
     setCanceling(true)
+    setActionError('')
     try {
       const response = await fetch('/api/subscriptions/cancel', {
         method: 'POST',
@@ -124,11 +127,11 @@ export default function SubscriptionPage() {
       if (response.ok) {
         fetchSubscriptionStatus()
       } else {
-        alert(data.error || 'Failed to cancel')
+        setActionError(data.error || 'Failed to cancel')
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('An error occurred')
+      setActionError('An error occurred')
     } finally {
       setCanceling(false)
     }
@@ -136,6 +139,7 @@ export default function SubscriptionPage() {
 
   const handleReactivate = async () => {
     setReactivating(true)
+    setActionError('')
     try {
       const response = await fetch('/api/subscriptions/cancel', {
         method: 'DELETE',
@@ -145,11 +149,11 @@ export default function SubscriptionPage() {
       if (response.ok) {
         fetchSubscriptionStatus()
       } else {
-        alert(data.error || 'Failed to reactivate')
+        setActionError(data.error || 'Failed to reactivate')
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('An error occurred')
+      setActionError('An error occurred')
     } finally {
       setReactivating(false)
     }
@@ -157,6 +161,7 @@ export default function SubscriptionPage() {
 
   const handlePortal = async () => {
     setOpeningPortal(true)
+    setActionError('')
     try {
       const response = await fetch('/api/subscriptions/portal', {
         method: 'POST',
@@ -166,11 +171,11 @@ export default function SubscriptionPage() {
       if (data.url) {
         window.location.href = data.url
       } else {
-        alert(data.error || 'Failed to open billing portal')
+        setActionError(data.error || 'Failed to open billing portal')
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('An error occurred')
+      setActionError('An error occurred')
     } finally {
       setOpeningPortal(false)
     }
@@ -204,6 +209,11 @@ export default function SubscriptionPage() {
             </div>
           ) : (
             <>
+              {/* Action Error */}
+              {actionError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">{actionError}</p>
+              )}
+
               {/* Current Subscription Status */}
               {isSubscribed && subscriptionStatus?.subscription && (
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 mb-8">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CROP_TYPES, GROWTH_STAGES } from '@/lib/journal-data'
-import { Camera, X, Calendar, Sprout } from 'lucide-react'
+import { Camera, Sprout } from 'lucide-react'
 
 interface Plot {
   id: string
@@ -31,10 +31,11 @@ interface JournalFormData {
 
 interface EntryFormProps {
   mode?: 'create' | 'edit'
+  entryId?: string
   initialData?: Partial<JournalFormData>
 }
 
-export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
+export function EntryForm({ mode = 'create', entryId, initialData }: EntryFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [plots, setPlots] = useState<Plot[]>([])
@@ -117,13 +118,38 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
 
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const payload = {
+        cropName: formData.cropName,
+        variety: formData.cropType,
+        title: formData.cropName,
+        content: formData.notes,
+        plantedDate: formData.plantingDate || null,
+        expectedHarvest: formData.expectedHarvestDate || null,
+        stage: formData.status,
+      }
 
-    // TODO: In production, this would save to database
+      const url = mode === 'edit' && entryId ? `/api/journal/${entryId}` : '/api/journal'
+      const method = mode === 'edit' ? 'PATCH' : 'POST'
 
-    // Redirect to journal list
-    router.push('/dashboard/journal')
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        setErrors({ submit: data.error || 'Failed to save journal entry' })
+        return
+      }
+
+      router.push('/dashboard/journal')
+    } catch {
+      setErrors({ submit: 'An unexpected error occurred. Please try again.' })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const selectedPlot = plots.find((p) => p.id === formData.plotId)
@@ -396,6 +422,12 @@ export function EntryForm({ mode = 'create', initialData }: EntryFormProps) {
           </p>
         </div>
       </div>
+
+      {errors.submit && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+          {errors.submit}
+        </p>
+      )}
 
       {/* Form Actions */}
       <div className="flex items-center justify-end gap-4 pt-6 border-t">

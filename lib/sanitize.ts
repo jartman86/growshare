@@ -1,4 +1,4 @@
-import DOMPurify from 'isomorphic-dompurify'
+import sanitizeHtmlLib from 'sanitize-html'
 import { randomBytes } from 'crypto'
 
 /**
@@ -6,9 +6,9 @@ import { randomBytes } from 'crypto'
  * Allows basic formatting tags only
  */
 export function sanitizeHtml(content: string, maxLength = 10000): string {
-  const sanitized = DOMPurify.sanitize(content, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: ['href'],
+  const sanitized = sanitizeHtmlLib(content, {
+    allowedTags: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li'],
+    allowedAttributes: { a: ['href'] },
   })
   return sanitized.slice(0, maxLength)
 }
@@ -17,9 +17,9 @@ export function sanitizeHtml(content: string, maxLength = 10000): string {
  * Sanitize plain text - strips all HTML
  */
 export function sanitizeText(content: string, maxLength = 1000): string {
-  const sanitized = DOMPurify.sanitize(content, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
+  const sanitized = sanitizeHtmlLib(content, {
+    allowedTags: [],
+    allowedAttributes: {},
   })
   return sanitized.slice(0, maxLength)
 }

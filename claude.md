@@ -1,373 +1,128 @@
-# GrowShare - Claude Session Context
+# CLAUDE.md
 
-**Last Updated:** February 2, 2026
-**Project Status:** App Store Submission In Progress
-
----
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
-GrowShare is an agricultural engagement ecosystem combining:
-- **Land Rental Marketplace** (Airbnb-style plot listings)
-- **Gamified Community Engagement** (achievements, badges, levels)
-- **Tool Sharing** (equipment rental between community members)
-- **Produce Marketplace** (sell surplus produce)
-- **Knowledge Hub** (courses, forums, resources)
+GrowShare is an agricultural engagement ecosystem: land rental marketplace, tool sharing, produce marketplace, gamified community, and knowledge hub. Built with Next.js 16.1, React 19, TypeScript (strict mode), TailwindCSS v4, PostgreSQL/Prisma, and Clerk auth.
 
-### Tech Stack
-- **Frontend:** Next.js 16.1, React 19, TypeScript, TailwindCSS v4
-- **Backend:** Next.js API Routes (serverless)
-- **Database:** PostgreSQL with Prisma ORM
-- **Auth:** Clerk (fully integrated with user sync)
-- **Payments:** Stripe (checkout, Connect for payouts, refunds)
-- **Maps:** Mapbox GL
-- **File Storage:** Cloudinary (signed uploads)
-- **Email:** SendGrid (8 templates)
-- **SMS:** Twilio (phone verification)
-- **Theme:** Dark mode with class-based toggle
-- **PWA:** Manifest configured, icons generated, installable on mobile
-- **Native iOS:** Capacitor 7, Xcode project configured
-- **Monitoring:** Sentry error tracking configured
+## Commands
 
----
-
-## Native App Status (iOS)
-
-### Capacitor Setup ✅
-- Capacitor 7 installed and configured
-- iOS project generated in `ios/` directory
-- App icons configured (1024x1024 base, all sizes generated)
-- Bundle ID: `com.growshare.app`
-- Display name: GrowShare
-
-### App Store Submission Checklist
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Apple Developer Account | ⏳ In Progress | $99/year enrollment at developer.apple.com/programs/enroll |
-| App Icon | ✅ Done | 1024x1024 + all required sizes |
-| Screenshots | ⏳ Pending | Need 6.7" iPhone (1290x2796px), minimum 3 |
-| App Description | ⏳ Pending | For App Store listing |
-| Keywords | ⏳ Pending | For App Store search optimization |
-| Privacy Policy URL | ✅ Done | https://growshare.co/privacy |
-| App Store Connect | ⏳ Pending | Create listing after Developer account approved |
-| Archive & Upload | ⏳ Pending | From Xcode after account setup |
-
-### iOS Build Commands
 ```bash
-# Sync web assets to native project
-npx cap sync ios
+# Development
+npm run dev              # Start dev server (webpack mode)
+npm run build            # prisma generate && next build
+npm run lint             # ESLint (flat config, v9)
 
-# Open in Xcode
-npx cap open ios
+# Testing (Vitest)
+npm test                 # Run all tests once
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage with v8
+npx vitest run tests/lib/stripe.test.ts  # Run single test file
 
-# Build and run on simulator
-# (Use Xcode: Product → Run, or Cmd+R)
+# Database
+npx prisma generate      # Generate Prisma client
+npx prisma migrate dev   # Run migrations in dev
+npx prisma studio        # Visual database browser
+npm run db:seed           # Seed with tsx prisma/seed.ts
+
+# iOS (Capacitor)
+npm run cap:sync          # Sync web assets to native
+npm run cap:ios           # Open Xcode project
 ```
 
-### Screenshot Locations (Simulator)
-- Press Cmd + S in Simulator to capture
-- Saved to Desktop by default
-- Required: 6.7" iPhone screenshots (1290x2796px)
-- Recommended screens: Explore page with map, Dashboard, Marketplace
+## Architecture
 
----
+### App Structure (Next.js App Router)
 
-## Feature Implementation Status
-
-### COMPLETE - Production Ready
-| Feature | API | UI | Notes |
-|---------|-----|-----|-------|
-| Authentication | ✅ | ✅ | Clerk + user sync |
-| User Profiles | ✅ | ✅ | Edit, follow, verification badges |
-| Plot Management | ✅ | ✅ | Full CRUD, map, filters, publish |
-| Booking System | ✅ | ✅ | Request, approve, calendar, payments |
-| Booking Disputes | ✅ | ✅ | File, view, message, resolve |
-| Stripe Payments | ✅ | ✅ | Checkout, Connect, refunds, webhooks |
-| Photo Uploads | ✅ | ✅ | Cloudinary drag-drop component |
-| Reviews & Ratings | ✅ | ✅ | Plots, users, tools with voting |
-| Messaging | ✅ | ✅ | Conversations, unread counts |
-| Notifications | ✅ | ✅ | In-app + email templates |
-| Crop Journal | ✅ | ✅ | Entries, harvests, growth stages |
-| Dark Mode | ✅ | ✅ | Theme toggle, full coverage |
-| Forum System | ✅ | ✅ | Topics, replies, voting, threading |
-| Tool Listings | ✅ | ✅ | Rent/sale, pricing, categories |
-| Tool Rentals | ✅ | ✅ | Booking, conflict detection, deposits |
-| Tool Reviews | ✅ | ✅ | Verified rental reviews |
-| Marketplace | ✅ | ✅ | Produce listings, orders, inventory |
-| Marketplace Seller Dashboard | ✅ | ✅ | Listings, orders, fulfillment |
-| User Verification | ✅ | ✅ | Email, phone (Twilio), ID upload |
-| Email Service | ✅ | ✅ | 8 templates via SendGrid |
-| Saved Searches | ✅ | ✅ | Save/load filter configurations |
-| Privacy Controls | ✅ | ✅ | Block users, profile visibility |
-| Admin Dashboard | ✅ | ✅ | Users, verifications, moderation, tips |
-| Community Tips | ✅ | ✅ | User-submitted tips, integrated with resources |
-| Resources Section | ✅ | ✅ | Planting calendar, pests, companion guide + community tips |
-| PWA Support | ✅ | ✅ | Manifest, icons (192/512/apple-touch), mobile-optimized |
-| Gamification | ✅ | ✅ | Points, levels, badges, achievements page |
-| Challenges | ✅ | ✅ | Join, leave, task completion, progress tracking |
-| Community Groups | ✅ | ✅ | Join/leave groups, membership display |
-| Course View Tracking | ✅ | ✅ | View counts with daily deduplication |
-| Certificate Verification | ✅ | ✅ | Public verification endpoint and page |
-| Instructor Dashboard | ✅ | ✅ | Earnings, revenue charts, transactions |
-
-### PARTIALLY IMPLEMENTED
-| Feature | Status | Remaining Work |
-|---------|--------|----------------|
-| Events System | UI + API | Calendar visualization |
-| Courses | UI + API | Video content viewer improvements |
-| Leaderboards | UI only | Needs live data integration |
-
----
-
-## Completed Audit Items (January 26, 2026)
-
-### Phase 1: Critical Fixes ✅
-- Fixed null checks for `emailAddresses[0]` in auth routes
-- Fixed `ensureVerifiedUser()` to handle missing emails gracefully
-- Added type guards to `.split()` operations in plots route
-
-### Phase 2: Code Quality ✅
-- Verified all files use `console.error` (not `console.log`)
-- Fixed 50+ TypeScript `any` types with proper interfaces
-- Replaced `alert()` with UI error states in enroll-button
-- Consolidated duplicate `my-plots-v2` API into `my-plots`
-- Replaced `<img>` with Next.js `Image` in header, chat, admin
-
-### Phase 3: Mobile Optimization ✅
-- PWA manifest updated with proper metadata
-- PWA icons generated (192x192, 512x512, apple-touch-icon, favicons)
-- Admin tables have `overflow-x-auto` for mobile scrolling
-- Admin sidebar has mobile hamburger menu
-- Image gallery uses responsive `grid-cols-2 md:grid-cols-4`
-- Touch targets increased to 44px minimum
-
-### Phase 4: Feature Completion ✅
-- Tool reviews: Fixed to use real API instead of sample data
-- Dispute filing UI: Created `/dashboard/disputes` page
-- Course view tracking: Created `CourseView` model and tracking API
-- Certificate verification: Verified endpoint exists
-- Challenge participation: Full tracking with task completion
-- Instructor earnings: Dashboard with charts and transactions
-- Marketplace fulfillment: Enhanced seller order management
-- Dashboard achievements: Full achievements page with badges/milestones
-- Seller dashboard: Uses real API instead of sample data
-- Community tips: Integrated with resources pages
-- Join group: Implemented in group-card with API call
-
----
-
-## Sample Data Status
-
-Most sample data has been replaced with database queries:
-
-| File | Status | Notes |
-|------|--------|-------|
-| `lib/sample-data.ts` | ✅ Replaced | Explore page uses API |
-| `lib/marketplace-data.ts` | ✅ Replaced | All pages use API |
-| `lib/tools-data.ts` | ✅ Replaced | Tools pages use API |
-| `lib/challenges-data.ts` | ✅ Replaced | Challenges use API |
-| `lib/events-data.ts` | ✅ Replaced | Events use API |
-| `lib/groups-data.ts` | ✅ Replaced | Groups use API |
-| `lib/resources-data.ts` | Uses static | Plant guides are static reference data |
-| `lib/course-data.ts` | Uses static | Course content is reference data |
-
----
-
-## Key Files & Architecture
-
-### API Structure (All Implemented)
-```
-app/api/
-├── auth/              # me, sync, update-username
-├── bookings/          # CRUD + lease generation + disputes
-├── certificates/      # verify endpoint
-├── challenges/        # CRUD + join + progress
-├── cloudinary/        # Upload signatures
-├── community-tips/    # User-submitted tips CRUD + voting
-├── courses/           # CRUD + view tracking
-├── disputes/          # User disputes list
-├── forum/             # Topics, replies, votes
-├── frost-dates/       # ZIP code frost date lookup
-├── groups/            # CRUD + membership
-├── instructor/        # Courses + earnings dashboard
-├── journals/          # Crop journal CRUD
-├── marketplace/       # Listings + orders + seller-stats
-├── messages/          # Conversations
-├── my-plots/          # User's plots
-├── notifications/     # User notifications
-├── payments/          # Stripe intents + refunds
-├── plots/             # CRUD + availability + blocked dates
-├── reviews/           # CRUD + voting (plots, tools, users)
-├── saved-searches/    # User saved searches
-├── stripe/            # Connect onboarding
-├── tool-rentals/      # Rental booking
-├── tools/             # Tool listings
-├── users/             # Profiles, follow, privacy, block, achievements
-├── verification/      # Phone + ID verification
-└── webhooks/          # Clerk + Stripe webhooks
-```
-
-### Admin Dashboard
-```
-app/admin/
-├── page.tsx           # Dashboard overview
-├── users/             # User management
-├── verifications/     # ID/phone verification review
-├── moderation/        # Content moderation queue
-├── community-tips/    # Approve/reject user tips
-└── settings/          # Admin settings
-```
-
-### Dashboard Pages
-```
-app/dashboard/
-├── page.tsx           # Main dashboard with stats
-├── achievements/      # Badges, milestones, streaks
-├── disputes/          # User's filed/received disputes
-├── orders/            # Buyer's marketplace orders
-└── sell/              # Seller dashboard + orders
-    ├── page.tsx       # Listings management
-    ├── new/           # Create listing
-    └── orders/        # Order fulfillment
-```
+- `app/api/` — 48+ REST API route directories (serverless functions)
+- `app/admin/` — Admin dashboard (users, verifications, moderation, tips)
+- `app/dashboard/` — User dashboard (stats, achievements, disputes, seller tools)
+- `app/explore/` — Plot discovery with Mapbox map
+- `app/marketplace/` — Produce listings and orders
+- `app/tools/` — Equipment rental listings
+- `app/knowledge/` — Courses and resources (static reference data)
 
 ### Core Libraries
-- `lib/stripe.ts` - Stripe SDK wrapper (customers, payments, Connect, refunds)
-- `lib/cloudinary.ts` - Upload signatures and deletion
-- `lib/email.ts` - SendGrid with 8 templates
-- `lib/prisma.ts` - Database client
-- `lib/theme-context.tsx` - Dark mode state
-- `lib/ensure-user.ts` - Auth helper with auto-sync + null checks
 
-### Key Components
-- `components/ui/image-upload.tsx` - Drag-drop photo upload
-- `components/payments/checkout-form.tsx` - Stripe Elements form
-- `components/map/map.tsx` - Mapbox plot display
-- `components/layout/header.tsx` - Main nav with search
-- `components/layout/footer.tsx` - Site footer
-- `components/resources/community-tips-section.tsx` - Tips display with voting
-- `components/resources/recent-community-tips.tsx` - Tips on resources page
-- `components/resources/plant-community-tips.tsx` - Tips on plant detail
-- `components/dashboard/badge-showcase.tsx` - Badge display
-- `components/dashboard/level-progress.tsx` - Level/XP progress bar
+- `lib/prisma.ts` — Singleton Prisma client (dev logging enabled)
+- `lib/ensure-user.ts` — Auth helpers: `ensureUser()` (auto-syncs Clerk user to DB), `ensureVerifiedUser()` (throws `EmailNotVerifiedError` if unverified)
+- `lib/stripe.ts` — Stripe SDK wrapper: customer creation, payment intents, Connect onboarding, refunds
+- `lib/email.ts` — SendGrid with 8 HTML email templates
+- `lib/cloudinary.ts` — Signed upload URLs and asset deletion
+- `lib/theme-context.tsx` — Dark mode state (localStorage-persisted, class-based)
 
----
+### Database
 
-## Environment Variables
+PostgreSQL with Prisma ORM. Schema is in `prisma/schema.prisma` (~2000 lines, 50+ models). Key models: User (6 roles), Plot, Booking, BookingDispute, Tool, ToolRental, ProduceListing, Order, Course, Challenge, CommunityGroup, Review, ForumTopic, Message, Notification, Badge.
 
-```env
-# Database
-DATABASE_URL=postgresql://...
+User roles: `LANDOWNER`, `RENTER`, `BUYER`, `SELLER`, `ORGANIZATION`, `ADMIN`.
 
-# Clerk Auth
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-CLERK_WEBHOOK_SECRET=
+### Auth Flow
 
-# Stripe (CONFIGURED)
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+Clerk handles authentication. On first API call, `ensureUser()` auto-syncs the Clerk user to the local DB (upsert by clerkId). Always check for null return. Sensitive endpoints use `ensureVerifiedUser()` which requires email verification.
 
-# Cloudinary (CONFIGURED)
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
+### Payment Flow
 
-# Mapbox
-NEXT_PUBLIC_MAPBOX_TOKEN=
-
-# SendGrid (CONFIGURED)
-SENDGRID_API_KEY=
-EMAIL_FROM=
-
-# Twilio (CONFIGURED)
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_PHONE_NUMBER=
-```
-
----
+Stripe Checkout for payments. Stripe Connect for seller/landowner payouts (marketplace split). Webhooks at `/api/webhooks/stripe`. Rate limiting on payment endpoints (10/min per client).
 
 ## Coding Conventions
 
-### Dark Mode Classes
-```tsx
-// Backgrounds
-className="bg-white dark:bg-gray-800"
-className="bg-gray-50 dark:bg-gray-900"
+### API Route Pattern
 
-// Text
-className="text-gray-900 dark:text-white"
-className="text-gray-600 dark:text-gray-300"
-
-// Borders
-className="border-gray-200 dark:border-gray-700"
-
-// Inputs
-className="dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-```
-
-### API Patterns
 ```typescript
-// Auth check with auto-sync
-const user = await ensureUser()
-if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+import { ensureUser } from '@/lib/ensure-user'
+import { NextResponse } from 'next/server'
 
-// Verified user required
-const user = await ensureVerifiedUser()
-
-// Response
-return NextResponse.json(data)
+export async function GET() {
+  const user = await ensureUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // ... query with prisma
+  return NextResponse.json(data)
+}
 ```
 
----
+- Validate input with Zod schemas via `validateRequest()`
+- Use `console.error()` for logging, never `console.log()`
+- Use Next.js `Image` component, never `<img>`
 
-## Remaining Nice-to-Have Features
+### Dark Mode
 
-These are lower priority items that could be added later:
+Class-based toggle with hydration script in layout. All UI must include dark variants:
 
-| Feature | Notes |
-|---------|-------|
-| Event calendar visualization | Currently list view only |
-| Course video viewer improvements | Basic embed only |
-| Leaderboard live data | Currently placeholder |
-| Soil test tracking UI | Schema exists |
-| Weather API integration | For journal entries |
-| PlotBlockedDate UI | Date blocking calendar |
-| SavedSearch button | On explore page |
+```
+bg-white dark:bg-gray-800        bg-gray-50 dark:bg-gray-900
+text-gray-900 dark:text-white    text-gray-600 dark:text-gray-300
+border-gray-200 dark:border-gray-700
+```
 
----
+### Imports
 
-## Git Info
+Path alias `@/*` maps to project root. Use `@/lib/...`, `@/components/...`, etc.
 
-- Main branch: `main`
-- PR branch: `claude/gamification-growshare-o1vIf`
+### Static vs API Data
 
----
+- `lib/resources-data.ts` and `lib/course-data.ts` contain static reference data (plant guides, course content) — this is intentional
+- All other data files (`lib/*-data.ts`) have been migrated to use API endpoints; they now export only type aliases and helper functions (no sample data)
 
-## Recent Work
+## External Services
 
-### February 2, 2026 - App Store Preparation
-- **Native iOS app:** Capacitor 7 configured, Xcode project ready
-- **App icons:** Generated all required iOS sizes from 1024x1024 base
-- **Sentry:** Error monitoring integrated for production
-- **Security hardening:** Final polish for launch
-- **Status:** Awaiting Apple Developer account enrollment ($99/year)
+| Service | Config | Webhook |
+|---------|--------|---------|
+| Clerk | `CLERK_SECRET_KEY` | `/api/webhooks/clerk` |
+| Stripe | `STRIPE_SECRET_KEY` | `/api/webhooks/stripe` |
+| Cloudinary | `CLOUDINARY_API_KEY` | — |
+| SendGrid | `SENDGRID_API_KEY` | — |
+| Twilio | `TWILIO_AUTH_TOKEN` | — |
+| Mapbox | `NEXT_PUBLIC_MAPBOX_TOKEN` | — |
+| Sentry | `SENTRY_DSN` | — |
 
-### January 26, 2026 - Comprehensive Codebase Audit
-- **Critical fixes:** Null checks for email arrays, type guards for string operations
-- **Code quality:** Fixed 50+ `any` types, replaced alerts with UI states
-- **Mobile:** PWA icons, touch targets, responsive tables
-- **Features completed:**
-  - Dispute filing UI
-  - Course view tracking
-  - Challenge participation
-  - Instructor earnings dashboard
-  - Marketplace order fulfillment
-  - Dashboard achievements page
-  - Tool reviews (real API)
-  - Seller dashboard (real API)
-  - Community tips integration
-  - Join group functionality
+See `.env.example` for the full list of required environment variables.
+
+## Testing
+
+Tests live in `tests/` using Vitest with jsdom environment. Test files: `tests/lib/` (api-error, rate-limit, sanitize, stripe, utils, validations). `tests/api/` and `tests/components/` directories exist but are empty. Testing libraries: `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`.
+
+## Native App (Capacitor)
+
+App ID: `co.growshare.app`. Web assets in `out/` directory. Production URL: `https://growshare.co`. iOS project in `ios/`. Run `npm run cap:sync` after any web build before opening Xcode.

@@ -21,6 +21,7 @@ export function HarvestModal({ isOpen, onClose, cropName, entryId }: HarvestModa
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [successMessage, setSuccessMessage] = useState('')
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -54,24 +55,41 @@ export function HarvestModal({ isOpen, onClose, cropName, entryId }: HarvestModa
 
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch(`/api/journal/${entryId}/harvests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          harvestDate: formData.harvestDate,
+          quantity: formData.amount,
+          quality: formData.quality,
+          notes: formData.notes || null,
+        }),
+      })
 
-    // TODO: In production, this would update the database
+      if (!response.ok) {
+        const data = await response.json()
+        setErrors({ submit: data.error || 'Failed to record harvest' })
+        return
+      }
 
-    // Close modal and reset
-    setIsSubmitting(false)
-    onClose()
-    setFormData({
-      harvestDate: new Date().toISOString().split('T')[0],
-      amount: '',
-      unit: 'lbs',
-      quality: 'good',
-      notes: '',
-    })
-
-    // Show success message (in production, this would be a toast notification)
-    alert('🎉 Harvest recorded successfully! You earned 150 points for your first harvest.')
+      setSuccessMessage('Harvest recorded! You earned 150 points.')
+      setTimeout(() => {
+        onClose()
+        setSuccessMessage('')
+        setFormData({
+          harvestDate: new Date().toISOString().split('T')[0],
+          amount: '',
+          unit: 'lbs',
+          quality: 'good',
+          notes: '',
+        })
+      }, 1500)
+    } catch {
+      setErrors({ submit: 'An unexpected error occurred. Please try again.' })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!isOpen) return null
@@ -221,6 +239,17 @@ export function HarvestModal({ isOpen, onClose, cropName, entryId }: HarvestModa
               <li>• Diverse Grower (200 pts for harvesting 5 different crops)</li>
             </ul>
           </div>
+
+          {errors.submit && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+              {errors.submit}
+            </p>
+          )}
+          {successMessage && (
+            <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+              {successMessage}
+            </p>
+          )}
 
           {/* Form Actions */}
           <div className="flex items-center justify-end gap-4 pt-4 border-t">

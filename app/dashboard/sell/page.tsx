@@ -39,6 +39,7 @@ export default function SellDashboardPage() {
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState<'overview' | 'products'>('overview')
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string>('')
 
   useEffect(() => {
     fetchData()
@@ -103,7 +104,7 @@ export default function SellDashboardPage() {
         })
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete listing')
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete listing')
     } finally {
       setDeleteLoading(null)
     }
@@ -306,6 +307,9 @@ export default function SellDashboardPage() {
           {/* Products View */}
           {view === 'products' && (
             <div className="bg-white dark:bg-gray-800 rounded-xl border dark:border-gray-700">
+              {deleteError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mx-6 mt-4">{deleteError}</p>
+              )}
               {listings.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">

@@ -40,6 +40,7 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<CertificateData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
   const certificateRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -106,7 +107,8 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
     } else {
       // Fallback: copy link
       navigator.clipboard.writeText(window.location.href)
-      alert('Link copied to clipboard!')
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     }
   }
 
@@ -178,7 +180,7 @@ export default function CertificatePage({ params }: { params: Promise<{ courseId
                 className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium transition-colors"
               >
                 <Share2 className="h-4 w-4" />
-                Share
+                {copied ? 'Copied!' : 'Share'}
               </button>
               <button
                 onClick={handleDownload}

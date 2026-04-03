@@ -62,6 +62,8 @@ export default function EditPlotPage({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [formError, setFormError] = useState<string>('')
+  const [formSuccess, setFormSuccess] = useState<string>('')
 
   const {
     register,
@@ -90,7 +92,7 @@ export default function EditPlotPage({
     try {
       const response = await fetch(`/api/plots/${plotId}`)
       if (!response.ok) {
-        alert('Failed to load plot')
+        setFormError('Failed to load plot')
         router.push('/my-plots')
         return
       }
@@ -119,7 +121,7 @@ export default function EditPlotPage({
       setImageUrls(plot.images || [])
     } catch (error) {
       console.error('Error loading plot:', error)
-      alert('Failed to load plot')
+      setFormError('Failed to load plot')
       router.push('/my-plots')
     } finally {
       setIsLoading(false)
@@ -163,6 +165,8 @@ export default function EditPlotPage({
 
   const onSubmit = async (data: PlotFormData) => {
     setIsSubmitting(true)
+    setFormError('')
+    setFormSuccess('')
     try {
       const response = await fetch(`/api/plots/${plotId}`, {
         method: 'PATCH',
@@ -177,15 +181,15 @@ export default function EditPlotPage({
 
       if (!response.ok) {
         const error = await response.json()
-        alert(error.error || 'Failed to update plot')
+        setFormError(error.error || 'Failed to update plot')
         return
       }
 
-      alert('Plot updated successfully!')
-      router.push('/my-plots')
+      setFormSuccess('Plot updated successfully!')
+      setTimeout(() => router.push('/my-plots'), 1500)
     } catch (error) {
       console.error('Error updating plot:', error)
-      alert('Failed to update plot')
+      setFormError('Failed to update plot')
     } finally {
       setIsSubmitting(false)
     }
@@ -621,6 +625,12 @@ export default function EditPlotPage({
             </div>
 
             {/* Submit */}
+            {formError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{formError}</p>
+            )}
+            {formSuccess && (
+              <p className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-3">{formSuccess}</p>
+            )}
             <div className="flex gap-4">
               <button
                 type="submit"

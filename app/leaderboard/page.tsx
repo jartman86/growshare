@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { getLevelFromPoints } from '@/lib/profile-data'
+import { getLevelInfo } from '@/lib/profile-data'
 import { Trophy, TrendingUp, Award, Medal, Crown, Loader2 } from 'lucide-react'
 
 interface LeaderboardUser {
@@ -172,7 +172,7 @@ export default function LeaderboardPage() {
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
                   {topThree.map((user) => {
                     const rank = user.rank
-                    const level = getLevelFromPoints(user.totalPoints)
+                    const levelInfo = getLevelInfo(user.totalPoints)
 
                     return (
                       <Link
@@ -221,9 +221,9 @@ export default function LeaderboardPage() {
 
                               {/* Level */}
                               <div className="flex items-center justify-center gap-2 mb-3">
-                                <span className="text-2xl">{level.badge}</span>
+                                <span className="text-2xl">{levelInfo.badge}</span>
                                 <span className="text-sm font-medium text-gray-700">
-                                  Level {level.level}
+                                  Level {levelInfo.level} - {levelInfo.name}
                                 </span>
                               </div>
 
@@ -286,7 +286,7 @@ export default function LeaderboardPage() {
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {rest.map((user) => {
-                          const level = getLevelFromPoints(user.totalPoints)
+                          const levelInfo = getLevelInfo(user.totalPoints)
 
                           return (
                             <tr key={user.id} className="hover:bg-gray-50">
@@ -311,10 +311,10 @@ export default function LeaderboardPage() {
                               </td>
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xl">{level.badge}</span>
+                                  <span className="text-xl">{levelInfo.badge}</span>
                                   <div>
-                                    <p className="font-medium text-gray-900">{level.level}</p>
-                                    <p className="text-xs text-gray-600">{level.name}</p>
+                                    <p className="font-medium text-gray-900">Level {levelInfo.level}</p>
+                                    <p className="text-xs text-gray-600">{levelInfo.name}</p>
                                   </div>
                                 </div>
                               </td>

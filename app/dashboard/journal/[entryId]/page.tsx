@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { auth } from '@clerk/nextjs/server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { SAMPLE_JOURNAL_ENTRIES } from '@/lib/journal-data'
+import { prisma } from '@/lib/prisma'
 import { EntryDetailClient } from '@/components/journal/entry-detail-client'
 import {
   ArrowLeft,
@@ -23,11 +24,60 @@ export default async function JournalEntryDetailPage({
 }: {
   params: Promise<{ entryId: string }>
 }) {
-  const { entryId } = await params
-  const entry = SAMPLE_JOURNAL_ENTRIES.find((e) => e.id === entryId)
-
-  if (!entry) {
+  const { userId } = await auth()
+  if (!userId) {
     notFound()
+  }
+
+  const { entryId } = await params
+
+  const dbUser = await prisma.user.findUnique({
+    where: { clerkId: userId },
+    select: { id: true },
+  })
+
+  if (!dbUser) {
+    notFound()
+  }
+
+  const journal = await prisma.cropJournal.findUnique({
+    where: { id: entryId },
+    include: {
+      harvests: {
+        orderBy: { harvestDate: 'desc' },
+        take: 1,
+      },
+    },
+  })
+
+  if (!journal || journal.userId !== dbUser.id) {
+    notFound()
+  }
+
+  const latestHarvest = journal.harvests[0]
+
+  const entry = {
+    id: journal.id,
+    cropName: journal.cropName,
+    cropType: journal.variety || 'General',
+    growthStage: journal.stage,
+    status: journal.stage as string,
+    plantingDate: journal.plantedDate || journal.createdAt,
+    expectedHarvestDate: journal.expectedHarvest,
+    actualHarvestDate: latestHarvest?.harvestDate ?? null,
+    notes: journal.content || '',
+    images: journal.images || [],
+    weatherConditions: null as string | null,
+    soilCondition: null as string | null,
+    wateringSchedule: null as string | null,
+    fertilizer: null as string | null,
+    pestIssues: null as string | null,
+    harvestAmount: latestHarvest?.quantity ?? undefined,
+    harvestUnit: 'lbs' as string | undefined,
+    plotId: journal.id,
+    plotName: journal.title,
+    createdAt: journal.createdAt,
+    updatedAt: journal.updatedAt,
   }
 
   const formatDate = (date: Date) => {
@@ -51,7 +101,7 @@ export default async function JournalEntryDetailPage({
     (new Date().getTime() - entry.plantingDate.getTime()) / (1000 * 60 * 60 * 24)
   )
 
-  const statusConfig = {
+  const statusConfig: Record<string, { label: string; color: string; icon: typeof Calendar }> = {
     PLANNING: {
       label: 'Planning',
       color: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -79,7 +129,7 @@ export default async function JournalEntryDetailPage({
     },
   }
 
-  const config = statusConfig[entry.status]
+  const config = statusConfig[entry.status] || statusConfig.PLANNING
   const StatusIcon = config.icon
 
   return (
@@ -140,7 +190,7 @@ export default async function JournalEntryDetailPage({
               {entry.images.length > 0 && (
                 <div className="bg-white rounded-xl border overflow-hidden">
                   <div className="grid grid-cols-2 gap-2 p-2">
-                    {entry.images.map((image, index) => (
+                    {entry.images.map((image: string, index: number) => (
                       <div
                         key={index}
                         className={`relative ${entry.images.length === 1 ? 'col-span-2' : ''} ${
@@ -230,7 +280,7 @@ export default async function JournalEntryDetailPage({
               {entry.harvestAmount && (
                 <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-xl border-2 border-orange-200 p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">
-                    🎉 Harvest Results
+                    Harvest Results
                   </h2>
                   <div className="grid grid-cols-2 gap-4">
                     <div>

@@ -55,6 +55,8 @@ export default function CreatePlotPage() {
   const { isSignedIn, isLoaded } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [formError, setFormError] = useState<string>('')
+  const [formSuccess, setFormSuccess] = useState<string>('')
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -129,6 +131,8 @@ export default function CreatePlotPage() {
 
   const onSubmit = async (data: PlotFormData) => {
     setIsSubmitting(true)
+    setFormError('')
+    setFormSuccess('')
     try {
       const response = await fetch('/api/plots', {
         method: 'POST',
@@ -143,16 +147,15 @@ export default function CreatePlotPage() {
 
       if (!response.ok) {
         const error = await response.json()
-        alert(error.error || 'Failed to create plot')
+        setFormError(error.error || 'Failed to create plot')
         return
       }
 
-      const plot = await response.json()
-      alert('Plot created successfully!')
-      router.push('/my-plots')
+      setFormSuccess('Plot created successfully!')
+      setTimeout(() => router.push('/my-plots'), 1500)
     } catch (error) {
       console.error('Error creating plot:', error)
-      alert('Failed to create plot')
+      setFormError('Failed to create plot')
     } finally {
       setIsSubmitting(false)
     }
@@ -573,6 +576,12 @@ export default function CreatePlotPage() {
             </div>
 
             {/* Submit */}
+            {formError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{formError}</p>
+            )}
+            {formSuccess && (
+              <p className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-3">{formSuccess}</p>
+            )}
             <div className="flex gap-4">
               <button
                 type="submit"

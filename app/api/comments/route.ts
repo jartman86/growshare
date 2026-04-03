@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
-import DOMPurify from 'isomorphic-dompurify'
+import { sanitizeHtml } from '@/lib/sanitize'
 import { rateLimit, getClientIdentifier, rateLimitResponse, RATE_LIMITS } from '@/lib/rate-limit'
 
 // Get comments for a post
@@ -98,10 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sanitize content to prevent XSS
-    const sanitizedContent = DOMPurify.sanitize(content, {
-      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br'],
-      ALLOWED_ATTR: ['href'],
-    })
+    const sanitizedContent = sanitizeHtml(content, 5000)
 
     if (sanitizedContent.length > 5000) {
       return NextResponse.json(

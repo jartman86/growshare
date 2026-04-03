@@ -59,6 +59,7 @@ export default function AdminVerificationsPage() {
   const [selectedRequest, setSelectedRequest] = useState<VerificationRequest | null>(null)
   const [actionNotes, setActionNotes] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [processError, setProcessError] = useState<string>('')
 
   useEffect(() => {
     fetchRequests()
@@ -112,7 +113,7 @@ export default function AdminVerificationsPage() {
       setActionNotes('')
     } catch (error) {
       console.error('Error processing verification:', error)
-      alert(error instanceof Error ? error.message : 'Failed to process verification')
+      setProcessError(error instanceof Error ? error.message : 'Failed to process verification')
     } finally {
       setIsProcessing(false)
     }
@@ -455,6 +456,10 @@ export default function AdminVerificationsPage() {
                     rows={3}
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
                   />
+
+                  {processError && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3 mt-2">{processError}</p>
+                  )}
 
                   <div className="flex gap-3 mt-4">
                     <button

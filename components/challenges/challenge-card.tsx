@@ -147,7 +147,6 @@ export function ChallengeCard({
           <button
             onClick={(e) => {
               e.preventDefault()
-              alert(`Joining challenge: ${challenge.title}`)
             }}
             className={`w-full py-2 rounded-lg font-semibold transition-colors ${
               isUserParticipating

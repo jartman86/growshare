@@ -41,6 +41,7 @@ export function RecentCommunityTips({ limit = 6, title = 'Community Tips' }: Rec
   const [tips, setTips] = useState<CommunityTip[]>([])
   const [loading, setLoading] = useState(true)
   const [votingTipId, setVotingTipId] = useState<string | null>(null)
+  const [signInPrompt, setSignInPrompt] = useState(false)
 
   const fetchTips = async () => {
     try {
@@ -62,7 +63,8 @@ export function RecentCommunityTips({ limit = 6, title = 'Community Tips' }: Rec
 
   const handleVote = async (tipId: string, value: number) => {
     if (!isSignedIn) {
-      alert('Please sign in to vote')
+      setSignInPrompt(true)
+      setTimeout(() => setSignInPrompt(false), 3000)
       return
     }
 
@@ -161,6 +163,9 @@ export function RecentCommunityTips({ limit = 6, title = 'Community Tips' }: Rec
 
   return (
     <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl border-2 border-[#aed581]/30 dark:border-gray-700 p-8 shadow-md">
+      {signInPrompt && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 dark:bg-red-900/30 dark:border-red-700 dark:text-red-400 rounded-lg px-4 py-3 mb-4">Please sign in to vote</p>
+      )}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Lightbulb className="h-6 w-6 text-amber-500" />

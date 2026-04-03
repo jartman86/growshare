@@ -57,6 +57,7 @@ function AdminUsersContent() {
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string>('')
 
   // Filters
   const [search, setSearch] = useState(searchParams.get('search') || '')
@@ -116,6 +117,7 @@ function AdminUsersContent() {
     role?: string
   ) => {
     setActionLoading(userId)
+    setActionError('')
     setOpenMenu(null)
 
     try {
@@ -133,7 +135,7 @@ function AdminUsersContent() {
       // Refresh the list
       fetchUsers()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Action failed')
+      setActionError(err instanceof Error ? err.message : 'Action failed')
     } finally {
       setActionLoading(null)
     }
@@ -221,6 +223,9 @@ function AdminUsersContent() {
           <AlertCircle className="h-5 w-5 text-red-600" />
           <p className="text-red-800">{error}</p>
         </div>
+      )}
+      {actionError && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3">{actionError}</p>
       )}
 
       {/* Users Table */}
