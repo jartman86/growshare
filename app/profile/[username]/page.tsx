@@ -135,7 +135,7 @@ export default async function ProfilePage({
         <div className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
           {/* Profile Header Card */}
           <Card className="relative z-10 -mt-20">
-            <CardContent className="p-8">
+            <CardContent className="p-4 sm:p-8">
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Avatar */}
                 <div className="flex-shrink-0 -mt-16 md:-mt-0">
@@ -155,13 +155,13 @@ export default async function ProfilePage({
                 </div>
 
                 <div className="flex-1">
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3">
                     <div>
                       <h1 className="text-3xl font-bold text-[#2d5016] mb-1">
                         {user.firstName} {user.lastName}
                       </h1>
                       <p className="text-[#4a3f35]">@{user.username}</p>
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
                         {user.role.map((role: any) => (
                           <span
                             key={role}
@@ -184,7 +184,7 @@ export default async function ProfilePage({
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap sm:flex-nowrap sm:flex-shrink-0">
                       {isOwnProfile ? (
                         <>
                           <Link
