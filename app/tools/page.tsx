@@ -131,8 +131,8 @@ export default function ToolsPage() {
         <div className="text-white relative overflow-hidden h-[400px]">
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
           <Image
-            src="https://images.unsplash.com/photo-1592419044706-39796d40f98c?w=1920&q=80"
-            alt="Gardening tools and equipment in use"
+            src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80"
+            alt="Tractor and farming equipment in a field"
             fill
             className="object-cover"
           />
