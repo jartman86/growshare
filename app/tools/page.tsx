@@ -94,7 +94,7 @@ export default function ToolsPage() {
         throw new Error('Failed to fetch tools')
       }
       const data = await response.json()
-      setTools(data)
+      setTools(Array.isArray(data) ? data : data.tools || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tools')
     } finally {
