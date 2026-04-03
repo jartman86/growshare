@@ -131,7 +131,7 @@ export default function ToolsPage() {
         <div className="text-white relative overflow-hidden h-[400px]">
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60 z-10"></div>
           <Image
-            src="https://images.unsplash.com/photo-1768744781410-757053db2ab0?w=1920&q=80"
+            src="https://plus.unsplash.com/premium_photo-1680322756568-1f2bd881337d?w=1920&q=80"
             alt="Red tractor parked next to a green house"
             fill
             className="object-cover"
